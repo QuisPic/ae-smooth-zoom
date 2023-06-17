@@ -10,14 +10,14 @@ const RAW_RUNTIME_STATE =
   ],\
   "dependencyTreeRoots": [\
     {\
-      "name": "smooth-zoom",\
+      "name": "ae-smooth-zoom",\
       "reference": "workspace:."\
     }\
   ],\
   "enableTopLevelFallback": true,\
   "ignorePatternData": "(^(?:\\\\.yarn\\\\/sdks(?:\\\\/(?!\\\\.{1,2}(?:\\\\/|$))(?:(?:(?!(?:^|\\\\/)\\\\.{1,2}(?:\\\\/|$)).)*?)|$))$)",\
   "fallbackExclusionList": [\
-    ["smooth-zoom", ["workspace:."]]\
+    ["ae-smooth-zoom", ["workspace:."]]\
   ],\
   "fallbackPool": [\
   ],\
@@ -28,7 +28,7 @@ const RAW_RUNTIME_STATE =
         "packageDependencies": [\
           ["eslint", "npm:8.42.0"],\
           ["eslint-config-aftereffects", "npm:1.1.0"],\
-          ["eslint-config-prettier", "virtual:a75f4a456394d86d1b60e869fdecabac7d6597f8f61c0619cceed7a66c3be5c04dc5bd588dbabaeb162052655baff580002b490e896f45a53090913b66b11fcd#npm:8.8.0"],\
+          ["eslint-config-prettier", "virtual:3c1dbc469935dec546828fd76fdba482481d43848ce157029be5509deb45e8fddb0cf73ca8bc0ed03d19df1d7d0f17965553d33c6322306fbbfae7727abcef35#npm:8.8.0"],\
           ["rollup", "npm:3.25.1"]\
         ],\
         "linkType": "SOFT"\
@@ -244,6 +244,19 @@ const RAW_RUNTIME_STATE =
           "acorn"\
         ],\
         "linkType": "HARD"\
+      }]\
+    ]],\
+    ["ae-smooth-zoom", [\
+      ["workspace:.", {\
+        "packageLocation": "./",\
+        "packageDependencies": [\
+          ["ae-smooth-zoom", "workspace:."],\
+          ["eslint", "npm:8.42.0"],\
+          ["eslint-config-aftereffects", "npm:1.1.0"],\
+          ["eslint-config-prettier", "virtual:3c1dbc469935dec546828fd76fdba482481d43848ce157029be5509deb45e8fddb0cf73ca8bc0ed03d19df1d7d0f17965553d33c6322306fbbfae7727abcef35#npm:8.8.0"],\
+          ["rollup", "npm:3.25.1"]\
+        ],\
+        "linkType": "SOFT"\
       }]\
     ]],\
     ["agent-base", [\
@@ -686,10 +699,10 @@ const RAW_RUNTIME_STATE =
         ],\
         "linkType": "SOFT"\
       }],\
-      ["virtual:a75f4a456394d86d1b60e869fdecabac7d6597f8f61c0619cceed7a66c3be5c04dc5bd588dbabaeb162052655baff580002b490e896f45a53090913b66b11fcd#npm:8.8.0", {\
-        "packageLocation": "./.yarn/__virtual__/eslint-config-prettier-virtual-03e9b3f8e9/6/C:/Users/denis/AppData/Local/Yarn/Berry/cache/eslint-config-prettier-npm-8.8.0-f1bf18b9b1-9.zip/node_modules/eslint-config-prettier/",\
+      ["virtual:3c1dbc469935dec546828fd76fdba482481d43848ce157029be5509deb45e8fddb0cf73ca8bc0ed03d19df1d7d0f17965553d33c6322306fbbfae7727abcef35#npm:8.8.0", {\
+        "packageLocation": "./.yarn/__virtual__/eslint-config-prettier-virtual-dc7254698e/6/C:/Users/denis/AppData/Local/Yarn/Berry/cache/eslint-config-prettier-npm-8.8.0-f1bf18b9b1-9.zip/node_modules/eslint-config-prettier/",\
         "packageDependencies": [\
-          ["eslint-config-prettier", "virtual:a75f4a456394d86d1b60e869fdecabac7d6597f8f61c0619cceed7a66c3be5c04dc5bd588dbabaeb162052655baff580002b490e896f45a53090913b66b11fcd#npm:8.8.0"],\
+          ["eslint-config-prettier", "virtual:3c1dbc469935dec546828fd76fdba482481d43848ce157029be5509deb45e8fddb0cf73ca8bc0ed03d19df1d7d0f17965553d33c6322306fbbfae7727abcef35#npm:8.8.0"],\
           ["@types/eslint", null],\
           ["eslint", "npm:8.42.0"]\
         ],\
@@ -1777,19 +1790,6 @@ const RAW_RUNTIME_STATE =
           ["smart-buffer", "npm:4.2.0"]\
         ],\
         "linkType": "HARD"\
-      }]\
-    ]],\
-    ["smooth-zoom", [\
-      ["workspace:.", {\
-        "packageLocation": "./",\
-        "packageDependencies": [\
-          ["smooth-zoom", "workspace:."],\
-          ["eslint", "npm:8.42.0"],\
-          ["eslint-config-aftereffects", "npm:1.1.0"],\
-          ["eslint-config-prettier", "virtual:a75f4a456394d86d1b60e869fdecabac7d6597f8f61c0619cceed7a66c3be5c04dc5bd588dbabaeb162052655baff580002b490e896f45a53090913b66b11fcd#npm:8.8.0"],\
-          ["rollup", "npm:3.25.1"]\
-        ],\
-        "linkType": "SOFT"\
       }]\
     ]],\
     ["socks", [\

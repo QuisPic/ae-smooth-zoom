@@ -161,6 +161,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ae-smooth-zoom@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "ae-smooth-zoom@workspace:."
+  dependencies:
+    eslint: "npm:^8.42.0"
+    eslint-config-aftereffects: "npm:^1.1.0"
+    eslint-config-prettier: "npm:^8.8.0"
+    rollup: "npm:^3.25.1"
+  languageName: unknown
+  linkType: soft
+
 "agent-base@npm:6, agent-base@npm:^6.0.2":
   version: 6.0.2
   resolution: "agent-base@npm:6.0.2"
@@ -1515,17 +1526,6 @@ __metadata:
   checksum: 898a5ce4651108164625916aa54b6f7c13e86279a31dd321737d27c4b795cfaaeb1c30417f8809029d80d20710d8a5045998afd35e0f1080b32648f5670aa99b
   languageName: node
   linkType: hard
-
-"smooth-zoom@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "smooth-zoom@workspace:."
-  dependencies:
-    eslint: "npm:^8.42.0"
-    eslint-config-aftereffects: "npm:^1.1.0"
-    eslint-config-prettier: "npm:^8.8.0"
-    rollup: "npm:^3.25.1"
-  languageName: unknown
-  linkType: soft
 
 "socks-proxy-agent@npm:^7.0.0":
   version: 7.0.0
