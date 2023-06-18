@@ -13,11 +13,50 @@ app.activeViewer.views[0].options.zoom = someValue;
 Save this command in a text file and replace `someValue` with any number. In Ae go to "File -> Scripts -> Run Script File..." and select the text file you just saved. This should run the script.
 
 ## Build
-With npm:
+You'll need Node.js installed on your computer. After Node.js is installed, open the repo folder in the Terminal and run:
+
 ```
 npm install
+npm run build
 ```
-With yarn:
+Or, if you have Yarn installed:
 ```
 yarn install
+yarn run build
 ```
+The script should be in the `./dist` folder.
+
+## Run the script
+Open After Effects, go to "File -> Scripts -> Run Script File..." and open the script file. A new Script UI window should pop up.
+
+## Install as a dockable panel
+### Intall via After Effects
+Open After Effects, go to "File -> Scripts -> Install Script UI Panel..." and open the script file.
+
+### Install Manually
+Copy the script file to:
+```
+Win: C:\Program Files\Adobe\Adobe After Effects (version)\Support Files\Scripts\ScriptUI Panels
+```
+```
+Mac: /Applications/Adobe After Effects (version)/Scripts/ScriptUI Panels
+```
+
+Restart After Effects and you should be able to find the script under the Window menu.
+
+## Usage
+The script UI has many similarities with the After Effects UI.
+#### Number
+- Click once on the blue number to enter the value manually.
+- Click and drag the blue number to chage the zoom level.
+- Hold `shift` while dragging to change the value faster.
+- Hold `ctrl / cmd` while dragging to change the value slower.
+
+#### Slider
+- Drag the slider to change zoom.
+- Click on the buttons on the sides of the slider to increment or decrement zoom by 1.
+- Hold `shift` and click the buttons to change the zoom by 10.
+- Hold `ctrl / cmd` and click the buttons to change the zoom by 0.1.
+
+#### Settings
+Click on the small 3-dots button on the right side of the script window to display the settings menu. Here you can hide/show the slider and change its min and max values.
