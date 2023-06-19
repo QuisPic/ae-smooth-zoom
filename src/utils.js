@@ -16,7 +16,9 @@ export function checkOs() {
 
 export function makeDivisibleBy(val, divisor, goUp) {
   if (val % divisor) {
-    if (Math.abs(divisor) < 1) {
+    divisor = divisor < 0 ? Math.abs(divisor) : divisor;
+
+    if (divisor < 1) {
       divisor = 1 / divisor;
 
       return goUp
