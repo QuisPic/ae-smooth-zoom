@@ -1,8 +1,8 @@
 import MenuWindow from "./menu-window";
 import NumberValue from "./number-value";
 import Slider from "./slider";
-import { DEFAULT_SETTINGS, SETTINGS_SECTION_NAME } from "../constants";
-import { openURL } from "../utils";
+import { DEFAULT_SETTINGS, OS, SETTINGS_SECTION_NAME } from "../constants";
+import { checkOs, openURL } from "../utils";
 
 function Settings(zoom, parentEl) {
   this.element = parentEl.add(
@@ -44,9 +44,11 @@ function Settings(zoom, parentEl) {
       var onScrubEndFn = function () {
         menuWindow.element.shouldCloseOnDeactivate = true;
 
-        // make the window active
-        menuWindow.element.hide();
-        menuWindow.element.show();
+        if (checkOs() === OS.WIN) {
+          // make the window active
+          menuWindow.element.hide();
+          menuWindow.element.show();
+        }
       };
 
       // we pass this empty function because there is a strage bug

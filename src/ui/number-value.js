@@ -164,15 +164,19 @@ function NumberValue(
 
       grUnderline.show();
       screenWin.closeWindow = function () {
-        this.close();
+        screenWin.close();
         grUnderline.hide();
+
+        if (typeof onScrubEndFn === "function") {
+          onScrubEndFn();
+        }
       };
 
       var screenGr = screenWin.add("group");
       screenGr.lastMousePosition = mouseDownPosition;
 
       screenGr.addEventListener("mousemove", function (event) {
-        if (event.button === 0) {
+        if (event.eventPhase === "target" && event.button === 0) {
           var mouseDistance = Math.floor(
             event.screenX - this.lastMousePosition[0],
           );
@@ -201,23 +205,11 @@ function NumberValue(
             thisNumberValue.onChange();
             this.lastMousePosition = [event.screenX, event.screenY];
           }
-        } else if (screenWin) {
-          screenWin.closeWindow();
-
-          if (typeof onScrubEndFn === "function") {
-            onScrubEndFn();
-          }
         }
       });
 
-      screenGr.addEventListener("mouseup", function () {
-        screenWin.closeWindow();
-
-        if (typeof onScrubEndFn === "function") {
-          onScrubEndFn();
-        }
-      });
-
+      screenGr.addEventListener("mouseout", screenWin.closeWindow);
+      screenGr.addEventListener("mouseup", screenWin.closeWindow);
       screenWin.show();
 
       isMouseDown = false;
