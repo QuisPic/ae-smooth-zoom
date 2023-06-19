@@ -63,10 +63,8 @@ Zoom.prototype.setTo = function (zoomValue) {
 
   this.zoomNumberValue.setValue(zoomValue);
 
-  var zoomSlider = this.zoomSlider;
-
-  if (zoomSlider && isValid(zoomSlider.element)) {
-    zoomSlider.element.slider.value = zoomValue;
+  if (this.zoomSlider && isValid(this.zoomSlider.element)) {
+    this.zoomSlider.setValue(zoomValue);
   }
 
   app.activeViewer.views[0].options.zoom = zoomValue / 100;

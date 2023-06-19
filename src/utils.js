@@ -16,9 +16,17 @@ export function checkOs() {
 
 export function makeDivisibleBy(val, divisor, goUp) {
   if (val % divisor) {
-    return goUp
-      ? Math.ceil(val / divisor) * divisor
-      : Math.floor(val / divisor) * divisor;
+    if (Math.abs(divisor) < 1) {
+      divisor = 1 / divisor;
+
+      return goUp
+        ? Math.ceil(val * divisor) / divisor
+        : Math.floor(val * divisor) / divisor;
+    } else {
+      return goUp
+        ? Math.ceil(val / divisor) * divisor
+        : Math.floor(val / divisor) * divisor;
+    }
   }
 
   return val;

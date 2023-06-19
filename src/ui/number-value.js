@@ -111,17 +111,21 @@ function NumberValue(
       });
 
       editText.addEventListener("keydown", function (event) {
-        if (event.keyName === "Up") {
-          var val = parseFloat(this.text);
+        if (event.eventPhase === "target") {
+          if (event.keyName === "Up") {
+            event.preventDefault();
+            var val = parseFloat(this.text);
 
-          if (!isNaN(val)) {
-            this.text = val + 1;
-          }
-        } else if (event.keyName === "Down") {
-          val = parseFloat(this.text);
+            if (!isNaN(val)) {
+              this.text = val + 1;
+            }
+          } else if (event.keyName === "Down") {
+            event.preventDefault();
+            val = parseFloat(this.text);
 
-          if (!isNaN(val)) {
-            this.text = val - 1;
+            if (!isNaN(val)) {
+              this.text = val - 1;
+            }
           }
         }
       });

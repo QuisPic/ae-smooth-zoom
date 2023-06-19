@@ -2,7 +2,6 @@ import { checkOs, makeDivisibleBy } from "../utils";
 import { OS, ZOOM_STEP_ON_BTN_CLICK } from "../constants";
 
 function Slider(zoom, parentEl, onChangeFn, initVal, min, max) {
-  var thisSlider = this;
   this.parentEl = parentEl;
 
   this.element = parentEl.add(
@@ -46,19 +45,21 @@ function Slider(zoom, parentEl, onChangeFn, initVal, min, max) {
 
   function incrementZoom(zoomStep, mouseEvent) {
     if (checkOs() === OS.WIN ? mouseEvent.ctrlKey : mouseEvent.metaKey) {
-      zoomStep = zoomStep / 10;
+      zoomStep /= 10;
     } else if (mouseEvent.shiftKey) {
-      zoomStep = zoomStep * 10;
+      zoomStep *= 10;
     }
 
+    var newValue = makeDivisibleBy(
+      zoom.zoomNumberValue.getValue() + zoomStep,
+      zoomStep,
+      zoomStep < 0,
+    );
+
+    slider.value = newValue;
+
     if (typeof onChangeFn === "function") {
-      onChangeFn(
-        makeDivisibleBy(
-          zoom.zoomNumberValue.getValue() + zoomStep,
-          zoomStep,
-          zoomStep < 0,
-        ),
-      );
+      onChangeFn(newValue);
     }
   }
 
