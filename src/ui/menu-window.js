@@ -1,8 +1,11 @@
-import { getElementLocationInWindow, getPrimaryScreen } from "../utils";
+import { OS } from "../constants"
+import { checkOs, getElementLocationInWindow, getPrimaryScreen } from "../utils";
 
 function MenuWindow() {
+  // borderless doesn't work on MacOS so it's better to turn it off
+  // to leave the "close" button visible
   this.element = new Window("palette", undefined, undefined, {
-    borderless: true,
+    borderless: checkOs() === OS.WIN ? true : false,
   });
 
   this.element.margins = 0;
