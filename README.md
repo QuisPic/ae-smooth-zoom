@@ -36,7 +36,7 @@ The script should be in the `./dist` folder.
 Open After Effects, go to "File -> Scripts -> Run Script File..." and open the script file. A new Script UI window should pop up.
 
 ## Install as a dockable panel
-### Intall via After Effects
+### Install via After Effects
 Open After Effects, go to "File -> Scripts -> Install Script UI Panel..." and open the script file.
 
 ### Install Manually
