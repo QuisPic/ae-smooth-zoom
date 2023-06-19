@@ -155,6 +155,8 @@ function NumberValue(
         }
       }
 
+      grUnderline.show();
+
       var screenWin = new Window(
         "palette { \
         alignChildren: ['fill','fill'], \
@@ -166,13 +168,14 @@ function NumberValue(
 
       screenWin.preferredSize = [primaryScreen.right, primaryScreen.bottom];
 
-      grUnderline.show();
       screenWin.closeWindow = function () {
-        screenWin.close();
-        grUnderline.hide();
+        if (screenWin.visible) {
+          screenWin.close();
+          grUnderline.hide();
 
-        if (typeof onScrubEndFn === "function") {
-          onScrubEndFn();
+          if (typeof onScrubEndFn === "function") {
+            onScrubEndFn();
+          }
         }
       };
 
@@ -180,7 +183,7 @@ function NumberValue(
       screenGr.lastMousePosition = mouseDownPosition;
 
       screenGr.addEventListener("mousemove", function (event) {
-        if (event.eventPhase === "target" && event.button === 0) {
+        if (event.eventPhase === "target") {
           var mouseDistance = Math.floor(
             event.screenX - this.lastMousePosition[0],
           );
@@ -212,8 +215,18 @@ function NumberValue(
         }
       });
 
-      screenGr.addEventListener("mouseout", screenWin.closeWindow);
-      screenGr.addEventListener("mouseup", screenWin.closeWindow);
+      screenGr.addEventListener("mouseout", function (event) {
+        if (event.eventPhase === "target") {
+          screenWin.closeWindow();
+        }
+      });
+
+      screenGr.addEventListener("mouseup", function (event) {
+        if (event.eventPhase === "target") {
+          screenWin.closeWindow();
+        }
+      });
+
       screenWin.show();
 
       isMouseDown = false;
