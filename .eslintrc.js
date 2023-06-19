@@ -8,7 +8,7 @@ module.exports = {
     sourceType: "module",
   },
   globals: {
-    thisObj: 'readonly',
-  }
+    thisObj: "readonly",
+  },
   rules: {},
 };
