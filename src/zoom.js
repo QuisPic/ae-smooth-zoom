@@ -4,7 +4,7 @@ import Slider from "./ui/slider";
 import ValueList from "./ui/value-list";
 
 function Zoom(thisObj) {
-  var currentZoom = app.activeViewer.views[0].options.zoom * 100;
+  var currentZoom = parseFloat((app.activeViewer.views[0].options.zoom * 100).toFixed(2));
   var zoomSettings = Settings.getSettings();
 
   this.w =
