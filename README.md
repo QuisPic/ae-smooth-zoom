@@ -1,6 +1,12 @@
 # Ae Smooth Zoom
 A script for Adobe After Effects that can smoothly change zoom in your Composition View.
 
+[diamond.webm](https://github.com/QuisPic/ae-smooth-zoom/assets/56075863/83c9bc7e-286c-4915-91b2-dc7d1ca1f4b7)
+
+[map.webm](https://github.com/QuisPic/ae-smooth-zoom/assets/56075863/811d3433-8170-491e-a2c7-bca56bbf998d)
+
+[starege.webm](https://github.com/QuisPic/ae-smooth-zoom/assets/56075863/d3493b77-eaa2-4549-b3c6-e8e7b28d92ac)
+
 ## Reason
 After Effects Composition View has only fixed zoom levels: `25%, 33.3%, 50%, 100%, etc.`, and there is no buttons or shortcuts to change zoom to any other values. This script creates a simple interface that can change zoom level to any value through Extendscript.
 
@@ -30,7 +36,7 @@ The script should be in the `./dist` folder.
 Open After Effects, go to "File -> Scripts -> Run Script File..." and open the script file. A new Script UI window should pop up.
 
 ## Install as a dockable panel
-### Intall via After Effects
+### Install via After Effects
 Open After Effects, go to "File -> Scripts -> Install Script UI Panel..." and open the script file.
 
 ### Install Manually
