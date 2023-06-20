@@ -16,19 +16,25 @@ export function checkOs() {
 
 export function makeDivisibleBy(val, divisor, goUp) {
   if (val % divisor) {
+    var result;
     divisor = divisor < 0 ? Math.abs(divisor) : divisor;
 
     if (divisor < 1) {
+      // float-point math...
+      var epsilon = 0.00000000000001;
+
       divisor = 1 / divisor;
 
-      return goUp
-        ? Math.ceil(val * divisor) / divisor
-        : Math.floor(val * divisor) / divisor;
+      result = goUp
+        ? Math.ceil((val - epsilon) * divisor) / divisor
+        : Math.floor((val + epsilon) * divisor) / divisor;
     } else {
-      return goUp
+      result = goUp
         ? Math.ceil(val / divisor) * divisor
         : Math.floor(val / divisor) * divisor;
     }
+
+    return result;
   }
 
   return val;

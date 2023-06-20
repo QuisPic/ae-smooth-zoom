@@ -1,7 +1,7 @@
 export default {
   input: "src/index.js",
   output: {
-    file: "dist/zoom.jsx",
+    file: "dist/Zoom.jsx",
     format: "iife",
     banner: "var thisObj = this;",
   },
