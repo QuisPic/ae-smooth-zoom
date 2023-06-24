@@ -67,7 +67,7 @@ function Settings(zoom, parentEl) {
       );
 
       syncCheck.element.check.helpTip =
-        "If ON, the script will sync its value with the viewport when you hover over it.";
+        "If ON, the script will sync its value with the viewport when you hover over the script.";
 
       var showSliderItem = menuWindow.addMenuItem(
         "Show Slider",
