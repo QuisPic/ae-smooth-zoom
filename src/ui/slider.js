@@ -1,7 +1,16 @@
 import { checkOs, makeDivisibleBy } from "../utils";
 import { OS, ZOOM_STEP_ON_BTN_CLICK } from "../constants";
 
-function Slider(zoom, parentEl, onChangeFn, initVal, min, max) {
+function Slider(
+  zoom,
+  parentEl,
+  onChangeFn,
+  onScrubStartFn,
+  onScrubEndFn,
+  initVal,
+  min,
+  max,
+) {
   this.parentEl = parentEl;
 
   this.element = parentEl.add(
@@ -12,10 +21,6 @@ function Slider(zoom, parentEl, onChangeFn, initVal, min, max) {
         orientation: 'stack', \
         alignment: ['left', 'center'], \
         alignChildren: ['fill', 'fill'], \
-        zoomIcon: Group {\
-          preferredSize: [25, 16], \
-        }, \
-        grLight: Group { visible: false }, \
       }, \
       slider: Slider { \
         preferredSize: [150, -1], \
@@ -25,10 +30,6 @@ function Slider(zoom, parentEl, onChangeFn, initVal, min, max) {
         orientation: 'stack', \
         alignment: ['right', 'center'], \
         alignChildren: ['fill', 'fill'], \
-        zoomIcon: Group {\
-          preferredSize: [25, 16], \
-        }, \
-        grLight: Group { visible: false }, \
       }, \
     }",
   );
@@ -36,14 +37,47 @@ function Slider(zoom, parentEl, onChangeFn, initVal, min, max) {
   this.setMin(min);
   this.setMax(max);
   this.setValue(initVal);
+  this.lastValue = initVal;
 
   var slider = this.element.slider;
+
+  slider.onChange = function () {
+    if (typeof onScrubEndFn === "function") {
+      onScrubEndFn();
+    }
+
+    this.scrubbing = false;
+  };
+
+  slider.onChanging = function () {
+    if (!this.scrubbing) {
+      if (typeof onScrubStartFn === "function") {
+        onScrubStartFn();
+      }
+
+      this.scrubbing = true;
+    }
+
+    if (typeof onChangeFn === "function" && this.scrubbing) {
+      onChangeFn(Math.round(this.value));
+    }
+  };
+}
+
+Slider.prototype.addIncrementBtns = function (zoom, onIncrementFn) {
   var grIncrement = this.element.grIncrement;
   var grDecrement = this.element.grDecrement;
+
+  grDecrement.zoomIcon = grDecrement.add("Group { preferredSize: [25, 16] }");
+  grDecrement.grLight = grDecrement.add("Group { visible: false }");
+
+  grIncrement.zoomIcon = grIncrement.add("Group { preferredSize: [25, 16] }");
+  grIncrement.grLight = grIncrement.add("Group { visible: false }");
+
   var g = grDecrement.grLight.graphics;
   var lightBrush = g.newBrush(g.BrushType.SOLID_COLOR, [1, 1, 1, 0.06]);
 
-  function incrementZoom(zoomStep, mouseEvent) {
+  function increment(zoomStep, mouseEvent) {
     if (checkOs() === OS.WIN ? mouseEvent.ctrlKey : mouseEvent.metaKey) {
       zoomStep /= 10;
     } else if (mouseEvent.shiftKey) {
@@ -56,10 +90,11 @@ function Slider(zoom, parentEl, onChangeFn, initVal, min, max) {
       zoomStep < 0,
     );
 
-    slider.value = newValue;
+    // this.element.slider.value = newValue;
+    zoom.zoomSlider.setValue(newValue);
 
-    if (typeof onChangeFn === "function") {
-      onChangeFn(newValue);
+    if (typeof onIncrementFn === "function") {
+      onIncrementFn(newValue);
     }
   }
 
@@ -79,34 +114,6 @@ function Slider(zoom, parentEl, onChangeFn, initVal, min, max) {
 
   grDecrement.grLight.graphics.backgroundColor = lightBrush;
   grIncrement.grLight.graphics.backgroundColor = lightBrush;
-
-  slider.onChange = function () {
-    var viewer = app.activeViewer.views[0];
-
-    // save the exposure value and restore it later
-    if (this.origExposure !== undefined) {
-      viewer.options.exposure = this.origExposure;
-      this.origExposure = undefined;
-    }
-  };
-
-  slider.onChanging = function () {
-    var viewer = app.activeViewer.views[0];
-
-    if (typeof onChangeFn === "function") {
-      onChangeFn(Math.round(this.value));
-    }
-
-    if (this.origExposure === undefined) {
-      this.origExposure = viewer.options.exposure;
-    }
-
-    // this exposure trick makes AE refresh the view panel everytime we move the slider
-    viewer.options.exposure =
-      viewer.options.exposure === this.origExposure
-        ? this.origExposure + 0.01
-        : this.origExposure;
-  };
 
   grIncrement.zoomIcon.onDraw = function () {
     var g = this.graphics;
@@ -148,13 +155,13 @@ function Slider(zoom, parentEl, onChangeFn, initVal, min, max) {
 
   grIncrement.addEventListener("click", function (event) {
     if (event.eventPhase === "target") {
-      incrementZoom(ZOOM_STEP_ON_BTN_CLICK, event);
+      increment(ZOOM_STEP_ON_BTN_CLICK, event);
     }
   });
 
   grDecrement.addEventListener("click", function (event) {
     if (event.eventPhase === "target") {
-      incrementZoom(-ZOOM_STEP_ON_BTN_CLICK, event);
+      increment(-ZOOM_STEP_ON_BTN_CLICK, event);
     }
   });
 
@@ -162,14 +169,23 @@ function Slider(zoom, parentEl, onChangeFn, initVal, min, max) {
   grIncrement.addEventListener("mouseover", showLight);
   grDecrement.addEventListener("mouseout", hideLight);
   grIncrement.addEventListener("mouseout", hideLight);
-}
+};
 
 Slider.prototype.getValue = function () {
-  return this.element.slider.value;
+  return Math.round(this.element.slider.value);
 };
 
 Slider.prototype.setValue = function (val) {
   this.element.slider.value = val;
+  this.lastValue = this.element.slider.value;
+};
+
+Slider.prototype.getMin = function () {
+  return this.element.slider.minvalue;
+};
+
+Slider.prototype.getMax = function () {
+  return this.element.slider.maxvalue;
 };
 
 Slider.prototype.setMin = function (min) {
