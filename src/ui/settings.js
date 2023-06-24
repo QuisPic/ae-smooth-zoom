@@ -1,8 +1,8 @@
 import MenuWindow from "./menu-window";
 import NumberValue from "./number-value";
-import Slider from "./slider";
 import { DEFAULT_SETTINGS, OS, SETTINGS_SECTION_NAME } from "../constants";
 import { checkOs, openURL } from "../utils";
+import Checkbox from "./checkbox";
 
 function Settings(zoom, parentEl) {
   this.element = parentEl.add(
@@ -28,15 +28,11 @@ function Settings(zoom, parentEl) {
   };
 
   this.element.addEventListener("click", function (event) {
-    function setZoomTo(zoomValue) {
-      zoom.setTo(zoomValue);
-    }
-
     if (event.eventPhase === "target") {
       var zoomSettings = Settings.getSettings();
       var menuWindow = new MenuWindow();
       var maxTextSize =
-        menuWindow.element.graphics.measureString("Show Slider");
+        menuWindow.element.graphics.measureString("Sync with View");
 
       var onScrubStartFn = function () {
         menuWindow.element.shouldCloseOnDeactivate = false;
@@ -54,63 +50,33 @@ function Settings(zoom, parentEl) {
       // we pass this empty function because there is a strage bug
       // in AE where if a window doesn't have a reference to a function
       // it will close immediately
+      var syncItem = menuWindow.addMenuItem("Sync with View", function () {});
+
+      // "Sync With Viewport" checkbox
+      var syncCheck = new Checkbox(
+        zoom,
+        syncItem,
+        zoomSettings.syncWithView,
+        function () {
+          app.settings.saveSetting(
+            SETTINGS_SECTION_NAME,
+            "syncWithView",
+            this.value,
+          );
+        },
+      );
+
+      syncCheck.element.check.helpTip =
+        "If ON, the script will sync its value with the viewport when you hover over it.";
+
       var showSliderItem = menuWindow.addMenuItem(
         "Show Slider",
         function () {},
       );
 
-      var grCheckShowSlider = showSliderItem.add(
-        "Group { \
-          margins: [6, 0, 0, 0], \
-          check: Checkbox { \
-            alignment: ['left', 'bottom'], \
-            preferredSize: [-1, 14], \
-          }, \
-        }",
-      );
-
-      grCheckShowSlider.check.value = zoomSettings.showSlider;
-      grCheckShowSlider.check.onClick = function () {
-        var zoomSettings = Settings.getSettings();
-
-        if (zoom.zoomSlider && isValid(zoom.zoomSlider.element)) {
-          zoom.zoomSlider.parentEl.remove(zoom.zoomSlider.element);
-          zoom.zoomSlider.parentEl.preferredSize = [0, 0];
-
-          zoom.w.grSlider.alignment = ["left", "center"];
-          zoom.settings.element.alignment = ["left", "center"];
-
-          this.value = false;
-        } else {
-          zoom.zoomSlider = new Slider(
-            zoom,
-            zoom.w.grSlider,
-            setZoomTo,
-            zoom.zoomNumberValue.getValue(),
-            zoomSettings.sliderMin,
-            zoomSettings.sliderMax,
-          );
-
-          zoom.w.grSlider.alignment = ["fill", "center"];
-          zoom.settings.element.alignment = ["right", "center"];
-
-          this.value = true;
-        }
-
-        app.settings.saveSetting(
-          SETTINGS_SECTION_NAME,
-          "showSlider",
-          this.value,
-        );
-
-        zoom.w.layout.layout(true);
-        zoom.w.layout.resize();
-      };
-
-      showSliderItem.addEventListener("click", function (event) {
-        if (event.eventPhase === "target") {
-          grCheckShowSlider.check.notify();
-        }
+      // "Show Slider" checkbox
+      new Checkbox(zoom, showSliderItem, zoomSettings.showSlider, function () {
+        zoom.showHideSlider();
       });
 
       var sliderMinItem = menuWindow.addMenuItem("Slider Min");
@@ -123,8 +89,8 @@ function Settings(zoom, parentEl) {
         onScrubStartFn,
         onScrubEndFn,
         "%",
-        zoomSettings.sliderMin,
-        0,
+        zoomSettings.sliderMin || 1,
+        1,
         zoomSettings.sliderMax,
       );
 
@@ -136,7 +102,7 @@ function Settings(zoom, parentEl) {
         onScrubEndFn,
         "%",
         zoomSettings.sliderMax,
-        zoomSettings.sliderMin,
+        zoomSettings.sliderMin || 1,
       );
 
       sliderMinValue.onChangeFn = function (val) {
@@ -179,6 +145,13 @@ function Settings(zoom, parentEl) {
 
 Settings.getSettings = function () {
   var result = {};
+
+  if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "syncWithView")) {
+    result.syncWithView =
+      app.settings.getSetting(SETTINGS_SECTION_NAME, "syncWithView") === "true";
+  } else {
+    result.syncWithView = DEFAULT_SETTINGS.syncWithView;
+  }
 
   if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "showSlider")) {
     result.showSlider =
