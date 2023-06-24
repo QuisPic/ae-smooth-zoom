@@ -35,35 +35,44 @@ function Zoom(thisObj) {
     1,
   );
 
-  this.zoomNumberValue.element.addEventListener("mouseover", this.produceSyncOnMouseOver());
+  this.zoomNumberValue.element.addEventListener(
+    "mouseover",
+    this.produceSyncOnMouseOver(),
+  );
 
   this.zoomValueList = new ValueList(this, this.w, this.produceSetTo());
   this.w.grSlider = this.w.add("group");
   this.settings = new Settings(this, this.w);
 
   if (zoomSettings.showSlider) {
-    this.zoomSlider = new Slider(
-      this,
-      this.w.grSlider,
-      this.produceSliderOnChange(),
-      this.produceSliderOnScrubStart(),
-      this.produceSliderOnScrubEnd(),
-      currentZoom,
-      zoomSettings.sliderMin || 1,
-      zoomSettings.sliderMax,
-    );
-
-    this.zoomSlider.element.addEventListener(
-      "mouseover",
-      this.produceSyncOnMouseOver(),
-    );
-
-    this.zoomSlider.addIncrementBtns(this, this.produceOnIncrement());
-
-    this.w.grSlider.alignment = ["fill", "center"];
-    this.settings.element.alignment = ["right", "center"];
+    this.addSlider();
   }
 }
+
+Zoom.prototype.addSlider = function () {
+  var zoomSettings = Settings.getSettings();
+
+  this.zoomSlider = new Slider(
+    this,
+    this.w.grSlider,
+    this.produceSliderOnChange(),
+    this.produceSliderOnScrubStart(),
+    this.produceSliderOnScrubEnd(),
+    this.zoomNumberValue.getValue(),
+    zoomSettings.sliderMin || 1,
+    zoomSettings.sliderMax,
+  );
+
+  this.zoomSlider.element.addEventListener(
+    "mouseover",
+    this.produceSyncOnMouseOver(),
+  );
+
+  this.zoomSlider.addIncrementBtns(this, this.produceOnIncrement());
+
+  this.w.grSlider.alignment = ["fill", "center"];
+  this.settings.element.alignment = ["right", "center"];
+};
 
 Zoom.getViewZoom = function () {
   return parseFloat((app.activeViewer.views[0].options.zoom * 100).toFixed(2));
@@ -167,7 +176,6 @@ Zoom.prototype.produceOnIncrement = function () {
 };
 
 Zoom.prototype.showHideSlider = function () {
-  var zoomSettings = Settings.getSettings();
   var val;
 
   if (this.zoomSlider && isValid(this.zoomSlider.element)) {
@@ -179,21 +187,7 @@ Zoom.prototype.showHideSlider = function () {
 
     val = false;
   } else {
-    this.zoomSlider = new Slider(
-      this,
-      this.w.grSlider,
-      this.produceSliderOnChange(),
-      this.produceSliderOnScrubStart(),
-      this.produceSliderOnScrubEnd(),
-      this.zoomNumberValue.getValue(),
-      zoomSettings.sliderMin,
-      zoomSettings.sliderMax,
-    );
-
-    this.zoomSlider.addIncrementBtns(this, this.produceOnIncrement());
-
-    this.w.grSlider.alignment = ["fill", "center"];
-    this.settings.element.alignment = ["right", "center"];
+    this.addSlider();
 
     val = true;
   }
