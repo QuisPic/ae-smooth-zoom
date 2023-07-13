@@ -25,14 +25,12 @@ function Zoom(thisObj) {
   this.w.onResizing = this.w.onResize;
 
   this.zoomNumberValue = new NumberValue(
-    this,
     this.w,
-    this.produceSetTo(),
-    undefined,
-    undefined,
     "%",
     currentZoom,
     1,
+    undefined,
+    this.produceSetTo(),
   );
 
   this.zoomNumberValue.element.addEventListener(

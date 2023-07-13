@@ -3,19 +3,29 @@ import NumberValue from "./number-value";
 import { DEFAULT_SETTINGS, OS, SETTINGS_SECTION_NAME } from "../constants";
 import { checkOs, openURL } from "../utils";
 import Checkbox from "./checkbox";
+import PluginWindow from "./plugin-window";
 
 function Settings(zoom, parentEl) {
   this.element = parentEl.add(
     "Group { \
       alignChildren: ['center', 'center'], \
       margins: [5, 0, 5, 0], \
-      grDots: Group { preferredSize: [4, 20] }, \
+      grDots: Custom { preferredSize: [4, 20] }, \
     }",
   );
 
-  this.element.grDots.onDraw = function () {
+  this.element.grDots.addEventListener("mouseover", function () {
+    this.notify("onDraw");
+  });
+
+  this.element.grDots.addEventListener("mouseout", function () {
+    this.notify("onDraw");
+  });
+
+  this.element.grDots.onDraw = function (drawState) {
     var g = this.graphics;
-    var b = g.newBrush(g.BrushType.SOLID_COLOR, [0.57, 0.57, 0.57, 1]);
+    var c = drawState.mouseOver ? [0.75, 0.75, 0.75, 1] : [0.55, 0.55, 0.55, 1];
+    var b = g.newBrush(g.BrushType.SOLID_COLOR, c);
 
     g.ellipsePath(0, 4, 2, 2);
     g.fillPath(b);
@@ -46,6 +56,13 @@ function Settings(zoom, parentEl) {
           menuWindow.element.show();
         }
       };
+
+      var shortcutItem = menuWindow.addMenuItem("Key Bindings...", function () {
+        var plugingW = new PluginWindow();
+
+        menuWindow.plugingW = plugingW;
+        plugingW.element.show();
+      });
 
       // we pass this empty function because there is a strage bug
       // in AE where if a window doesn't have a reference to a function
@@ -83,26 +100,25 @@ function Settings(zoom, parentEl) {
       var sliderMaxItem = menuWindow.addMenuItem("Slider Max");
 
       var sliderMinValue = new NumberValue(
-        zoom,
         sliderMinItem,
-        undefined,
-        onScrubStartFn,
-        onScrubEndFn,
         "%",
         zoomSettings.sliderMin || 1,
         1,
         zoomSettings.sliderMax,
-      );
-
-      var sliderMaxValue = new NumberValue(
-        zoom,
-        sliderMaxItem,
         undefined,
         onScrubStartFn,
         onScrubEndFn,
+      );
+
+      var sliderMaxValue = new NumberValue(
+        sliderMaxItem,
         "%",
         zoomSettings.sliderMax,
         zoomSettings.sliderMin || 1,
+        undefined,
+        undefined,
+        onScrubStartFn,
+        onScrubEndFn,
       );
 
       sliderMinValue.onChangeFn = function (val) {
@@ -145,6 +161,22 @@ function Settings(zoom, parentEl) {
 
 Settings.getSettings = function () {
   var result = {};
+
+  if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "keyBindings")) {
+    result.keyBindings = app.settings.getSetting(
+      SETTINGS_SECTION_NAME,
+      "keyBindings",
+    );
+  } else {
+    result.keyBindings = DEFAULT_SETTINGS.keyBindings;
+  }
+
+  if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "unfoldInfo")) {
+    result.unfoldInfo =
+      app.settings.getSetting(SETTINGS_SECTION_NAME, "unfoldInfo") === "true";
+  } else {
+    result.unfoldInfo = DEFAULT_SETTINGS.unfoldInfo;
+  }
 
   if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "syncWithView")) {
     result.syncWithView =

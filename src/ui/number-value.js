@@ -2,17 +2,20 @@ import { OS, BLUE_COLOR } from "../constants";
 import { checkOs, isNaN, makeDivisibleBy } from "../utils";
 
 function NumberValue(
-  zoom,
   parentEl,
-  onChangeFn,
-  onScrubStartFn,
-  onScrubEndFn,
   unitsSymbol,
   initValue,
   minValue,
   maxValue,
+  onChangeFn,
+  onScrubStartFn,
+  onScrubEndFn,
+  helpTip,
 ) {
-  this.w = zoom.w;
+  this.w =
+    parentEl instanceof Window || parentEl instanceof Panel
+      ? parentEl
+      : parentEl.window;
   this.parentEl = parentEl;
   this.minValue = minValue;
   this.maxValue = maxValue;
@@ -30,7 +33,12 @@ function NumberValue(
           orientation: 'stack', \
           alignChildren: ['fill', 'fill'], \
           grUnderline: Group { visible: false }, \
-          txtValue: StaticText {}, \
+          txtValue: StaticText { \
+            text: '0', \
+            helpTip: '" +
+      (helpTip || "") +
+      "' \
+          }, \
         }, \
         grSpace: Group { preferredSize: [2, -1], alignment: ['fill', 'fill'] }, \
         txtUnits: StaticText { text: '" +

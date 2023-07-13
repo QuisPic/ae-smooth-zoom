@@ -1,0 +1,55 @@
+function TrashIcon(parentEl, interactive) {
+  this.element = parentEl.add(
+    "Group { \
+      icon: Custom { \
+        preferredSize: [8, 12], \
+      }, \
+    }",
+  );
+
+  if (interactive) {
+    this.element.addEventListener("mouseover", function (event) {
+      if (event.eventPhase === "target") {
+        this.icon.isMouseOver = true;
+        this.icon.notify("onDraw");
+      }
+    });
+
+    this.element.addEventListener("mouseout", function (event) {
+      if (event.eventPhase === "target") {
+        this.icon.isMouseOver = false;
+        this.icon.notify("onDraw");
+      }
+    });
+  }
+
+  this.element.icon.onDraw = function () {
+    var g = this.graphics;
+    var c = this.isMouseOver ? [0.75, 0.75, 0.75, 1] : [0.55, 0.55, 0.55, 1];
+    var b = g.newBrush(g.BrushType.SOLID_COLOR, c);
+
+    g.rectPath(0, 4, 8, 2);
+    g.fillPath(b);
+    g.rectPath(0, 5, 2, 6);
+    g.fillPath(b);
+    g.rectPath(3, 5, 2, 6);
+    g.fillPath(b);
+    g.rectPath(6, 5, 2, 6);
+    g.fillPath(b);
+    g.rectPath(0, 10, 8, 2);
+    g.fillPath(b);
+
+    g.newPath();
+    g.moveTo(0, 3);
+    g.lineTo.apply(g, g.currentPoint + [0, -2]);
+    g.lineTo.apply(g, g.currentPoint + [3, 0]);
+    g.lineTo.apply(g, g.currentPoint + [0, -1]);
+    g.lineTo.apply(g, g.currentPoint + [2, 0]);
+    g.lineTo.apply(g, g.currentPoint + [0, 1]);
+    g.lineTo.apply(g, g.currentPoint + [3, 0]);
+    g.lineTo.apply(g, g.currentPoint + [0, 2]);
+    g.fillPath(b);
+  };
+}
+
+export default TrashIcon;
