@@ -6,16 +6,20 @@ import KeyBinding from "./key-binding";
 import Line from "./line";
 import TrashIcon from "./trash-icon";
 import JSON from "../../extern/json2";
+import EditIcon from "./edit-icon";
+import ColumnNames from "./column-names";
 
 function PluginWindow() {
   var thisWindow = this;
+  this.keyBindingsArr = [];
+  this.linesArr = [];
 
   this.element = new Window("palette", "Zoom Key Bindings", undefined, {
     resizeable: false,
   });
 
   this.element.onResize = function () {
-    thisWindow.placeColumnNames();
+    // thisWindow.placeColumnNames();
     this.layout.resize();
   };
 
@@ -36,16 +40,6 @@ function PluginWindow() {
         spacing: 0, \
         grColumnNames: Group { \
           alignment: ['fill', 'top'], \
-          cCheck: Custom { preferredSize: [8, 8] }, \
-          grLine0: Group { alignment: 'fill' }, \
-          txtKeyboard: StaticText { text: 'Key' }, \
-          grLine1: Group { alignment: 'fill' }, \
-          txtMouse: StaticText { text: 'Mouse' }, \
-          grLine2: Group { alignment: 'fill' }, \
-          txtAction: StaticText { text: 'Action' }, \
-          grLine3: Group { alignment: 'fill' }, \
-          txtAmount: StaticText { text: '%' }, \
-          grLine4: Group { alignment: 'fill' }, \
         }, \
         grLine: Group { \
           orientation: 'column', \
@@ -79,8 +73,12 @@ function PluginWindow() {
   var pnlInstallPlugin = this.element.gr.pnlInstallPlugin;
   var pnlKeyBindings = this.element.gr.pnlKeyBindings;
   var grBindings = pnlKeyBindings.grBindings;
-  var grColumnNames = pnlKeyBindings.grColumnNames;
+  // var grColumnNames = pnlKeyBindings.grColumnNames;
   var keyBindings = JSON.parse(Settings.getSettings().keyBindings);
+
+  pnlKeyBindings.grColumnNames.columnNames = new ColumnNames(
+    pnlKeyBindings.grColumnNames,
+  );
 
   pnlInstallPlugin.graphics.backgroundColor =
     pnlInstallPlugin.graphics.newBrush(
@@ -90,20 +88,12 @@ function PluginWindow() {
 
   this.setStatus();
 
-  grColumnNames.trashIcon = new TrashIcon(grColumnNames, false);
-
   if (keyBindings && keyBindings.length > 0) {
     for (var i = 0; i < keyBindings.length; i++) {
-      KeyBinding(grBindings, keyBindings[i]);
-      Line(grBindings);
+      this.keyBindingsArr.push(new KeyBinding(grBindings, keyBindings[i]));
+      this.linesArr.push(new Line(grBindings));
     }
   }
-
-  Line(grColumnNames.grLine0);
-  Line(grColumnNames.grLine1);
-  Line(grColumnNames.grLine2);
-  Line(grColumnNames.grLine3);
-  Line(grColumnNames.grLine4);
 
   Line(pnlKeyBindings.grLine);
 
@@ -112,8 +102,8 @@ function PluginWindow() {
   }
 
   pnlKeyBindings.grAdd.btnAdd.onClick = function () {
-    KeyBinding(grBindings);
-    Line(grBindings);
+    this.keyBindingsArr.push(new KeyBinding(grBindings));
+    this.linesArr.push(new Line(grBindings));
 
     thisWindow.element.layout.layout(true);
   };
@@ -132,10 +122,10 @@ function PluginWindow() {
 
       bindingsArr.push({
         enabled: bEl.chkEnable.value,
-        key: bEl.gr.ddlistKeys.selection.index,
+        key: bEl.gr.grKeys.inputField.element.txtValue.text,
         mouse: bEl.gr.ddlistMouse.selection.index,
         action: bEl.gr.ddlistAction.selection.index,
-        amount: bEl.gr.amount.getValue(),
+        amount: bEl.gr.grAmount.numberValue.getValue(),
       });
 
       app.settings.saveSetting(
@@ -153,7 +143,7 @@ function PluginWindow() {
   };
 
   this.element.layout.layout(true);
-  this.placeColumnNames();
+  // this.placeColumnNames();
 }
 
 PluginWindow.prototype.setStatus = function () {
@@ -270,7 +260,7 @@ PluginWindow.prototype.unfoldInfo = function () {
           txtPath: EditText { \
             text: 'C:/Program Files/Adobe/Adobe After Effects [version]/Support Files/Plug-ins/', \
             alignment: ['fill', 'center' ], \
-            properties: { readonly: true, borderless: true }, \
+            properties: { readonly: true }, \
           }, \
         }, \
         grMac: Group { \
@@ -280,7 +270,7 @@ PluginWindow.prototype.unfoldInfo = function () {
           txtPath: EditText { \
             text: '/Applications/Adobe After Effects [version]/Plug-ins/', \
             alignment: ['fill', 'center' ], \
-            properties: { readonly: true, borderless: true }, \
+            properties: { readonly: true }, \
           }, \
         }, \
         txt4: StaticText { text: '4. Restart After Effects.' }, \
@@ -336,12 +326,11 @@ PluginWindow.prototype.placeColumnNames = function () {
   var pnlKeyBindings = this.element.gr.pnlKeyBindings;
   var grColumnNames = pnlKeyBindings.grColumnNames;
   var grBindings = pnlKeyBindings.grBindings;
-  // var keyBind = this.keyBindElements[0];
   var keyBind = grBindings.children[0];
 
   var cCheck = grColumnNames.cCheck;
+  var grEditIcon = grColumnNames.grEditIcon;
   var txtKeyboard = grColumnNames.txtKeyboard;
-  var txtMouse = grColumnNames.txtMouse;
   var txtAction = grColumnNames.txtAction;
   var txtAmount = grColumnNames.txtAmount;
   var trashIcon = grColumnNames.trashIcon.element;
@@ -358,8 +347,8 @@ PluginWindow.prototype.placeColumnNames = function () {
 
   var chkEnable = keyBind.chkEnable;
   var gr = keyBind.gr;
-  var ddlistKeys = gr.ddlistKeys;
-  var ddlistMouse = gr.ddlistMouse;
+  var grEdit = gr.grEdit;
+  var grKeys = gr.grKeys;
   var ddlistAction = gr.ddlistAction;
   var amount = gr.amount.element;
   var trash = keyBind.trash.element;
@@ -375,15 +364,15 @@ PluginWindow.prototype.placeColumnNames = function () {
     g.strokePath(p);
   };
 
-  grLine0.location = [gr.location[0] + ddlistKeys.location[0], 0];
-  grLine1.location = [gr.location[0] + ddlistMouse.location[0], 0];
+  grLine0.location = [gr.location[0] + grEdit.location[0], 0];
+  grLine1.location = [gr.location[0] + grKeys.location[0], 0];
   grLine2.location = [gr.location[0] + ddlistAction.location[0], 0];
   grLine3.location = [gr.location[0] + amount.location[0], 0];
   grLine4.location = [gr.location[0] + amount.location[0] + amount.size[0], 0];
 
   cCheck.location = [chkEnable.location[0] + 3, 5];
-  txtKeyboard.location = [grLine0.location[0] + 5, 0];
-  txtMouse.location = [grLine1.location[0] + 5, 0];
+  grEditIcon.location = [grLine0.location[0] + 1, 0];
+  txtKeyboard.location = [grLine1.location[0] + 5, 0];
   txtAction.location = [grLine2.location[0] + 5, 0];
   txtAmount.location = [grLine3.location[0] + 5, 0];
   trashIcon.location = [trash.location[0], 2];

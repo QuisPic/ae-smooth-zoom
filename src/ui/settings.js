@@ -1,6 +1,6 @@
 import MenuWindow from "./menu-window";
 import NumberValue from "./number-value";
-import { DEFAULT_SETTINGS, OS, SETTINGS_SECTION_NAME } from "../constants";
+import { DEFAULT_SETTINGS, OS, SETTINGS_SECTION_NAME, STICK_TO } from "../constants";
 import { checkOs, openURL } from "../utils";
 import Checkbox from "./checkbox";
 import PluginWindow from "./plugin-window";
@@ -153,7 +153,7 @@ function Settings(zoom, parentEl) {
 
       menuWindow.element.opacity = 0;
       menuWindow.element.show();
-      menuWindow.stickTo(this, false, event, this.grDots);
+      menuWindow.stickTo(this, STICK_TO.RIGHT, event, this.grDots);
       menuWindow.element.opacity = 1;
     }
   });

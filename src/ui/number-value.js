@@ -1,5 +1,5 @@
 import { OS, BLUE_COLOR } from "../constants";
-import { checkOs, isNaN, makeDivisibleBy } from "../utils";
+import { checkOs, getPrimaryScreen, isNaN, makeDivisibleBy } from "../utils";
 
 function NumberValue(
   parentEl,
@@ -155,23 +155,17 @@ function NumberValue(
 
       var ctrlKey = false;
       var shiftKey = false;
-      var primaryScreen;
-
-      for (var i = 0; i < $.screens.length; i++) {
-        if ($.screens[i].primary) {
-          primaryScreen = $.screens[i];
-        }
-      }
+      var primaryScreen = getPrimaryScreen();
 
       grUnderline.show();
 
       var screenWin = new Window(
         "palette { \
-        alignChildren: ['fill','fill'], \
-        margins: 0, \
-        opacity: 0.01, \
-        properties: { borderless: true } \
-      }",
+          alignChildren: ['fill','fill'], \
+          margins: 0, \
+          opacity: 0.01, \
+          properties: { borderless: true } \
+        }",
       );
 
       screenWin.preferredSize = [primaryScreen.right, primaryScreen.bottom];

@@ -1,4 +1,4 @@
-import { OS } from "../constants"
+import { OS, STICK_TO } from "../constants"
 import { checkOs, getElementLocationInWindow, getPrimaryScreen } from "../utils";
 
 function MenuWindow() {
@@ -31,7 +31,7 @@ function MenuWindow() {
 // by default sticks this window to the clickEl, but if the targetEl is provided sticks to targetEl
 MenuWindow.prototype.stickTo = function (
   clickEl,
-  stickToLeft,
+  stickTo,
   mouseEvent,
   targetEl,
 ) {
@@ -48,7 +48,7 @@ MenuWindow.prototype.stickTo = function (
       getElementLocationInWindow(clickEl);
   }
 
-  if (!stickToLeft) {
+  if (stickTo === STICK_TO.RIGHT) {
     location[0] += targetEl.size[0] - this.element.size[0];
   }
 
@@ -62,6 +62,7 @@ MenuWindow.prototype.stickTo = function (
 };
 
 MenuWindow.prototype.addMenuItem = function (name, onClickFn) {
+  var thisWindow = this;
   var valGroup = this.element.pnl.add(
     "Group { \
       margins: [7, 3, 15, 3], \
@@ -103,6 +104,7 @@ MenuWindow.prototype.addMenuItem = function (name, onClickFn) {
     valGroup.addEventListener("click", function (event) {
       if (event.eventPhase === "target") {
         onClickFn();
+        thisWindow.element.close();
       }
     });
   }

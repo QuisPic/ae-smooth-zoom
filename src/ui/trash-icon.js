@@ -7,25 +7,20 @@ function TrashIcon(parentEl, interactive) {
     }",
   );
 
-  if (interactive) {
-    this.element.addEventListener("mouseover", function (event) {
-      if (event.eventPhase === "target") {
-        this.icon.isMouseOver = true;
+  function handleMouseOver(event) {
+    if (event.eventPhase === "target") {
         this.icon.notify("onDraw");
-      }
-    });
-
-    this.element.addEventListener("mouseout", function (event) {
-      if (event.eventPhase === "target") {
-        this.icon.isMouseOver = false;
-        this.icon.notify("onDraw");
-      }
-    });
+    }
   }
 
-  this.element.icon.onDraw = function () {
+  if (interactive) {
+    this.element.addEventListener("mouseover", handleMouseOver);
+    this.element.addEventListener("mouseout", handleMouseOver);
+  }
+
+  this.element.icon.onDraw = function (drawState) {
     var g = this.graphics;
-    var c = this.isMouseOver ? [0.75, 0.75, 0.75, 1] : [0.55, 0.55, 0.55, 1];
+    var c = drawState.mouseOver ? [0.75, 0.75, 0.75, 1] : [0.55, 0.55, 0.55, 1];
     var b = g.newBrush(g.BrushType.SOLID_COLOR, c);
 
     g.rectPath(0, 4, 8, 2);

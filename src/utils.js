@@ -101,26 +101,55 @@ export function saveFileFromBinaryString(binaryString) {
   }
 }
 
-// export function drawLine(customEl) {
-//   var parentEl = customEl.parent;
+export function indexOf(arr, el) {
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === el) {
+      return i;
+    }
+  }
 
-//   if (!parentEl.size) {
-//     parentEl.parent.layout.layout(true);
-//   }
+  return -1;
+}
 
-//   if (parentEl.orientation === "row") {
-//     customEl.size = [1, parentEl.size[1] + 5];
-//   } else {
-//     customEl.size = [parentEl.size[0] + 5, 1];
-//   }
+export function findIndex(arr, testFn) {
+  for (var i = 0; i < arr.length; i++) {
+    if (testFn(arr[i])) {
+      return i;
+    }
+  }
 
-//   customEl.onDraw = function () {
-//     var g = this.graphics;
-//     var c = [0.3, 0.3, 0.3, 1];
-//     var p = g.newPen(g.PenType.SOLID_COLOR, c, 1);
+  return -1;
+}
 
-//     g.moveTo(-5, 0);
-//     g.lineTo(this.size[0] + 5, 0);
-//     g.strokePath(p);
-//   };
-// }
+export function isModifierKey(keyName) {
+  return /Control|Shift|Alt|Meta/.test(keyName);
+}
+
+export function getPressedKeys(keyName) {
+  var pressedKeys = [];
+  var keyState = ScriptUI.environment.keyboardState;
+
+  keyName = keyName || keyState.keyName;
+
+  if (keyState.ctrlKey) {
+    pressedKeys.push("Control");
+  }
+
+  if (keyState.metaKey) {
+    pressedKeys.push("Meta");
+  }
+
+  if (keyState.shiftKey) {
+    pressedKeys.push("Shift");
+  }
+
+  if (keyState.altKey) {
+    pressedKeys.push("Alt");
+  }
+
+  if (keyName && !isModifierKey(keyName)) {
+    pressedKeys.push(keyName);
+  }
+
+  return pressedKeys;
+}

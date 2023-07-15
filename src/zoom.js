@@ -2,11 +2,12 @@ import Settings from "./ui/settings";
 import NumberValue from "./ui/number-value";
 import Slider from "./ui/slider";
 import ValueList from "./ui/value-list";
-import { SETTINGS_SECTION_NAME } from "./constants";
+import { SETTINGS_SECTION_NAME, ZOOM_LIST_VALUES, STICK_TO } from "./constants";
 
 function Zoom(thisObj) {
   var currentZoom = Zoom.getViewZoom();
   var zoomSettings = Settings.getSettings();
+  var zoomSetToFn = this.produceSetTo();
 
   this.w =
     thisObj instanceof Panel
@@ -38,7 +39,15 @@ function Zoom(thisObj) {
     this.produceSyncOnMouseOver(),
   );
 
-  this.zoomValueList = new ValueList(this, this.w, this.produceSetTo());
+  this.zoomValueList = new ValueList(
+    this.w,
+    ZOOM_LIST_VALUES,
+    function (val) {
+      zoomSetToFn(parseFloat(val));
+    },
+    this.zoomNumberValue.element,
+    STICK_TO.LEFT,
+  );
   this.w.grSlider = this.w.add("group");
   this.settings = new Settings(this, this.w);
 
