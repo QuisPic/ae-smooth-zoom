@@ -1,6 +1,7 @@
 import KeyCombination from "./key-combination";
 import bind from "../../extern/function-bind";
 import { indexOf, getPrimaryScreen, getPressedKeys } from "../utils";
+import { TABLE_SIZES } from "../constants";
 
 function KeyCapture(keyBinding) {
   this.keyBinding = keyBinding;
@@ -22,8 +23,13 @@ function KeyCapture(keyBinding) {
           alignChildren: ['fill', 'fill'], \
           preferredSize: [400, 50], \
         }, \
-        txt1: StaticText { \
-          text: 'Press Enter to accept. Esc to cancel.', \
+        grBottomText : Group { \
+          spacing: 4, \
+          txt0: StaticText { text: 'Press' }, \
+          grEnter: Group {}, \
+          txt1: StaticText { text: 'to accept.' }, \
+          grEscape: Group {}, \
+          txt2: StaticText { text: 'to cancel.' }, \
         }, \
       }, \
     }",
@@ -45,6 +51,15 @@ function KeyCapture(keyBinding) {
   var primaryScreen = getPrimaryScreen();
   var gr = this.infoWindow.gr;
 
+  gr.grBottomText.grEnter.keyCombination = new KeyCombination(
+    gr.grBottomText.grEnter,
+    ["Enter"],
+  );
+  gr.grBottomText.grEscape.keyCombination = new KeyCombination(
+    gr.grBottomText.grEscape,
+    ["Escape"],
+  );
+
   this.captureWindow.preferredSize = [
     primaryScreen.right,
     primaryScreen.bottom,
@@ -58,7 +73,12 @@ function KeyCapture(keyBinding) {
   this.infoWindow.graphics.backgroundColor = b;
 
   // place temp key to calculate the size for the group
-  this.keyCombination = new KeyCombination(gr.pnlCapture, ["A"], "center");
+  this.keyCombination = new KeyCombination(
+    gr.pnlCapture,
+    ["A"],
+    TABLE_SIZES[2],
+    "center",
+  );
   gr.layout.layout(true);
   gr.pnlCapture.minimumSize = gr.pnlCapture.size;
   // remove the temp key
@@ -88,8 +108,8 @@ function KeyCapture(keyBinding) {
         if (event.keyName === "Enter") {
           this.keyBinding.updateKeys(this.pressedKeys);
           this.captureWindow.close();
-        } else if (event.keyName === "Escape") {
-          this.captureWindow.close();
+        // } else if (event.keyName === "Escape") {
+        //   this.captureWindow.close();
         } else {
           updateKeys(event.keyName);
         }
@@ -168,7 +188,7 @@ function KeyCapture(keyBinding) {
     }
   }, this);
 
-  this.captureWindow.onDeactivate = bind(function () {
+  this.captureWindow.onClose = bind(function () {
     try {
       this.captureWindow.close();
       this.infoWindow.close();

@@ -21,7 +21,6 @@ export var ZOOM_LIST_VALUES = [
 ];
 export var DEFAULT_SETTINGS = {
   keyBindings: '[{"enabled":true,"key":0,"mouse":0,"action":0,"amount":1}]',
-  unfoldInfo: true,
   syncWithView: true,
   showSlider: true,
   sliderMin: 1,

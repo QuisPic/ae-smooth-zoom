@@ -1,6 +1,11 @@
 import MenuWindow from "./menu-window";
 import NumberValue from "./number-value";
-import { DEFAULT_SETTINGS, OS, SETTINGS_SECTION_NAME, STICK_TO } from "../constants";
+import {
+  DEFAULT_SETTINGS,
+  OS,
+  SETTINGS_SECTION_NAME,
+  STICK_TO,
+} from "../constants";
 import { checkOs, openURL } from "../utils";
 import Checkbox from "./checkbox";
 import PluginWindow from "./plugin-window";
@@ -57,12 +62,15 @@ function Settings(zoom, parentEl) {
         }
       };
 
-      var shortcutItem = menuWindow.addMenuItem("Key Bindings...", function () {
-        var plugingW = new PluginWindow();
+      var keyBindingsItem = menuWindow.addMenuItem(
+        "Key Bindings...",
+        function () {
+          var plugingW = new PluginWindow();
 
-        menuWindow.plugingW = plugingW;
-        plugingW.element.show();
-      });
+          menuWindow.plugingW = plugingW;
+          plugingW.element.show();
+        },
+      );
 
       // we pass this empty function because there is a strage bug
       // in AE where if a window doesn't have a reference to a function
@@ -169,13 +177,6 @@ Settings.getSettings = function () {
     );
   } else {
     result.keyBindings = DEFAULT_SETTINGS.keyBindings;
-  }
-
-  if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "unfoldInfo")) {
-    result.unfoldInfo =
-      app.settings.getSetting(SETTINGS_SECTION_NAME, "unfoldInfo") === "true";
-  } else {
-    result.unfoldInfo = DEFAULT_SETTINGS.unfoldInfo;
   }
 
   if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "syncWithView")) {

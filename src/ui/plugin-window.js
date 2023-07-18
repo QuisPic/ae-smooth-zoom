@@ -1,18 +1,30 @@
 import { checkOs, saveFileFromBinaryString } from "../utils";
+import bind from "../../extern/function-bind";
 import zoomPluginBin from "../../extern/zoom-plugin";
 import { OS, SETTINGS_SECTION_NAME } from "../constants";
 import Settings from "./settings";
 import KeyBinding from "./key-binding";
 import Line from "./line";
-import TrashIcon from "./trash-icon";
 import JSON from "../../extern/json2";
-import EditIcon from "./edit-icon";
 import ColumnNames from "./column-names";
 
 function PluginWindow() {
   var thisWindow = this;
   this.keyBindingsArr = [];
   this.linesArr = [];
+
+  if (!$.global.__zoom_plugin_cmd_ids__) {
+    var initJsBridgeCommandId = app.findMenuCommandId(
+      "__zoom_init_js_bridge__",
+    );
+
+    if (initJsBridgeCommandId) {
+      app.executeCommand(initJsBridgeCommandId);
+    }
+  }
+
+  this.pluginFound = $.global.__zoom_plugin_cmd_ids__;
+  this.isUnfoldInfo = !this.pluginFound;
 
   this.element = new Window("palette", "Zoom Key Bindings", undefined, {
     resizeable: false,
@@ -70,7 +82,6 @@ function PluginWindow() {
     }",
   );
 
-  var pnlInstallPlugin = this.element.gr.pnlInstallPlugin;
   var pnlKeyBindings = this.element.gr.pnlKeyBindings;
   var grBindings = pnlKeyBindings.grBindings;
   // var grColumnNames = pnlKeyBindings.grColumnNames;
@@ -80,13 +91,8 @@ function PluginWindow() {
     pnlKeyBindings.grColumnNames,
   );
 
-  pnlInstallPlugin.graphics.backgroundColor =
-    pnlInstallPlugin.graphics.newBrush(
-      pnlInstallPlugin.graphics.BrushType.SOLID_COLOR,
-      [0.2, 0.12, 0.12, 1],
-    );
-
-  this.setStatus();
+  // check if plug-in is available
+  this.setPluginStatus();
 
   if (keyBindings && keyBindings.length > 0) {
     for (var i = 0; i < keyBindings.length; i++) {
@@ -97,16 +103,12 @@ function PluginWindow() {
 
   Line(pnlKeyBindings.grLine);
 
-  if (Settings.getSettings().unfoldInfo) {
-    this.unfoldInfo();
-  }
-
-  pnlKeyBindings.grAdd.btnAdd.onClick = function () {
+  pnlKeyBindings.grAdd.btnAdd.onClick = bind(function () {
     this.keyBindingsArr.push(new KeyBinding(grBindings));
     this.linesArr.push(new Line(grBindings));
 
     thisWindow.element.layout.layout(true);
-  };
+  }, this);
 
   this.element.gr.grButtons.btnSave.onClick = function () {
     var bindingsArr = [];
@@ -146,53 +148,57 @@ function PluginWindow() {
   // this.placeColumnNames();
 }
 
-PluginWindow.prototype.setStatus = function () {
+PluginWindow.prototype.setPluginStatus = function () {
   var pnlInstallPlugin = this.element.gr.pnlInstallPlugin;
 
-  var grStatus = pnlInstallPlugin.add(
+  pnlInstallPlugin.grStatus = pnlInstallPlugin.add(
     "Group {\
       spacing: 6, \
       foldIcon: Custom { preferredSize: [8, 8] }, \
-      txt: StaticText { text: 'Zoom plug-in is not installed' }, \
+      txt: StaticText {}, \
       statusIcon: Group { preferredSize: [8, 8] }, \
     }",
   );
 
+  var grStatus = pnlInstallPlugin.grStatus;
   var foldIcon = grStatus.foldIcon;
   var statusIcon = grStatus.statusIcon;
-  var pluginWindow = this;
 
-  foldIcon.unfoldInfo = Settings.getSettings().unfoldInfo;
+  pnlInstallPlugin.graphics.backgroundColor =
+    pnlInstallPlugin.graphics.newBrush(
+      pnlInstallPlugin.graphics.BrushType.SOLID_COLOR,
+      this.pluginFound ? [0.12, 0.2, 0.12, 1] : [0.2, 0.12, 0.12, 1],
+    );
 
-  grStatus.addEventListener("click", function (event) {
-    if (event.eventPhase === "target") {
-      var unfoldInfo = Settings.getSettings().unfoldInfo;
+  grStatus.txt.text = this.pluginFound
+    ? "Zoom plug-in installed"
+    : "Zoom plug-in is not installed";
 
-      if (unfoldInfo) {
-        pluginWindow.foldInfo();
-      } else {
-        pluginWindow.unfoldInfo();
+  grStatus.addEventListener(
+    "click",
+    bind(function (event) {
+      if (event.eventPhase === "target") {
+        if (this.isUnfoldInfo) {
+          this.foldInfo();
+          this.isUnfoldInfo = false;
+        } else {
+          this.unfoldInfo();
+          this.isUnfoldInfo = true;
+        }
+
+        foldIcon.notify("onDraw");
       }
+    }, this),
+  );
 
-      app.settings.saveSetting(
-        SETTINGS_SECTION_NAME,
-        "unfoldInfo",
-        !unfoldInfo,
-      );
-
-      foldIcon.unfoldInfo = !unfoldInfo;
-      foldIcon.notify("onDraw");
-    }
-  });
-
-  foldIcon.onDraw = function () {
-    var g = this.graphics;
+  foldIcon.onDraw = bind(function () {
+    var g = grStatus.foldIcon.graphics;
     var c = grStatus.isMouseOver
       ? [0.75, 0.75, 0.75, 1]
       : [0.55, 0.55, 0.55, 1];
     var b = g.newPen(g.PenType.SOLID_COLOR, c, 2);
 
-    if (this.unfoldInfo) {
+    if (this.isUnfoldInfo) {
       g.moveTo(0, 2);
       g.lineTo(4, 6);
       g.lineTo(8, 2);
@@ -203,7 +209,7 @@ PluginWindow.prototype.setStatus = function () {
     }
 
     g.strokePath(b);
-  };
+  }, this);
 
   grStatus.addEventListener("mouseover", function (event) {
     if (event.eventPhase === "target") {
@@ -219,21 +225,32 @@ PluginWindow.prototype.setStatus = function () {
     }
   });
 
-  statusIcon.onDraw = function () {
-    var g = this.graphics;
-    var c = [1, 0, 0, 1];
+  statusIcon.onDraw = bind(function () {
+    var g = grStatus.statusIcon.graphics;
+    var c = this.pluginFound ? [0.1, 0.85, 0.1, 1] : [1, 0, 0, 1];
     var p = g.newPen(g.PenType.SOLID_COLOR, c, 2);
 
-    g.moveTo(0, 0);
-    g.lineTo(8, 8);
-    g.strokePath(p);
+    if (this.pluginFound) {
+      g.moveTo(0, 3);
+      g.lineTo(3, 6);
+      g.lineTo(8, 0);
+    } else {
+      g.moveTo(0, 0);
+      g.lineTo(8, 8);
+      g.strokePath(p);
 
-    g.currentPath = g.newPath();
+      g.currentPath = g.newPath();
 
-    g.moveTo(8, 0);
-    g.lineTo(0, 8);
+      g.moveTo(8, 0);
+      g.lineTo(0, 8);
+    }
+
     g.strokePath(p);
-  };
+  }, this);
+
+  if (this.isUnfoldInfo) {
+    this.unfoldInfo();
+  }
 };
 
 PluginWindow.prototype.unfoldInfo = function () {
@@ -320,62 +337,6 @@ PluginWindow.prototype.foldInfo = function () {
 
   this.element.layout.layout(true);
   this.element.layout.resize();
-};
-
-PluginWindow.prototype.placeColumnNames = function () {
-  var pnlKeyBindings = this.element.gr.pnlKeyBindings;
-  var grColumnNames = pnlKeyBindings.grColumnNames;
-  var grBindings = pnlKeyBindings.grBindings;
-  var keyBind = grBindings.children[0];
-
-  var cCheck = grColumnNames.cCheck;
-  var grEditIcon = grColumnNames.grEditIcon;
-  var txtKeyboard = grColumnNames.txtKeyboard;
-  var txtAction = grColumnNames.txtAction;
-  var txtAmount = grColumnNames.txtAmount;
-  var trashIcon = grColumnNames.trashIcon.element;
-
-  var grLine0 = grColumnNames.grLine0;
-  var grLine1 = grColumnNames.grLine1;
-  var grLine2 = grColumnNames.grLine2;
-  var grLine3 = grColumnNames.grLine3;
-  var grLine4 = grColumnNames.grLine4;
-
-  if (!keyBind.size) {
-    this.element.layout.layout(true);
-  }
-
-  var chkEnable = keyBind.chkEnable;
-  var gr = keyBind.gr;
-  var grEdit = gr.grEdit;
-  var grKeys = gr.grKeys;
-  var ddlistAction = gr.ddlistAction;
-  var amount = gr.amount.element;
-  var trash = keyBind.trash.element;
-
-  cCheck.onDraw = function () {
-    var g = this.graphics;
-    var c = [0.55, 0.55, 0.55, 1];
-    var p = g.newPen(g.PenType.SOLID_COLOR, c, 2);
-
-    g.moveTo(0, 3);
-    g.lineTo(3, 6);
-    g.lineTo(8, 0);
-    g.strokePath(p);
-  };
-
-  grLine0.location = [gr.location[0] + grEdit.location[0], 0];
-  grLine1.location = [gr.location[0] + grKeys.location[0], 0];
-  grLine2.location = [gr.location[0] + ddlistAction.location[0], 0];
-  grLine3.location = [gr.location[0] + amount.location[0], 0];
-  grLine4.location = [gr.location[0] + amount.location[0] + amount.size[0], 0];
-
-  cCheck.location = [chkEnable.location[0] + 3, 5];
-  grEditIcon.location = [grLine0.location[0] + 1, 0];
-  txtKeyboard.location = [grLine1.location[0] + 5, 0];
-  txtAction.location = [grLine2.location[0] + 5, 0];
-  txtAmount.location = [grLine3.location[0] + 5, 0];
-  trashIcon.location = [trash.location[0], 2];
 };
 
 export default PluginWindow;

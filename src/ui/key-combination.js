@@ -1,11 +1,9 @@
-import { TABLE_SIZES } from "../constants";
-
-function KeyCombination(parentEl, keysArr, alignChildren) {
+function KeyCombination(parentEl, keysArr, minWidth, alignChildren) {
   // a lock for sort of thread safety
   // when someone presses keys too fast multiple updateKeys()
   // may run simultaneously
   this.updating = false;
-  this.alignChildren = alignChildren;
+  this.alignChildren = alignChildren || "left";
 
   this.element = parentEl.add(
     "Group { \
@@ -17,7 +15,10 @@ function KeyCombination(parentEl, keysArr, alignChildren) {
   this.b = g.newBrush(g.BrushType.SOLID_COLOR, [0.11, 0.11, 0.11, 1]);
   this.p = g.newPen(g.PenType.SOLID_COLOR, [0.75, 0.75, 0.75, 1], 1);
 
-  this.element.minimumSize = [TABLE_SIZES[2], 0];
+  if (minWidth) {
+    this.element.minimumSize = [minWidth, 0];
+  }
+
   this.addCombination(keysArr);
 }
 

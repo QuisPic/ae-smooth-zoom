@@ -9,6 +9,8 @@ import NumberValue from "./number-value";
 import TrashIcon from "./trash-icon";
 
 function KeyBinding(parentEl, values) {
+  // invisible lines here are just to add space in between elements
+  // to line up them with the column names
   this.element = parentEl.add(
     "Group { \
       spacing: 5, \
@@ -43,9 +45,11 @@ function KeyBinding(parentEl, values) {
 
   gr.grEdit.editIcon = new EditIcon(gr.grEdit, true);
   this.element.trash = new TrashIcon(this.element, true);
+
   gr.grKeys.keyCombination = new KeyCombination(
     gr.grKeys,
     ["Ctrl", "Shift", "Scroll UP"],
+    TABLE_SIZES[2],
     "left",
   );
 
