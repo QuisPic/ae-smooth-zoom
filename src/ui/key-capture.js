@@ -1,16 +1,21 @@
 import KeyCombination from "./key-combination";
 import bind from "../../extern/function-bind";
-import { indexOf, getPrimaryScreen, getPressedKeys } from "../utils";
-import { TABLE_SIZES } from "../constants";
+import {
+  EVENT_KEY_PRESSED,
+  TABLE_SIZES,
+  VC_ENTER,
+  VC_EX_ENTER,
+} from "../constants";
 
-function KeyCapture(keyBinding) {
+function KeyCapture(keyBinding, onEnterKeyFn) {
   this.keyBinding = keyBinding;
+  this.onEnterKeyFn = onEnterKeyFn;
 
-  this.infoWindow = new Window(
-    "palette { \
+  this.element = new Window(
+    "dialog { \
       alignChildren: ['center','center'], \
       properties: { \
-        borderless: true, \
+        borderless: false, \
         resizeable: false, \
       }, \
       gr: Group { \
@@ -35,21 +40,21 @@ function KeyCapture(keyBinding) {
     }",
   );
 
-  this.captureWindow = new Window(
-    "palette { \
-      margins: 0, \
-      alignChildren: ['fill','fill'], \
-      orientation: 'stack', \
-      opacity: 0.01, \
-      properties: { \
-        borderless: true, \
-      }, \
-      gr: Slider { minvalue: -100 }, \
-    }",
-  );
+  // this.captureWindow = new Window(
+  //   "palette { \
+  //     margins: 0, \
+  //     alignChildren: ['fill','fill'], \
+  //     orientation: 'stack', \
+  //     opacity: 0.01, \
+  //     properties: { \
+  //       borderless: true, \
+  //     }, \
+  //     gr: Slider { minvalue: -100 }, \
+  //   }",
+  // );
 
-  var primaryScreen = getPrimaryScreen();
-  var gr = this.infoWindow.gr;
+  // var primaryScreen = getPrimaryScreen();
+  var gr = this.element.gr;
 
   gr.grBottomText.grEnter.keyCombination = new KeyCombination(
     gr.grBottomText.grEnter,
@@ -60,17 +65,17 @@ function KeyCapture(keyBinding) {
     ["Escape"],
   );
 
-  this.captureWindow.preferredSize = [
-    primaryScreen.right,
-    primaryScreen.bottom,
-  ];
+  // this.captureWindow.preferredSize = [
+  //   primaryScreen.right,
+  //   primaryScreen.bottom,
+  // ];
 
   // remove all drawing for the slider
-  this.captureWindow.gr.onDraw = function () {};
+  // this.captureWindow.gr.onDraw = function () {};
 
-  var g = this.infoWindow.graphics;
+  var g = this.element.graphics;
   var b = g.newBrush(g.BrushType.SOLID_COLOR, [0.05, 0.05, 0.05, 1]);
-  this.infoWindow.graphics.backgroundColor = b;
+  this.element.graphics.backgroundColor = b;
 
   // place temp key to calculate the size for the group
   this.keyCombination = new KeyCombination(
@@ -81,124 +86,181 @@ function KeyCapture(keyBinding) {
   );
   gr.layout.layout(true);
   gr.pnlCapture.minimumSize = gr.pnlCapture.size;
-  // remove the temp key
-  this.keyCombination.updateKeys([]);
+  this.keyCombination.updateKeys([]); // remove the temp key
 
-  this.pressedKeys = [];
-  this.combinationEnded = false;
-  this.isMouseDown = false;
+  /**
+   * This function is called from zoom plugin.
+   * It receives currently pressed keyboard and mouse keys in the plugin format
+   * and translates them into readable format.
+   * @param { number } type type of the event: KEY_PRESSED, MOUSE_PRESSED, SCROLL_WHEEL
+   * @param { number } mask the modifier keys that were pressed at the time of the event: Ctrl, Meta, Shift, Alt/Option
+   * @param { number } key the key code of the button that was pressed: keyboard or mouse button or mouse wheel direction
+   */
+  $.global.__zoom_key_bind_pass_fn__ = bind(function (type, mask, keycode) {
+    /** If the key is Enter then save the key combination and close the window */
+    if (
+      type === EVENT_KEY_PRESSED &&
+      (keycode === VC_ENTER || keycode === VC_EX_ENTER)
+    ) {
+      if (
+        this.keyCombination.keyNames.length > 0 &&
+        typeof this.onEnterKeyFn === "function"
+      ) {
+        this.onEnterKeyFn(
+          this.keyCombination.keyNames,
+          this.keyCombination.keyCodes,
+        );
+      }
 
-  var updateKeys = bind(function (keyName) {
-    if (this.combinationEnded) {
-      this.pressedKeys = [];
-      this.combinationEnded = false;
-    }
+      this.element.close();
+    } else {
+      this.keyCombination.updateKeysWithCodes({
+        type: type,
+        mask: mask,
+        keycode: keycode,
+      });
 
-    if (indexOf(this.pressedKeys, keyName) === -1) {
-      this.pressedKeys = getPressedKeys(keyName);
-      this.keyCombination.updateKeys(this.pressedKeys);
-      this.infoWindow.layout.layout(true);
+      this.element.layout.layout(true);
     }
   }, this);
 
-  this.captureWindow.addEventListener(
-    "keydown",
-    bind(function (event) {
-      try {
-        if (event.keyName === "Enter") {
-          this.keyBinding.updateKeys(this.pressedKeys);
-          this.captureWindow.close();
-        // } else if (event.keyName === "Escape") {
-        //   this.captureWindow.close();
-        } else {
-          updateKeys(event.keyName);
-        }
-      } catch (error) {
-        alert(error);
-      }
-    }, this),
-  );
+  if ($.global.__zoom_plugin_cmd_ids__) {
+    try {
+      app.executeCommand($.global.__zoom_plugin_cmd_ids__.startKeyCaptureCmdId);
+    } catch (error) {
+      alert("Error at line " + $.line + ":\n" + error.message);
+    }
+  }
 
-  this.captureWindow.addEventListener(
-    "keyup",
-    bind(function () {
-      try {
-        var pressedKeys = getPressedKeys();
+  // this.pressedKeys = [];
+  // this.combinationEnded = false;
+  // this.isMouseDown = false;
 
-        if (pressedKeys.length === 0) {
-          this.combinationEnded = true;
-        }
-      } catch (error) {
-        alert(error);
-      }
-    }, this),
-  );
+  // var updateKeys = bind(function (keyName) {
+  //   if (this.combinationEnded) {
+  //     this.pressedKeys = [];
+  //     this.combinationEnded = false;
+  //   }
 
-  this.captureWindow.addEventListener(
-    "mousedown",
-    bind(function (event) {
-      try {
-        event.preventDefault();
-        this.isMouseDown = true;
+  //   if (indexOf(this.pressedKeys, keyName) === -1) {
+  //     this.pressedKeys = getPressedKeys(keyName);
+  //     this.keyCombination.updateKeys(this.pressedKeys);
+  //     this.infoWindow.layout.layout(true);
+  //   }
+  // }, this);
 
-        switch (event.button) {
-          case 0:
-            updateKeys("Left Click");
-            break;
-          case 1:
-            updateKeys("Middle Click");
-            break;
-          case 2:
-            updateKeys("Right Click");
-            break;
-          default:
-            updateKeys("Mouse Button " + event.button);
-            break;
-        }
-      } catch (error) {
-        alert(error);
-      }
-    }, this),
-  );
+  // this.captureWindow.addEventListener(
+  //   "keydown",
+  //   bind(function (event) {
+  //     try {
+  //       if (event.keyName === "Enter") {
+  //         this.keyBinding.updateKeys(this.pressedKeys);
+  //         this.captureWindow.close();
+  //         // } else if (event.keyName === "Escape") {
+  //         //   this.captureWindow.close();
+  //       } else {
+  //         updateKeys(event.keyName);
+  //       }
+  //     } catch (error) {
+  //       alert(error);
+  //     }
+  //   }, this),
+  // );
 
-  this.captureWindow.addEventListener(
-    "mouseup",
-    bind(function () {
-      this.isMouseDown = false;
-    }, this),
-  );
+  // this.captureWindow.addEventListener(
+  //   "keyup",
+  //   bind(function () {
+  //     try {
+  //       var pressedKeys = getPressedKeys();
+
+  //       if (pressedKeys.length === 0) {
+  //         this.combinationEnded = true;
+  //       }
+  //     } catch (error) {
+  //       alert(error);
+  //     }
+  //   }, this),
+  // );
+
+  // this.captureWindow.addEventListener(
+  //   "mousedown",
+  //   bind(function (event) {
+  //     try {
+  //       event.preventDefault();
+  //       this.isMouseDown = true;
+
+  //       switch (event.button) {
+  //         case 0:
+  //           updateKeys("Left Click");
+  //           break;
+  //         case 1:
+  //           updateKeys("Middle Click");
+  //           break;
+  //         case 2:
+  //           updateKeys("Right Click");
+  //           break;
+  //         default:
+  //           updateKeys("Mouse Button " + event.button);
+  //           break;
+  //       }
+  //     } catch (error) {
+  //       alert(error);
+  //     }
+  //   }, this),
+  // );
+
+  // this.captureWindow.addEventListener(
+  //   "mouseup",
+  //   bind(function () {
+  //     this.isMouseDown = false;
+  //   }, this),
+  // );
 
   // slider value can be changed with mouse wheel
   // so we use this to capture the mouse wheel event
-  this.captureWindow.gr.onChanging = bind(function () {
-    try {
-      if (!this.isMouseDown) {
-        var sl = this.captureWindow.gr;
+  // this.captureWindow.gr.onChanging = bind(function () {
+  //   try {
+  //     if (!this.isMouseDown) {
+  //       var sl = this.captureWindow.gr;
 
-        if (sl.value > 0) {
-          updateKeys("Scroll DOWN");
-        } else if (sl.value < 0) {
-          updateKeys("Scroll UP");
-        }
+  //       if (sl.value > 0) {
+  //         updateKeys("Scroll DOWN");
+  //       } else if (sl.value < 0) {
+  //         updateKeys("Scroll UP");
+  //       }
 
-        sl.value = 0;
+  //       sl.value = 0;
+  //     }
+  //   } catch (error) {
+  //     alert(error);
+  //   }
+  // }, this);
+
+  // this.captureWindow.onClose = bind(function () {
+  //   try {
+  //     this.captureWindow.close();
+  //     this.infoWindow.close();
+  //   } catch (error) {
+  //     alert(error);
+  //   }
+  // }, this);
+
+  this.element.onClose = function () {
+    $.global.__zoom_key_bind_pass_fn__ = undefined;
+
+    if ($.global.__zoom_plugin_cmd_ids__) {
+      try {
+        app.executeCommand(
+          $.global.__zoom_plugin_cmd_ids__.stopKeyCaptureCmdId,
+        );
+      } catch (error) {
+        alert("Error at line " + error.line + ":\n" + error.message);
       }
-    } catch (error) {
-      alert(error);
     }
-  }, this);
+  };
 
-  this.captureWindow.onClose = bind(function () {
-    try {
-      this.captureWindow.close();
-      this.infoWindow.close();
-    } catch (error) {
-      alert(error);
-    }
-  }, this);
-
-  this.infoWindow.show();
-  this.captureWindow.show();
+  this.element.show();
+  // this.captureWindow.show();
 }
 
 export default KeyCapture;

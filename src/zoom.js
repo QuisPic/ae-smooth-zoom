@@ -2,11 +2,12 @@ import Settings from "./ui/settings";
 import NumberValue from "./ui/number-value";
 import Slider from "./ui/slider";
 import ValueList from "./ui/value-list";
-import { SETTINGS_SECTION_NAME, ZOOM_LIST_VALUES, STICK_TO } from "./constants";
+import { ZOOM_LIST_VALUES, STICK_TO } from "./constants";
+import preferences from "./preferences";
 
 function Zoom(thisObj) {
   var currentZoom = Zoom.getViewZoom();
-  var zoomSettings = Settings.getSettings();
+  // var zoomSettings = Settings.getSettings();
   var zoomSetToFn = this.produceSetTo();
 
   this.w =
@@ -51,13 +52,13 @@ function Zoom(thisObj) {
   this.w.grSlider = this.w.add("group");
   this.settings = new Settings(this, this.w);
 
-  if (zoomSettings.showSlider) {
+  if (preferences.showSlider) {
     this.addSlider();
   }
 }
 
 Zoom.prototype.addSlider = function () {
-  var zoomSettings = Settings.getSettings();
+  // var zoomSettings = Settings.getSettings();
 
   this.zoomSlider = new Slider(
     this,
@@ -66,8 +67,8 @@ Zoom.prototype.addSlider = function () {
     this.produceSliderOnScrubStart(),
     this.produceSliderOnScrubEnd(),
     this.zoomNumberValue.getValue(),
-    zoomSettings.sliderMin || 1,
-    zoomSettings.sliderMax,
+    preferences.sliderMin || 1,
+    preferences.sliderMax,
   );
 
   this.zoomSlider.element.addEventListener(
@@ -120,7 +121,7 @@ Zoom.prototype.produceSyncOnMouseOver = function () {
   var thisZoom = this;
 
   return function (event) {
-    if (event.eventPhase === "target" && Settings.getSettings().syncWithView) {
+    if (event.eventPhase === "target" && preferences.syncWithView) {
       thisZoom.syncWithView();
     }
   };
@@ -174,7 +175,7 @@ Zoom.prototype.produceOnIncrement = function () {
     var currValue = thisZoom.zoomNumberValue.getValue();
     var viewValue = Zoom.getViewZoom();
 
-    if (Settings.getSettings().syncWithView && currValue !== viewValue) {
+    if (preferences.syncWithView && currValue !== viewValue) {
       zoomValue = viewValue + (zoomValue - currValue);
     }
 
@@ -199,7 +200,8 @@ Zoom.prototype.showHideSlider = function () {
     val = true;
   }
 
-  app.settings.saveSetting(SETTINGS_SECTION_NAME, "showSlider", val);
+  // app.settings.saveSetting(SETTINGS_SECTION_NAME, "showSlider", val);
+  preferences.save("showSlider", val);
 
   this.w.layout.layout(true);
   this.w.layout.resize();

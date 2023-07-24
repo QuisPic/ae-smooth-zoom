@@ -9,12 +9,14 @@ import NumberValue from "./number-value";
 import TrashIcon from "./trash-icon";
 
 function KeyBinding(parentEl, values) {
-  // invisible lines here are just to add space in between elements
-  // to line up them with the column names
+  /**
+   * invisible lines here are just to add space in between elements
+   * to line up them with the column names
+   */
   this.element = parentEl.add(
     "Group { \
       spacing: 5, \
-      alignment: 'fill', \
+      alignment: ['fill', 'top'], \
       margins: [10, 5, 10, 5], \
       chkEnable: Checkbox {}, \
       grLine0: Group { alignment: 'fill', visible: false }, \
@@ -26,7 +28,7 @@ function KeyBinding(parentEl, values) {
         grLine2: Group { alignment: 'fill', visible: false }, \
         ddlistAction: DropDownList { \
           properties: { \
-            items: ['Increase by', 'Decrease by', 'Set To'] \
+            items: ['Increase by', 'Decrease by', 'Set Zoom To'] \
           }, \
         }, \
         grLine3: Group { alignment: 'fill', visible: false }, \
@@ -48,10 +50,11 @@ function KeyBinding(parentEl, values) {
 
   gr.grKeys.keyCombination = new KeyCombination(
     gr.grKeys,
-    ["Ctrl", "Shift", "Scroll UP"],
+    [],
     TABLE_SIZES[2],
     "left",
   );
+  gr.grKeys.keyCombination.updateKeysWithCodes(values.keyCodes);
 
   gr.grAmount.numberValue = new NumberValue(gr.grAmount, "%", values.amount, 0);
 
@@ -62,12 +65,14 @@ function KeyBinding(parentEl, values) {
   new Line(gr.grLine4);
 
   this.element.chkEnable.preferredSize = [TABLE_SIZES[0], 14];
+  this.element.chkEnable.minimumSize = [TABLE_SIZES[0], 14];
   gr.grEdit.preferredSize = [TABLE_SIZES[1], -1];
-  gr.grEdit.minimumSize = [TABLE_SIZES[1], -1];
+  gr.grEdit.minimumSize = [TABLE_SIZES[1], 0];
   gr.grKeys.preferredSize = [TABLE_SIZES[2], -1];
   gr.ddlistAction.preferredSize = [TABLE_SIZES[3], -1];
+  gr.ddlistAction.minimumSize = [TABLE_SIZES[3], -1];
   gr.grAmount.preferredSize = [TABLE_SIZES[4], -1];
-  gr.grAmount.minimumSize = [TABLE_SIZES[4], -1];
+  gr.grAmount.minimumSize = [TABLE_SIZES[4], 0];
   this.element.trash.element.preferredSize = [TABLE_SIZES[5], -1];
 
   gr.grEdit.editIcon.element.icon.helpTip = "Edit";
@@ -83,7 +88,15 @@ function KeyBinding(parentEl, values) {
     "click",
     bind(function (event) {
       if (event.eventPhase === "target") {
-        this.keyCaptureWindow = new KeyCapture(this);
+        this.keyCaptureWindow = new KeyCapture(
+          this,
+          bind(function (keyNames, keyCodes) {
+            var targetKeyCombination = this.element.gr.grKeys.keyCombination;
+
+            targetKeyCombination.updateKeys(keyNames);
+            targetKeyCombination.keyCodes = keyCodes;
+          }, this),
+        );
       }
     }, this),
   );
@@ -107,14 +120,14 @@ function KeyBinding(parentEl, values) {
 
         parentEl.window.layout.layout(true);
       } else {
-        throw "Key binding not found.";
+        throw "Can not remove key binding: Key binding not found.";
       }
     }
   });
 }
 
-KeyBinding.prototype.updateKeys = function (keysArr) {
-  this.element.gr.grKeys.keyCombination.updateKeys(keysArr);
+KeyBinding.prototype.updateKeys = function (keyNames) {
+  this.element.gr.grKeys.keyCombination.updateKeys(keyNames);
 };
 
 export default KeyBinding;

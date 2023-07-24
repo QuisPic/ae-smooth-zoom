@@ -1,12 +1,13 @@
 import { checkOs, saveFileFromBinaryString } from "../utils";
 import bind from "../../extern/function-bind";
 import zoomPluginBin from "../../extern/zoom-plugin";
-import { OS, SETTINGS_SECTION_NAME } from "../constants";
-import Settings from "./settings";
+import { OS } from "../constants";
 import KeyBinding from "./key-binding";
+import KeyCapture from "./key-capture";
 import Line from "./line";
 import JSON from "../../extern/json2";
 import ColumnNames from "./column-names";
+import preferences from "../preferences";
 
 function PluginWindow() {
   var thisWindow = this;
@@ -14,16 +15,14 @@ function PluginWindow() {
   this.linesArr = [];
 
   if (!$.global.__zoom_plugin_cmd_ids__) {
-    var initJsBridgeCommandId = app.findMenuCommandId(
-      "__zoom_init_js_bridge__",
-    );
+    var saveCmdIdsId = app.findMenuCommandId("__zoom_save_cmd_ids__");
 
-    if (initJsBridgeCommandId) {
-      app.executeCommand(initJsBridgeCommandId);
+    if (saveCmdIdsId) {
+      app.executeCommand(saveCmdIdsId);
     }
   }
 
-  this.pluginFound = $.global.__zoom_plugin_cmd_ids__;
+  this.pluginFound = !!$.global.__zoom_plugin_cmd_ids__;
   this.isUnfoldInfo = !this.pluginFound;
 
   this.element = new Window("palette", "Zoom Key Bindings", undefined, {
@@ -31,7 +30,6 @@ function PluginWindow() {
   });
 
   this.element.onResize = function () {
-    // thisWindow.placeColumnNames();
     this.layout.resize();
   };
 
@@ -43,7 +41,7 @@ function PluginWindow() {
       orientation: 'column', \
       alignChildren: ['fill', 'center'], \
       pnlInstallPlugin: Panel { \
-        alignChildren: 'left', \
+        alignChildren: 'fill', \
       }, \
       pnlKeyBindings: Panel { \
         alignment: 'fill', \
@@ -84,8 +82,7 @@ function PluginWindow() {
 
   var pnlKeyBindings = this.element.gr.pnlKeyBindings;
   var grBindings = pnlKeyBindings.grBindings;
-  // var grColumnNames = pnlKeyBindings.grColumnNames;
-  var keyBindings = JSON.parse(Settings.getSettings().keyBindings);
+  var keyBindings = JSON.parse(preferences.keyBindings);
 
   pnlKeyBindings.grColumnNames.columnNames = new ColumnNames(
     pnlKeyBindings.grColumnNames,
@@ -96,6 +93,10 @@ function PluginWindow() {
 
   if (keyBindings && keyBindings.length > 0) {
     for (var i = 0; i < keyBindings.length; i++) {
+      if (!keyBindings[i].keyCodes) {
+        continue;
+      }
+
       this.keyBindingsArr.push(new KeyBinding(grBindings, keyBindings[i]));
       this.linesArr.push(new Line(grBindings));
     }
@@ -104,13 +105,27 @@ function PluginWindow() {
   Line(pnlKeyBindings.grLine);
 
   pnlKeyBindings.grAdd.btnAdd.onClick = bind(function () {
-    this.keyBindingsArr.push(new KeyBinding(grBindings));
-    this.linesArr.push(new Line(grBindings));
+    this.keyCaptureWindow = new KeyCapture(
+      this,
+      bind(function (keyNames, keyCodes) {
+        this.keyBindingsArr.push(
+          new KeyBinding(grBindings, {
+            enabled: true,
+            keyCodes: keyCodes,
+            action: 0,
+            amount: 1,
+          }),
+        );
+
+        this.linesArr.push(new Line(grBindings));
+      }, this),
+    );
 
     thisWindow.element.layout.layout(true);
   }, this);
 
-  this.element.gr.grButtons.btnSave.onClick = function () {
+  /** Save the key bindings to the AE's settings file */
+  this.element.gr.grButtons.btnSave.onClick = bind(function () {
     var bindingsArr = [];
     var bindingElements = grBindings.children;
 
@@ -124,28 +139,29 @@ function PluginWindow() {
 
       bindingsArr.push({
         enabled: bEl.chkEnable.value,
-        key: bEl.gr.grKeys.inputField.element.txtValue.text,
-        mouse: bEl.gr.ddlistMouse.selection.index,
+        keyCodes: bEl.gr.grKeys.keyCombination.keyCodes,
         action: bEl.gr.ddlistAction.selection.index,
         amount: bEl.gr.grAmount.numberValue.getValue(),
       });
-
-      app.settings.saveSetting(
-        SETTINGS_SECTION_NAME,
-        "keyBindings",
-        JSON.stringify(bindingsArr),
-      );
-
-      this.window.close();
     }
-  };
 
+    preferences.save("keyBindings", JSON.stringify(bindingsArr));
+
+    /** Tell the plugin to update key bindings info */
+    if (this.pluginFound) {
+      app.executeCommand($.global.__zoom_plugin_cmd_ids__.updateKeyBindsCmdId);
+    }
+
+    /** close the plugin window */
+    this.element.close();
+  }, this);
+
+  /** Cancel */
   this.element.gr.grButtons.btnCancel.onClick = function () {
     this.window.close();
   };
 
   this.element.layout.layout(true);
-  // this.placeColumnNames();
 }
 
 PluginWindow.prototype.setPluginStatus = function () {

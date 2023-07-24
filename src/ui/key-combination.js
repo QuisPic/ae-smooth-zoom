@@ -1,8 +1,17 @@
-function KeyCombination(parentEl, keysArr, minWidth, alignChildren) {
-  // a lock for sort of thread safety
-  // when someone presses keys too fast multiple updateKeys()
-  // may run simultaneously
+import { keysFromKeyCodes } from "../utils";
+
+function KeyCombination(parentEl, keyNames, minWidth, alignChildren) {
+  /**
+   a lock for sort of thread safety
+   when someone presses keys too fast multiple updateKeys()
+   may run simultaneously
+   */
   this.updating = false;
+
+  /** keys in the plugin format, may not be present */
+  this.keyCodes = undefined;
+
+  this.keyNames = keyNames;
   this.alignChildren = alignChildren || "left";
 
   this.element = parentEl.add(
@@ -19,10 +28,12 @@ function KeyCombination(parentEl, keysArr, minWidth, alignChildren) {
     this.element.minimumSize = [minWidth, 0];
   }
 
-  this.addCombination(keysArr);
+  this.addCombination(keyNames);
 }
 
-KeyCombination.prototype.addCombination = function (keysArr) {
+KeyCombination.prototype.addCombination = function (keyNames) {
+  this.keyNames = keyNames;
+
   var gr = this.element.add(
     "Group { \
       spacing: 3, \
@@ -32,7 +43,7 @@ KeyCombination.prototype.addCombination = function (keysArr) {
     }",
   );
 
-  for (var i = 0; i < keysArr.length; i++) {
+  for (var i = 0; i < keyNames.length; i++) {
     if (!isValid(gr)) {
       break;
     }
@@ -44,11 +55,11 @@ KeyCombination.prototype.addCombination = function (keysArr) {
     var pnlKey = gr.add(
       "Panel { \
         margins: [2, 1, 2, 1], \
-        txt: StaticText { text: '" +
-        keysArr[i] +
-        "' } \
+        txt: StaticText {}, \
       }",
     );
+
+    pnlKey.txt.text = keyNames[i];
 
     if (isValid(pnlKey)) {
       pnlKey.graphics.backgroundColor = this.b;
@@ -57,20 +68,31 @@ KeyCombination.prototype.addCombination = function (keysArr) {
   }
 };
 
-KeyCombination.prototype.updateKeys = function (keysArr) {
-  if (!this.updating) {
-    this.updating = true;
-    var children = this.element.children;
+KeyCombination.prototype.updateKeysWithCodes = function (keyCodes) {
+  var keyNames = keysFromKeyCodes(keyCodes);
 
-    for (var i = children.length - 1; i >= 0; i--) {
-      if (isValid(this.element.children[i])) {
-        this.element.remove(i);
+  this.keyCodes = keyCodes;
+  this.updateKeys(keyNames);
+};
+
+KeyCombination.prototype.updateKeys = function (keyNames) {
+  try {
+    if (!this.updating) {
+      this.updating = true;
+      var children = this.element.children;
+
+      for (var i = children.length - 1; i >= 0; i--) {
+        if (isValid(this.element.children[i])) {
+          this.element.remove(i);
+        }
       }
-    }
 
-    this.addCombination(keysArr);
-    this.element.window.layout.layout(true);
-    this.updating = false;
+      this.addCombination(keyNames);
+      this.element.window.layout.layout(true);
+      this.updating = false;
+    }
+  } catch (error) {
+    alert("Error at line " + error.line + ":\n" + error.message);
   }
 };
 
