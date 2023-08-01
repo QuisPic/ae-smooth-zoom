@@ -1,14 +1,15 @@
-import bind from "../../extern/function-bind";
-import JSON from "../../extern/json2";
-import { DEFAULT_SETTINGS, TABLE_SIZES } from "../constants";
+import bind from "../../../extern/function-bind";
+import { TABLE_SIZES } from "../../constants";
 import EditIcon from "./edit-icon";
-import KeyCapture from "./key-capture";
 import KeyCombination from "./key-combination";
-import Line from "./line";
-import NumberValue from "./number-value";
+import Line from "../line";
+import NumberValue from "../number-value";
 import TrashIcon from "./trash-icon";
+import windows from "../../windows";
 
-function KeyBinding(parentEl, values) {
+function KeyBinding(parentEl, values, kbWindow) {
+  this.kbWindow = kbWindow;
+
   /**
    * invisible lines here are just to add space in between elements
    * to line up them with the column names
@@ -39,13 +40,12 @@ function KeyBinding(parentEl, values) {
   );
 
   var gr = this.element.gr;
-  values = values || JSON.parse(DEFAULT_SETTINGS.keyBindings)[0];
 
   this.element.chkEnable.value = values.enabled;
   gr.enabled = values.enabled;
   gr.ddlistAction.selection = values.action;
 
-  gr.grEdit.editIcon = new EditIcon(gr.grEdit, true);
+  gr.grEdit.editIcon = new EditIcon(gr.grEdit, true, values.enabled);
   this.element.trash = new TrashIcon(this.element, true);
 
   gr.grKeys.keyCombination = new KeyCombination(
@@ -79,17 +79,21 @@ function KeyBinding(parentEl, values) {
   this.element.chkEnable.helpTip = values.enabled ? "Enabled" : "Disabled";
   this.element.trash.element.icon.helpTip = "Remove";
 
-  this.element.chkEnable.onClick = function () {
-    this.parent.gr.enabled = this.value;
-    this.helpTip = this.value ? "Enabled" : "Disabled";
-  };
+  this.element.chkEnable.onClick = bind(function () {
+    this.onOff(this.element.chkEnable.value);
+    this.kbWindow.element.gr.pnlKeyBindings.grColumnNames.columnNames.syncCheck();
+    // var gr = this.parent.gr;
+
+    // gr.grEdit.editIcon.element.icon.enabled = this.value;
+    // gr.enabled = this.value;
+    // this.helpTip = this.value ? "Enabled" : "Disabled";
+  }, this);
 
   gr.grEdit.editIcon.element.addEventListener(
     "click",
     bind(function (event) {
       if (event.eventPhase === "target") {
-        this.keyCaptureWindow = new KeyCapture(
-          this,
+        windows.newKeyCaptureWindow(
           bind(function (keyNames, keyCodes) {
             var targetKeyCombination = this.element.gr.grKeys.keyCombination;
 
@@ -101,30 +105,44 @@ function KeyBinding(parentEl, values) {
     }, this),
   );
 
-  this.element.trash.element.addEventListener("click", function (event) {
-    if (event.eventPhase === "target") {
-      var ind = undefined;
+  this.element.trash.element.addEventListener(
+    "click",
+    bind(function (event) {
+      if (event.eventPhase === "target") {
+        this.kbWindow.removeKeyBinding(this);
+        // var ind = undefined;
 
-      for (var i = 0; i < parentEl.children.length; i++) {
-        if (parentEl.children[i] === this.parent) {
-          ind = i;
-          break;
-        }
+        // for (var i = 0; i < parentEl.children.length; i++) {
+        //   if (parentEl.children[i] === this.parent) {
+        //     ind = i;
+        //     break;
+        //   }
+        // }
+
+        // if (ind !== undefined) {
+        //   // remove the line
+        //   parentEl.remove(ind + 1);
+
+        //   parentEl.remove(ind);
+
+        //   parentEl.window.layout.layout(true);
+        // } else {
+        //   throw "Can not remove key binding: Key binding not found.";
+        // }
       }
-
-      if (ind !== undefined) {
-        // remove the line
-        parentEl.remove(ind + 1);
-
-        parentEl.remove(ind);
-
-        parentEl.window.layout.layout(true);
-      } else {
-        throw "Can not remove key binding: Key binding not found.";
-      }
-    }
-  });
+    }, this),
+  );
 }
+
+KeyBinding.prototype.onOff = function (val) {
+  var gr = this.element.gr;
+
+  gr.grEdit.editIcon.element.icon.enabled = val;
+  gr.enabled = val;
+
+  this.element.chkEnable.value = val;
+  this.element.chkEnable.helpTip = val ? "Enabled" : "Disabled";
+};
 
 KeyBinding.prototype.updateKeys = function (keyNames) {
   this.element.gr.grKeys.keyCombination.updateKeys(keyNames);

@@ -20,6 +20,9 @@ import {
   VC_WHEEL_UP,
   VC_WHEEL_DOWN,
   AE_OS,
+  VC_LEFT_MOUSE_BUTTON,
+  VC_RIGHT_MOUSE_BUTTON,
+  VC_MIDDLE_MOUSE_BUTTON,
 } from "./constants";
 
 export function getPrimaryScreen() {
@@ -42,8 +45,7 @@ export function makeDivisibleBy(val, divisor, goUp) {
     divisor = divisor < 0 ? Math.abs(divisor) : divisor;
 
     if (divisor < 1) {
-      // float-point math...
-      var epsilon = 0.00000000000001;
+      var epsilon = 0.00000000000001; // float-point math...
 
       divisor = 1 / divisor;
 
@@ -165,19 +167,19 @@ export function keysFromKeyCodes(keyCodes) {
   var mask = keyCodes.mask;
   var keycode = keyCodes.keycode;
 
-  if (mask & MASK_CTRL) {
+  if (mask & (MASK_CTRL)) {
     keys.push("Control");
   }
 
-  if (mask & MASK_META) {
-    keys.push(AE_OS === OS.WIN ? "Win" : "Meta");
+  if (mask & (MASK_META)) {
+    keys.push(AE_OS === OS.WIN ? "Win" : "Command");
   }
 
-  if (mask & MASK_SHIFT) {
+  if (mask & (MASK_SHIFT)) {
     keys.push("Shift");
   }
 
-  if (mask & MASK_ALT) {
+  if (mask & (MASK_ALT)) {
     keys.push(AE_OS === OS.WIN ? "Alt" : "Option");
   }
 
@@ -193,13 +195,13 @@ export function keysFromKeyCodes(keyCodes) {
     }
   } else if (type === EVENT_MOUSE_PRESSED) {
     switch (keycode) {
-      case 1:
+      case VC_LEFT_MOUSE_BUTTON:
         keys.push("Left Click");
         break;
-      case 2:
+      case VC_RIGHT_MOUSE_BUTTON:
         keys.push("Right Click");
         break;
-      case 3:
+      case VC_MIDDLE_MOUSE_BUTTON:
         keys.push("Middle Click");
         break;
       default:

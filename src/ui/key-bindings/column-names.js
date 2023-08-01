@@ -1,15 +1,18 @@
 import EditIcon from "./edit-icon";
 import TrashIcon from "./trash-icon";
-import Line from "./line";
-import { TABLE_SIZES } from "../constants";
+import Line from "../line";
+import { TABLE_SIZES } from "../../constants";
+import bind from "../../../extern/function-bind";
 
-function ColumnNames(parentEl) {
+function ColumnNames(parentEl, kbWindow) {
+  this.kbWindow = kbWindow;
+
   this.element = parentEl.add(
     "Group { \
       spacing: 5, \
       margins: [10, 0, 10, 0], \
       alignment: ['fill', 'top'], \
-      cCheck: Custom { preferredSize: [10, 8] }, \
+      cCheck: Checkbox {}, \
       grLine0: Group { alignment: 'fill' }, \
       grEditIcon: Group {}, \
       grLine1: Group { alignment: 'fill' }, \
@@ -31,7 +34,7 @@ function ColumnNames(parentEl) {
   var txtAmount = this.element.txtAmount;
   var trashIcon = this.element.trashIcon.element;
 
-  cCheck.preferredSize = [TABLE_SIZES[0], -1];
+  cCheck.preferredSize = [TABLE_SIZES[0], 14];
   grEditIcon.preferredSize = [TABLE_SIZES[1], -1];
   grEditIcon.minimumSize = [TABLE_SIZES[1], -1];
   txtKeyboard.preferredSize = [TABLE_SIZES[2], -1];
@@ -47,16 +50,38 @@ function ColumnNames(parentEl) {
   new Line(this.element.grLine3);
   new Line(this.element.grLine4);
 
-  cCheck.onDraw = function () {
-    var g = this.graphics;
-    var c = [0.55, 0.55, 0.55, 1];
-    var p = g.newPen(g.PenType.SOLID_COLOR, c, 2);
+  cCheck.onClick = bind(function () {
+    var kbArray = this.kbWindow.keyBindingsArr;
 
-    g.moveTo(2, 3);
-    g.lineTo(5, 6);
-    g.lineTo(10, 0);
-    g.strokePath(p);
-  };
+    for (var i = kbArray.length - 1; i >= 0; i--) {
+      this.kbWindow.onOffKeyBinding(this.element.cCheck.value, i);
+    }
+  }, this);
+
+  // cCheck.onDraw = function () {
+  //   var g = this.graphics;
+  //   var c = [0.55, 0.55, 0.55, 1];
+  //   var p = g.newPen(g.PenType.SOLID_COLOR, c, 2);
+
+  //   g.moveTo(2, 3);
+  //   g.lineTo(5, 6);
+  //   g.lineTo(10, 0);
+  //   g.strokePath(p);
+  // };
+}
+
+ColumnNames.prototype.syncCheck = function () {
+  var val = false;
+  var keyBindingsArr = this.kbWindow.keyBindingsArr;
+
+  for (var i = 0; i < keyBindingsArr.length; i++) {
+    if (keyBindingsArr[i].element.chkEnable.value) {
+      val = true;
+      break;
+    }
+  }
+
+  this.element.cCheck.value = val;
 }
 
 export default ColumnNames;

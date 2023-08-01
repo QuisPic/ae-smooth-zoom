@@ -30,7 +30,7 @@ function Zoom(thisObj) {
     this.w,
     "%",
     currentZoom,
-    1,
+    0.8,
     undefined,
     this.produceSetTo(),
   );
@@ -95,8 +95,9 @@ Zoom.prototype.setUiTo = function (zoomValue) {
 };
 
 Zoom.prototype.setTo = function (zoomValue) {
-  this.setUiTo(zoomValue);
+  zoomValue = zoomValue < 0.8 ? 0.8 : zoomValue;
 
+  this.setUiTo(zoomValue);
   app.activeViewer.views[0].options.zoom = zoomValue / 100;
 };
 

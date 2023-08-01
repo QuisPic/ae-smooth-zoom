@@ -1,4 +1,6 @@
-function EditIcon(parentEl, interactive) {
+function EditIcon(parentEl, interactive, enabled) {
+  enabled = enabled || (enabled === undefined ? true : false);
+
   this.element = parentEl.add(
     "Group { \
       icon: Custom { \
@@ -18,9 +20,13 @@ function EditIcon(parentEl, interactive) {
     this.element.addEventListener("mouseout", handleMouseOver);
   }
 
+  this.element.icon.enabled = enabled;
   this.element.icon.onDraw = function (drawState) {
     var g = this.graphics;
+
     var c = drawState.mouseOver ? [0.75, 0.75, 0.75, 1] : [0.55, 0.55, 0.55, 1];
+    c = this.enabled ? c : [0.2, 0.2, 0.2, 1];
+
     var b = g.newBrush(g.BrushType.SOLID_COLOR, c);
     var p = g.newPen(g.BrushType.SOLID_COLOR, c, 3);
 

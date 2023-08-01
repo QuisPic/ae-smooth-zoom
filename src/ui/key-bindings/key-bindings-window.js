@@ -1,28 +1,20 @@
-import { checkOs, saveFileFromBinaryString } from "../utils";
-import bind from "../../extern/function-bind";
-import zoomPluginBin from "../../extern/zoom-plugin";
-import { OS } from "../constants";
+import { checkOs, saveFileFromBinaryString } from "../../utils";
+import bind from "../../../extern/function-bind";
+import zoomPluginBin from "../../../extern/zoom-plugin";
+import { OS } from "../../constants";
 import KeyBinding from "./key-binding";
-import KeyCapture from "./key-capture";
-import Line from "./line";
-import JSON from "../../extern/json2";
+import Line from "../line";
+import JSON from "../../../extern/json2";
 import ColumnNames from "./column-names";
-import preferences from "../preferences";
+import preferences from "../../preferences";
+import windows from "../../windows";
+import zoomPlugin from "../../zoomPlugin";
 
-function PluginWindow() {
-  var thisWindow = this;
+function KeyBindingsWindow() {
   this.keyBindingsArr = [];
   this.linesArr = [];
 
-  if (!$.global.__zoom_plugin_cmd_ids__) {
-    var saveCmdIdsId = app.findMenuCommandId("__zoom_save_cmd_ids__");
-
-    if (saveCmdIdsId) {
-      app.executeCommand(saveCmdIdsId);
-    }
-  }
-
-  this.pluginFound = !!$.global.__zoom_plugin_cmd_ids__;
+  this.pluginFound = zoomPlugin.isAvailable;
   this.isUnfoldInfo = !this.pluginFound;
 
   this.element = new Window("palette", "Zoom Key Bindings", undefined, {
@@ -65,17 +57,17 @@ function PluginWindow() {
           alignment: 'fill', \
           alignChildren: 'left', \
           margins: 5, \
-          btnAdd: Button { \
-            text: '+', \
-            preferredSize: [-1, 20], \
+          btnAdd: IconButton { \
+            title: '+', \
+            preferredSize: [100, 22], \
             helpTip: 'Add key bind', \
           }, \
         }, \
       }, \
       grButtons: Group { \
         alignChildren: ['right', 'center'], \
-        btnSave: Button { text: 'Save' }, \
-        btnCancel: Button { text: 'Cancel' }, \
+        btnSave: IconButton { title: 'Save', preferredSize: [100, 22] }, \
+        btnCancel: IconButton { title: 'Cancel', preferredSize: [100, 22] }, \
       }, \
     }",
   );
@@ -84,47 +76,54 @@ function PluginWindow() {
   var grBindings = pnlKeyBindings.grBindings;
   var keyBindings = JSON.parse(preferences.keyBindings);
 
-  pnlKeyBindings.grColumnNames.columnNames = new ColumnNames(
-    pnlKeyBindings.grColumnNames,
-  );
-
-  // check if plug-in is available
+  /** Check if Zoom plug-in is available */
   this.setPluginStatus();
 
+  /** Create column names for the key bindings table */
+  pnlKeyBindings.grColumnNames.columnNames = new ColumnNames(
+    pnlKeyBindings.grColumnNames,
+    this,
+  );
+
+  /** Fill key bindings table */
   if (keyBindings && keyBindings.length > 0) {
     for (var i = 0; i < keyBindings.length; i++) {
       if (!keyBindings[i].keyCodes) {
         continue;
       }
 
-      this.keyBindingsArr.push(new KeyBinding(grBindings, keyBindings[i]));
+      this.keyBindingsArr.push(
+        new KeyBinding(grBindings, keyBindings[i], this),
+      );
       this.linesArr.push(new Line(grBindings));
     }
   }
-
   Line(pnlKeyBindings.grLine);
 
+  /** Add new key binding button */
   pnlKeyBindings.grAdd.btnAdd.onClick = bind(function () {
-    this.keyCaptureWindow = new KeyCapture(
-      this,
+    windows.newKeyCaptureWindow(
       bind(function (keyNames, keyCodes) {
         this.keyBindingsArr.push(
-          new KeyBinding(grBindings, {
-            enabled: true,
-            keyCodes: keyCodes,
-            action: 0,
-            amount: 1,
-          }),
+          new KeyBinding(
+            grBindings,
+            {
+              enabled: true,
+              keyCodes: keyCodes,
+              action: 0,
+              amount: 1,
+            },
+            this,
+          ),
         );
 
         this.linesArr.push(new Line(grBindings));
+        this.element.layout.layout(true);
       }, this),
     );
-
-    thisWindow.element.layout.layout(true);
   }, this);
 
-  /** Save the key bindings to the AE's settings file */
+  /** Save the key bindings to the AE's preferences file */
   this.element.gr.grButtons.btnSave.onClick = bind(function () {
     var bindingsArr = [];
     var bindingElements = grBindings.children;
@@ -147,24 +146,20 @@ function PluginWindow() {
 
     preferences.save("keyBindings", JSON.stringify(bindingsArr));
 
-    /** Tell the plugin to update key bindings info */
-    if (this.pluginFound) {
-      app.executeCommand($.global.__zoom_plugin_cmd_ids__.updateKeyBindsCmdId);
-    }
-
-    /** close the plugin window */
+    /** close the KeyBindings window */
     this.element.close();
   }, this);
 
-  /** Cancel */
+  /** Cancel button */
   this.element.gr.grButtons.btnCancel.onClick = function () {
     this.window.close();
   };
 
   this.element.layout.layout(true);
+  this.element.show();
 }
 
-PluginWindow.prototype.setPluginStatus = function () {
+KeyBindingsWindow.prototype.setPluginStatus = function () {
   var pnlInstallPlugin = this.element.gr.pnlInstallPlugin;
 
   pnlInstallPlugin.grStatus = pnlInstallPlugin.add(
@@ -269,7 +264,7 @@ PluginWindow.prototype.setPluginStatus = function () {
   }
 };
 
-PluginWindow.prototype.unfoldInfo = function () {
+KeyBindingsWindow.prototype.unfoldInfo = function () {
   var grInfo = this.element.gr.pnlInstallPlugin.add(
     "Group { \
         orientation: 'column', \
@@ -280,8 +275,8 @@ PluginWindow.prototype.unfoldInfo = function () {
           margins: [0, 10, 0, 10], \
           alignment: ['fill', 'bottom'], \
           alignChildren: ['center', 'center'], \
-          btnSaveWin: Button { text: 'Save Plug-in (Windows)' }, \
-          btnSaveMac: Button { text: 'Save Plug-in (macOS)' }, \
+          btnSaveWin: IconButton { title: 'Save Plug-in (Windows)' }, \
+          btnSaveMac: IconButton { title: 'Save Plug-in (macOS)' }, \
         }, \
         txt1: StaticText { text: '1. Click on \"Save Plug-in\" for your platform.' }, \
         txt2: StaticText { text: '2. Save the plug-in somewhere on your disk.' }, \
@@ -344,7 +339,7 @@ PluginWindow.prototype.unfoldInfo = function () {
   this.element.layout.layout(true);
 };
 
-PluginWindow.prototype.foldInfo = function () {
+KeyBindingsWindow.prototype.foldInfo = function () {
   var grInfo = this.element.gr.pnlInstallPlugin.grInfo;
 
   if (grInfo && isValid(grInfo)) {
@@ -355,4 +350,57 @@ PluginWindow.prototype.foldInfo = function () {
   this.element.layout.resize();
 };
 
-export default PluginWindow;
+KeyBindingsWindow.prototype.findKeyBindingIndex = function (keyBinding) {
+  var kbInd;
+
+  for (var i = 0; i < this.keyBindingsArr.length; i++) {
+    if (keyBinding === this.keyBindingsArr[i]) {
+      kbInd = i;
+    }
+  }
+
+  return kbInd;
+};
+
+KeyBindingsWindow.prototype.removeKeyBinding = function (keyBindingOrInd) {
+  var kbInd;
+
+  if (keyBindingOrInd instanceof KeyBinding) {
+    kbInd = this.findKeyBindingIndex(keyBindingOrInd);
+  } else if (typeof keyBindingOrInd === "number") {
+    kbInd = keyBindingOrInd;
+  }
+
+  if (kbInd !== undefined) {
+    this.keyBindingsArr[kbInd].element.parent.remove(
+      this.keyBindingsArr[kbInd].element,
+    );
+
+    this.linesArr[kbInd].element.parent.remove(this.linesArr[kbInd].element);
+
+    this.keyBindingsArr.splice(kbInd, 1);
+    this.linesArr.splice(kbInd, 1);
+
+    this.element.layout.layout(true);
+  } else {
+    alert("Can not remove Key Binding:\nThe Key Binding is not found.");
+  }
+};
+
+KeyBindingsWindow.prototype.onOffKeyBinding = function (val, keyBindingOrInd) {
+  var kbInd;
+
+  if (keyBindingOrInd instanceof KeyBinding) {
+    kbInd = this.findKeyBindingIndex(keyBindingOrInd);
+  } else if (typeof keyBindingOrInd === "number") {
+    kbInd = keyBindingOrInd;
+  }
+
+  if (kbInd !== undefined) {
+    this.keyBindingsArr[kbInd].onOff(val);
+  } else {
+    alert("Can not enble/disable Key Binding:\nThe Key Binding is not found.");
+  }
+};
+
+export default KeyBindingsWindow;

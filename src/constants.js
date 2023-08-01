@@ -22,7 +22,8 @@ export var ZOOM_LIST_VALUES = [
 ];
 
 export var DEFAULT_SETTINGS = {
-  keyBindings: "[]",
+  keyBindings:
+    '[{"enabled":true,"keyCodes":{"type":11,"mask":2,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":2,"keycode":2},"action":1,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":2,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":2,"keycode":45},"action":1,"amount":1}]',
   syncWithView: true,
   showSlider: true,
   sliderMin: 1,
@@ -30,6 +31,17 @@ export var DEFAULT_SETTINGS = {
 };
 
 export var TABLE_SIZES = [20, 20, 250, 100, 50, 30];
+
+/** Begin Mouse Buttons */
+export var VC_LEFT_MOUSE_BUTTON = 1;
+export var VC_RIGHT_MOUSE_BUTTON = 2;
+export var VC_MIDDLE_MOUSE_BUTTON = 3;
+/** End Mouse Buttons */
+
+/** Begin Mouse Wheel */
+export var VC_WHEEL_UP = 1;
+export var VC_WHEEL_DOWN = 2;
+/** End Mouse Wheel */
 
 /** Begin uiohook types */
 var MASK_SHIFT_L = 1 << 0;
@@ -60,7 +72,7 @@ export var EVENT_MOUSE_DRAGGED = 10;
 export var EVENT_MOUSE_WHEEL = 11;
 
 /* Begin Virtual Key Codes */
-var VC_ESCAPE = 0x001b;
+export var VC_ESCAPE = 0x001b;
 
 // Begin Function Keys
 var VC_F1 = 0x0070;
@@ -322,11 +334,6 @@ var VC_SUN_CUT = 0xff7b;
 
 var VC_UNDEFINED = 0x0000; // KeyCode Unknown
 /* End Virtual Key Codes */
-
-/** Begin Mouse Wheel */
-export var VC_WHEEL_UP = 1;
-export var VC_WHEEL_DOWN = 2;
-/** End Mouse Wheel */
 
 /** Begin VC Map */
 export var VC_MAP = {};

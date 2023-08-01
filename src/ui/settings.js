@@ -4,8 +4,8 @@ import { AE_OS, OS, STICK_TO } from "../constants";
 import { openURL } from "../utils";
 import bind from "../../extern/function-bind";
 import Checkbox from "./checkbox";
-import PluginWindow from "./plugin-window";
 import preferences from "../preferences";
+import windows from "../windows";
 
 function Settings(zoom, parentEl) {
   this.element = parentEl.add(
@@ -68,20 +68,11 @@ function Settings(zoom, parentEl) {
         this.keyBindingsItem = menuWindow.addMenuItem(
           "Key Bindings...",
           function () {
-            var plugingW = new PluginWindow();
-
-            menuWindow.plugingW = plugingW;
-            plugingW.element.show();
+            windows.newKeyBindingsWindow();
           },
         );
 
-        // we pass this empty function because there is a strage bug
-        // in AE where if a window doesn't have a reference to a function
-        // it will close immediately
-        this.syncItem = menuWindow.addMenuItem(
-          "Sync with View",
-          function () {},
-        );
+        this.syncItem = menuWindow.addMenuItem("Sync with View");
 
         // "Sync With Viewport" checkbox
         this.syncCheck = new Checkbox(
