@@ -1,4 +1,4 @@
-# Ae Smooth Zoom
+# Zoom script for Ae
 A script for Adobe After Effects that can smoothly change zoom in your Composition View.
 
 [diamond.webm](https://github.com/QuisPic/ae-smooth-zoom/assets/56075863/83c9bc7e-286c-4915-91b2-dc7d1ca1f4b7)
@@ -41,12 +41,10 @@ Open After Effects, go to "File -> Scripts -> Install Script UI Panel..." and op
 
 ### Install Manually
 Copy the script file to:
-```
-Win: C:\Program Files\Adobe\Adobe After Effects (version)\Support Files\Scripts\ScriptUI Panels
-```
-```
-Mac: /Applications/Adobe After Effects (version)/Scripts/ScriptUI Panels
-```
+
+Windows: `C:\Program Files\Adobe\Adobe After Effects (version)\Support Files\Scripts\ScriptUI Panels`
+
+macOS: `/Applications/Adobe After Effects (version)/Scripts/ScriptUI Panels`
 
 Restart After Effects and you should be able to find the script under the Window menu.
 
