@@ -51,19 +51,19 @@ function Settings(zoom, parentEl) {
         var maxTextSize =
           menuWindow.element.graphics.measureString("Sync with View");
 
-        var onScrubStartFn = function () {
-          menuWindow.element.shouldCloseOnDeactivate = false;
-        };
+        var onScrubStartFn = bind(function () {
+          this.menuWindow.element.shouldCloseOnDeactivate = false;
+        }, this);
 
-        var onScrubEndFn = function () {
-          menuWindow.element.shouldCloseOnDeactivate = true;
-
-          if (AE_OS === OS.WIN) {
+        var onScrubEndFn = bind(function () {
+          if (AE_OS === OS.WIN && !this.menuWindow.element.shouldCloseOnDeactivate) {
             // make the window active
-            menuWindow.element.hide();
-            menuWindow.element.show();
+            this.menuWindow.element.hide();
+            this.menuWindow.element.show();
           }
-        };
+
+          this.menuWindow.element.shouldCloseOnDeactivate = true;
+        }, this);
 
         this.keyBindingsItem = menuWindow.addMenuItem(
           "Key Bindings...",
@@ -170,50 +170,5 @@ function Settings(zoom, parentEl) {
     }, this),
   );
 }
-
-// Settings.getSettings = function () {
-//   var result = {};
-
-//   if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "keyBindings")) {
-//     result.keyBindings = app.settings.getSetting(
-//       SETTINGS_SECTION_NAME,
-//       "keyBindings",
-//     );
-//   } else {
-//     result.keyBindings = DEFAULT_SETTINGS.keyBindings;
-//   }
-
-//   if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "syncWithView")) {
-//     result.syncWithView =
-//       app.settings.getSetting(SETTINGS_SECTION_NAME, "syncWithView") === "true";
-//   } else {
-//     result.syncWithView = DEFAULT_SETTINGS.syncWithView;
-//   }
-
-//   if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "showSlider")) {
-//     result.showSlider =
-//       app.settings.getSetting(SETTINGS_SECTION_NAME, "showSlider") === "true";
-//   } else {
-//     result.showSlider = DEFAULT_SETTINGS.showSlider;
-//   }
-
-//   if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "sliderMin")) {
-//     result.sliderMin = parseInt(
-//       app.settings.getSetting(SETTINGS_SECTION_NAME, "sliderMin"),
-//     );
-//   } else {
-//     result.sliderMin = DEFAULT_SETTINGS.sliderMin;
-//   }
-
-//   if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "sliderMax")) {
-//     result.sliderMax = parseInt(
-//       app.settings.getSetting(SETTINGS_SECTION_NAME, "sliderMax"),
-//     );
-//   } else {
-//     result.sliderMax = DEFAULT_SETTINGS.sliderMax;
-//   }
-
-//   return result;
-// };
 
 export default Settings;

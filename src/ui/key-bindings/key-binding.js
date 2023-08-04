@@ -29,7 +29,7 @@ function KeyBinding(parentEl, values, kbWindow) {
         grLine2: Group { alignment: 'fill', visible: false }, \
         ddlistAction: DropDownList { \
           properties: { \
-            items: ['Increase by', 'Decrease by', 'Set Zoom To'] \
+            items: ['(+) Add', '(-) Subtract', '(=) Set To'] \
           }, \
         }, \
         grLine3: Group { alignment: 'fill', visible: false }, \
@@ -45,8 +45,33 @@ function KeyBinding(parentEl, values, kbWindow) {
   gr.enabled = values.enabled;
   gr.ddlistAction.selection = values.action;
 
-  gr.grEdit.editIcon = new EditIcon(gr.grEdit, true, values.enabled);
-  this.element.trash = new TrashIcon(this.element, true);
+  gr.grEdit.editIcon = new EditIcon(
+    gr.grEdit,
+    true,
+    values.enabled,
+    bind(function (event) {
+      if (event.eventPhase === "target") {
+        windows.newKeyCaptureWindow(
+          bind(function (keyNames, keyCodes) {
+            var targetKeyCombination = this.element.gr.grKeys.keyCombination;
+
+            targetKeyCombination.updateKeys(keyNames);
+            targetKeyCombination.keyCodes = keyCodes;
+          }, this),
+        );
+      }
+    }, this),
+  );
+
+  this.element.trash = new TrashIcon(
+    this.element,
+    true,
+    bind(function (event) {
+      if (event.eventPhase === "target") {
+        this.kbWindow.removeKeyBinding(this);
+      }
+    }, this),
+  );
 
   gr.grKeys.keyCombination = new KeyCombination(
     gr.grKeys,
@@ -82,56 +107,7 @@ function KeyBinding(parentEl, values, kbWindow) {
   this.element.chkEnable.onClick = bind(function () {
     this.onOff(this.element.chkEnable.value);
     this.kbWindow.element.gr.pnlKeyBindings.grColumnNames.columnNames.syncCheck();
-    // var gr = this.parent.gr;
-
-    // gr.grEdit.editIcon.element.icon.enabled = this.value;
-    // gr.enabled = this.value;
-    // this.helpTip = this.value ? "Enabled" : "Disabled";
   }, this);
-
-  gr.grEdit.editIcon.element.addEventListener(
-    "click",
-    bind(function (event) {
-      if (event.eventPhase === "target") {
-        windows.newKeyCaptureWindow(
-          bind(function (keyNames, keyCodes) {
-            var targetKeyCombination = this.element.gr.grKeys.keyCombination;
-
-            targetKeyCombination.updateKeys(keyNames);
-            targetKeyCombination.keyCodes = keyCodes;
-          }, this),
-        );
-      }
-    }, this),
-  );
-
-  this.element.trash.element.addEventListener(
-    "click",
-    bind(function (event) {
-      if (event.eventPhase === "target") {
-        this.kbWindow.removeKeyBinding(this);
-        // var ind = undefined;
-
-        // for (var i = 0; i < parentEl.children.length; i++) {
-        //   if (parentEl.children[i] === this.parent) {
-        //     ind = i;
-        //     break;
-        //   }
-        // }
-
-        // if (ind !== undefined) {
-        //   // remove the line
-        //   parentEl.remove(ind + 1);
-
-        //   parentEl.remove(ind);
-
-        //   parentEl.window.layout.layout(true);
-        // } else {
-        //   throw "Can not remove key binding: Key binding not found.";
-        // }
-      }
-    }, this),
-  );
 }
 
 KeyBinding.prototype.onOff = function (val) {

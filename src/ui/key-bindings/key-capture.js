@@ -71,7 +71,7 @@ function KeyCapture(onEnterKeyFn) {
   $.global.__zoom_key_capture_object__ = this;
 
   this.element.onClose = function () {
-    if ($.global.__zoom_plugin_cmd_ids__) {
+    if (zoomPlugin.isAvailable) {
       try {
         zoomPlugin.endKeyCapture();
       } catch (error) {

@@ -1,7 +1,10 @@
-import { checkOs, saveFileFromBinaryString } from "../../utils";
+import {
+  getPluginsFolder,
+  saveFileFromBinaryString,
+} from "../../utils";
 import bind from "../../../extern/function-bind";
 import zoomPluginBin from "../../../extern/zoom-plugin";
-import { OS } from "../../constants";
+import { AE_OS, OS } from "../../constants";
 import KeyBinding from "./key-binding";
 import Line from "../line";
 import JSON from "../../../extern/json2";
@@ -9,6 +12,7 @@ import ColumnNames from "./column-names";
 import preferences from "../../preferences";
 import windows from "../../windows";
 import zoomPlugin from "../../zoomPlugin";
+import base64Decode from "../../../extern/base64-decode";
 
 function KeyBindingsWindow() {
   this.keyBindingsArr = [];
@@ -85,7 +89,7 @@ function KeyBindingsWindow() {
     this,
   );
 
-  /** Fill key bindings table */
+  /** Fill the key bindings table */
   if (keyBindings && keyBindings.length > 0) {
     for (var i = 0; i < keyBindings.length; i++) {
       if (!keyBindings[i].keyCodes) {
@@ -97,6 +101,9 @@ function KeyBindingsWindow() {
       );
       this.linesArr.push(new Line(grBindings));
     }
+
+    /** Sync the checkbox for all items in the table */
+    pnlKeyBindings.grColumnNames.columnNames.syncCheck();
   }
   Line(pnlKeyBindings.grLine);
 
@@ -118,6 +125,7 @@ function KeyBindingsWindow() {
         );
 
         this.linesArr.push(new Line(grBindings));
+        this.element.gr.pnlKeyBindings.grColumnNames.columnNames.syncCheck();
         this.element.layout.layout(true);
       }, this),
     );
@@ -306,23 +314,13 @@ KeyBindingsWindow.prototype.unfoldInfo = function () {
   );
 
   this.element.gr.pnlInstallPlugin.grInfo = grInfo;
+  var pluginsFolder = getPluginsFolder();
 
-  var os = checkOs();
-  var currentFolder = Folder.current;
-
-  if (currentFolder) {
-    var pluginsFolderArr = currentFolder.getFiles("Plug-ins");
-
-    if (pluginsFolderArr && pluginsFolderArr.length) {
-      if (os === OS.WIN) {
-        var fp = decodeURI(pluginsFolderArr[0].absoluteURI).slice(1);
-        fp = fp.charAt(0).toUpperCase() + ":" + fp.slice(1) + "/";
-
-        grInfo.grWin.txtPath.text = fp;
-      } else if (os === OS.MAC) {
-        grInfo.grMac.txtPath.text =
-          decodeURI(pluginsFolderArr[0].absoluteURI) + "/";
-      }
+  if (pluginsFolder) {
+    if (AE_OS === OS.WIN) {
+      grInfo.grWin.txtPath.text = pluginsFolder.fsName + "\\";
+    } else if (AE_OS === OS.MAC) {
+      grInfo.grMac.txtPath.text = pluginsFolder.fsName + "/";
     }
   }
 
@@ -331,7 +329,7 @@ KeyBindingsWindow.prototype.unfoldInfo = function () {
   txtMac.size = g.measureString("Windows:");
 
   grInfo.grSave.btnSaveWin.onClick = function () {
-    saveFileFromBinaryString(zoomPluginBin);
+    saveFileFromBinaryString(base64Decode(zoomPluginBin));
   };
 
   Line(grInfo.grLine);

@@ -1,4 +1,4 @@
-function TrashIcon(parentEl, interactive) {
+function TrashIcon(parentEl, interactive, onClickFn) {
   this.element = parentEl.add(
     "Group { \
       icon: Custom { \
@@ -9,7 +9,7 @@ function TrashIcon(parentEl, interactive) {
 
   function handleMouseOver(event) {
     if (event.eventPhase === "target") {
-        this.icon.notify("onDraw");
+      this.icon.notify("onDraw");
     }
   }
 
@@ -45,6 +45,12 @@ function TrashIcon(parentEl, interactive) {
     g.lineTo.apply(g, g.currentPoint + [0, 2]);
     g.fillPath(b);
   };
+
+  if (typeof onClickFn === "function") {
+    this.element.addEventListener("click", function (event) {
+      onClickFn(event);
+    });
+  }
 }
 
 export default TrashIcon;

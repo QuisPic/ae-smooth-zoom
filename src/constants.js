@@ -1,8 +1,10 @@
+export var OS = { WIN: 0, MAC: 1 };
+export var AE_OS = $.os.indexOf("Win") !== -1 ? OS.WIN : OS.MAC;
+export var PLUGIN_FILE_NAME =
+  AE_OS === OS.WIN ? "Zoom.aex" : "Zoom.plugin";
 export var SETTINGS_SECTION_NAME = "Quis/Ae_Smooth_Zoom";
 export var BLUE_COLOR = [0.06, 0.52, 0.94, 1];
 export var ZOOM_STEP_ON_BTN_CLICK = 1;
-export var OS = { WIN: 0, MAC: 1 };
-export var AE_OS = $.os.indexOf("Win") !== -1 ? OS.WIN : OS.MAC;
 export var STICK_TO = { LEFT: 0, RIGHT: 1 };
 export var ZOOM_LIST_VALUES = [
   "1.5%",
@@ -23,14 +25,16 @@ export var ZOOM_LIST_VALUES = [
 
 export var DEFAULT_SETTINGS = {
   keyBindings:
-    '[{"enabled":true,"keyCodes":{"type":11,"mask":2,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":2,"keycode":2},"action":1,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":2,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":2,"keycode":45},"action":1,"amount":1}]',
+    AE_OS === OS.WIN
+      ? '[{"enabled":true,"keyCodes":{"type":11,"mask":34,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":34,"keycode":2},"action":1,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":34,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":34,"keycode":45},"action":1,"amount":1}]'
+      : '[{"enabled":true,"keyCodes":{"type":11,"mask":68,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":68,"keycode":2},"action":1,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":68,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":68,"keycode":45},"action":1,"amount":1}]',
   syncWithView: true,
   showSlider: true,
   sliderMin: 1,
   sliderMax: 400,
 };
 
-export var TABLE_SIZES = [20, 20, 250, 100, 50, 30];
+export var TABLE_SIZES = [20, 25, 250, 100, 50, 30];
 
 /** Begin Mouse Buttons */
 export var VC_LEFT_MOUSE_BUTTON = 1;

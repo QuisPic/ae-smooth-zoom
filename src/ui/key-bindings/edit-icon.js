@@ -1,4 +1,4 @@
-function EditIcon(parentEl, interactive, enabled) {
+function EditIcon(parentEl, interactive, enabled, onClickFn) {
   enabled = enabled || (enabled === undefined ? true : false);
 
   this.element = parentEl.add(
@@ -40,6 +40,12 @@ function EditIcon(parentEl, interactive, enabled) {
     g.lineTo.apply(g, g.currentPoint + [-3.5, 4]);
     g.fillPath(b);
   };
+
+  if (typeof onClickFn === "function") {
+    this.element.addEventListener("click", function (event) {
+      onClickFn(event);
+    });
+  }
 }
 
 export default EditIcon;

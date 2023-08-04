@@ -1,5 +1,7 @@
-import { OS, BLUE_COLOR } from "../constants";
-import { checkOs, getPrimaryScreen, isNaN, makeDivisibleBy } from "../utils";
+import { OS, BLUE_COLOR, AE_OS } from "../constants";
+import { isNaN, makeDivisibleBy } from "../utils";
+import bind from "../../extern/function-bind";
+import ScreenWindow from "./screen-window";
 
 function NumberValue(
   parentEl,
@@ -20,6 +22,8 @@ function NumberValue(
   this.minValue = minValue;
   this.maxValue = maxValue;
   this.onChangeFn = onChangeFn;
+  this.screenWin = undefined;
+  this.lastMousePosition = [0, 0];
 
   this.element = parentEl.add(
     "Group { \
@@ -56,7 +60,6 @@ function NumberValue(
   var txtValue = grText.txtValue;
   var grUnderline = grText.grUnderline;
   var isMouseDown = false;
-  var mouseDownPosition;
 
   var g = txtUnits.graphics;
   var lightPen = g.newPen(g.PenType.SOLID_COLOR, [0.75, 0.75, 0.75, 1], 1);
@@ -70,12 +73,15 @@ function NumberValue(
   txtValue.graphics.foregroundColor = bluePen;
   this.element.minimumSize = this.element.graphics.measureString("00000000");
 
-  grValue.addEventListener("mousedown", function (event) {
-    if (event.eventPhase === "target") {
-      isMouseDown = true;
-      mouseDownPosition = [event.screenX, event.screenY];
-    }
-  });
+  grValue.addEventListener(
+    "mousedown",
+    bind(function (event) {
+      if (event.eventPhase === "target") {
+        isMouseDown = true;
+        this.lastMousePosition = [event.screenX, event.screenY];
+      }
+    }, this),
+  );
 
   grValue.addEventListener("mouseup", function (event) {
     if (event.eventPhase === "target" && isMouseDown) {
@@ -143,97 +149,89 @@ function NumberValue(
     }
   });
 
-  grValue.addEventListener("mousemove", function (event) {
-    if (
-      event.eventPhase === "target" &&
-      isMouseDown &&
-      Math.abs(event.screenX - mouseDownPosition[0]) >= 3
-    ) {
-      if (typeof onScrubStartFn === "function") {
-        onScrubStartFn();
-      }
+  grValue.addEventListener(
+    "mousemove",
+    bind(function (event) {
+      if (
+        event.eventPhase === "target" &&
+        isMouseDown &&
+        Math.abs(event.screenX - this.lastMousePosition[0]) >= 3
+      ) {
+        if (typeof onScrubStartFn === "function") {
+          onScrubStartFn();
+        }
 
-      var ctrlKey = false;
-      var shiftKey = false;
-      var primaryScreen = getPrimaryScreen();
+        grUnderline.show();
 
-      grUnderline.show();
+        var onMouseMoveFn = bind(function (event) {
+          if (event.eventPhase === "target") {
+            var mouseDistance = Math.floor(
+              event.screenX - this.lastMousePosition[0],
+            );
 
-      var screenWin = new Window(
-        "palette { \
-          alignChildren: ['fill','fill'], \
-          margins: 0, \
-          opacity: 0.01, \
-          properties: { borderless: true } \
-        }",
-      );
+            var ctrlKey = AE_OS === OS.WIN ? event.ctrlKey : event.metaKey;
+            var shiftKey = event.shiftKey;
 
-      screenWin.preferredSize = [primaryScreen.right, primaryScreen.bottom];
+            if (Math.abs(mouseDistance) >= 1) {
+              if (shiftKey) {
+                mouseDistance *= 10;
+              } else if (ctrlKey) {
+                mouseDistance /= 10;
+              }
 
-      screenWin.closeWindow = function () {
-        if (screenWin.visible) {
-          screenWin.close();
+              var newValue = this.getValue() + mouseDistance;
+
+              if (!ctrlKey) {
+                newValue = makeDivisibleBy(newValue, 1, mouseDistance < 0);
+              }
+
+              if (shiftKey) {
+                newValue = makeDivisibleBy(newValue, 10, mouseDistance < 0);
+              }
+
+              this.setValue(newValue);
+              this.onChange();
+              this.lastMousePosition = [event.screenX, event.screenY];
+            }
+          }
+        }, this);
+
+        var onCloseFn = bind(function () {
+          if (this.screenWin && this.screenWin.element.visible) {
+            this.screenWin.element.close();
+          }
+
           grUnderline.hide();
 
           if (typeof onScrubEndFn === "function") {
             onScrubEndFn();
           }
-        }
-      };
+        }, this);
 
-      var screenGr = screenWin.add("group");
-      screenGr.lastMousePosition = mouseDownPosition;
+        this.screenWin = undefined;
+        for (var i = 0; i < $.screens.length; i++) {
+          // if the screen contains the cursor
+          if (
+            this.lastMousePosition[0] >= $.screens[i].left &&
+            this.lastMousePosition[0] <= $.screens[i].right &&
+            this.lastMousePosition[1] >= $.screens[i].top &&
+            this.lastMousePosition[1] <= $.screens[i].bottom
+          ) {
+            this.screenWin = new ScreenWindow(
+              this,
+              $.screens[i],
+              onMouseMoveFn,
+              onCloseFn,
+            );
 
-      screenGr.addEventListener("mousemove", function (event) {
-        if (event.eventPhase === "target") {
-          var mouseDistance = Math.floor(
-            event.screenX - this.lastMousePosition[0],
-          );
-
-          ctrlKey = checkOs() === OS.WIN ? event.ctrlKey : event.metaKey;
-          shiftKey = event.shiftKey;
-
-          if (Math.abs(mouseDistance) >= 1) {
-            if (shiftKey) {
-              mouseDistance *= 10;
-            } else if (ctrlKey) {
-              mouseDistance /= 10;
-            }
-
-            var newValue = thisNumberValue.getValue() + mouseDistance;
-
-            if (!ctrlKey) {
-              newValue = makeDivisibleBy(newValue, 1, mouseDistance < 0);
-            }
-
-            if (shiftKey) {
-              newValue = makeDivisibleBy(newValue, 10, mouseDistance < 0);
-            }
-
-            thisNumberValue.setValue(newValue);
-            thisNumberValue.onChange();
-            this.lastMousePosition = [event.screenX, event.screenY];
+            break;
           }
         }
-      });
 
-      screenGr.addEventListener("mouseout", function (event) {
-        if (event.eventPhase === "target") {
-          screenWin.closeWindow();
-        }
-      });
-
-      screenGr.addEventListener("mouseup", function (event) {
-        if (event.eventPhase === "target") {
-          screenWin.closeWindow();
-        }
-      });
-
-      screenWin.show();
-
-      isMouseDown = false;
-    }
-  });
+        isMouseDown = false;
+      }
+    }, this),
+  );
 
   grText.addEventListener("mouseover", function () {
     txtUnits.graphics.foregroundColor = lightPen;

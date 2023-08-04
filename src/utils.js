@@ -23,6 +23,7 @@ import {
   VC_LEFT_MOUSE_BUTTON,
   VC_RIGHT_MOUSE_BUTTON,
   VC_MIDDLE_MOUSE_BUTTON,
+  PLUGIN_FILE_NAME,
 } from "./constants";
 
 export function getPrimaryScreen() {
@@ -82,6 +83,25 @@ export function getElementLocationInWindow(element) {
   return location;
 }
 
+export function getPluginsFolder() {
+  var result;
+  var packageFolder = Folder.appPackage;
+
+  if (AE_OS === OS.MAC) {
+    packageFolder.changePath("..");
+  }
+
+  if (packageFolder.exists) {
+    var pluginsFolderArr = packageFolder.getFiles("Plug-ins");
+
+    if (pluginsFolderArr && pluginsFolderArr.length) {
+      result = pluginsFolderArr[0];
+    }
+  }
+
+  return result;
+}
+
 export function openURL(url) {
   try {
     if (checkOs() === OS.WIN) {
@@ -105,7 +125,7 @@ export function saveFileFromBinaryString(binaryString) {
   }
 
   var err = false;
-  var fileObj = new File(Folder.current.absoluteURI + "/" + "ae-zoom.aex");
+  var fileObj = new File(Folder.current.absoluteURI + "/" + PLUGIN_FILE_NAME);
   fileObj = fileObj.saveDlg();
 
   if (fileObj) {
@@ -167,19 +187,19 @@ export function keysFromKeyCodes(keyCodes) {
   var mask = keyCodes.mask;
   var keycode = keyCodes.keycode;
 
-  if (mask & (MASK_CTRL)) {
+  if (mask & MASK_CTRL) {
     keys.push("Control");
   }
 
-  if (mask & (MASK_META)) {
+  if (mask & MASK_META) {
     keys.push(AE_OS === OS.WIN ? "Win" : "Command");
   }
 
-  if (mask & (MASK_SHIFT)) {
+  if (mask & MASK_SHIFT) {
     keys.push("Shift");
   }
 
-  if (mask & (MASK_ALT)) {
+  if (mask & MASK_ALT) {
     keys.push(AE_OS === OS.WIN ? "Alt" : "Option");
   }
 

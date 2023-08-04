@@ -1,4 +1,3 @@
-import EditIcon from "./edit-icon";
 import TrashIcon from "./trash-icon";
 import Line from "../line";
 import { TABLE_SIZES } from "../../constants";
@@ -20,12 +19,24 @@ function ColumnNames(parentEl, kbWindow) {
       grLine2: Group { alignment: 'fill' }, \
       txtAction: StaticText { text: 'Action' }, \
       grLine3: Group { alignment: 'fill' }, \
-      txtAmount: StaticText { text: '%' }, \
+      txtAmount: StaticText { text: 'Amount' }, \
       grLine4: Group { alignment: 'fill' }, \
     }",
   );
 
-  this.element.trashIcon = new TrashIcon(this.element, false);
+  this.element.trashIcon = new TrashIcon(
+    this.element,
+    true,
+    bind(function (event) {
+      if (event.eventPhase === "target") {
+        var kbArray = this.kbWindow.keyBindingsArr;
+
+        for (var i = kbArray.length - 1; i >= 0; i--) {
+          this.kbWindow.removeKeyBinding(i);
+        }
+      }
+    }, this),
+  );
 
   var cCheck = this.element.cCheck;
   var grEditIcon = this.element.grEditIcon;
@@ -42,7 +53,8 @@ function ColumnNames(parentEl, kbWindow) {
   txtAmount.preferredSize = [TABLE_SIZES[4], -1];
   trashIcon.preferredSize = [TABLE_SIZES[5], -1];
 
-  grEditIcon.editIcon = new EditIcon(grEditIcon, false);
+  // grEditIcon.editIcon = new EditIcon(grEditIcon, false);
+  grEditIcon.add("StaticText { text: 'Edit' }");
 
   new Line(this.element.grLine0);
   new Line(this.element.grLine1);
@@ -57,17 +69,6 @@ function ColumnNames(parentEl, kbWindow) {
       this.kbWindow.onOffKeyBinding(this.element.cCheck.value, i);
     }
   }, this);
-
-  // cCheck.onDraw = function () {
-  //   var g = this.graphics;
-  //   var c = [0.55, 0.55, 0.55, 1];
-  //   var p = g.newPen(g.PenType.SOLID_COLOR, c, 2);
-
-  //   g.moveTo(2, 3);
-  //   g.lineTo(5, 6);
-  //   g.lineTo(10, 0);
-  //   g.strokePath(p);
-  // };
 }
 
 ColumnNames.prototype.syncCheck = function () {
@@ -82,6 +83,6 @@ ColumnNames.prototype.syncCheck = function () {
   }
 
   this.element.cCheck.value = val;
-}
+};
 
 export default ColumnNames;

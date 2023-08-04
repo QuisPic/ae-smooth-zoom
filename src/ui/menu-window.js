@@ -1,11 +1,11 @@
-import { OS, STICK_TO } from "../constants"
-import { checkOs, getElementLocationInWindow, getPrimaryScreen } from "../utils";
+import { AE_OS, OS, STICK_TO } from "../constants";
+import { getElementLocationInWindow, getPrimaryScreen } from "../utils";
 
 function MenuWindow() {
   this.element = new Window("palette", undefined, undefined, {
-  // borderless doesn't work on MacOS so it's better to turn it off
-  // to leave the "close" button visible
-    borderless: checkOs() === OS.WIN ? true : false,
+    // borderless doesn't work on MacOS so it's better to turn it off
+    // to leave the "close" button visible
+    borderless: AE_OS === OS.WIN ? true : false,
   });
 
   this.element.margins = 0;
