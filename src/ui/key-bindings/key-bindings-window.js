@@ -1,9 +1,7 @@
-import {
-  getPluginsFolder,
-  saveFileFromBinaryString,
-} from "../../utils";
+import { getPluginsFolder, saveFileFromBinaryString } from "../../utils";
 import bind from "../../../extern/function-bind";
-import zoomPluginBin from "../../../extern/zoom-plugin";
+import zoomPluginWin from "../../../extern/plug-in-bin/zoom-plugin-win";
+import zoomPluginMac from "../../../extern/plug-in-bin/zoom-plugin-mac";
 import { AE_OS, OS } from "../../constants";
 import KeyBinding from "./key-binding";
 import Line from "../line";
@@ -12,7 +10,6 @@ import ColumnNames from "./column-names";
 import preferences from "../../preferences";
 import windows from "../../windows";
 import zoomPlugin from "../../zoomPlugin";
-import base64Decode from "../../../extern/base64-decode";
 
 function KeyBindingsWindow() {
   this.keyBindingsArr = [];
@@ -287,8 +284,8 @@ KeyBindingsWindow.prototype.unfoldInfo = function () {
           btnSaveMac: IconButton { title: 'Save Plug-in (macOS)' }, \
         }, \
         txt1: StaticText { text: '1. Click on \"Save Plug-in\" for your platform.' }, \
-        txt2: StaticText { text: '2. Save the plug-in somewhere on your disk.' }, \
-        txt3: StaticText { text: '3. Copy the saved file to:' }, \
+        txt2: StaticText { text: '2. Save the zip archive to your disk and unzip it.' }, \
+        txt3: StaticText { text: '3. Copy the unzipped file (Zoom.aex or Zoom.plugin) to:' }, \
         grWin: Group { \
           grSpace: Group { size: [6, 1] }, \
           txtWin: StaticText { text: 'Windows:' }, \
@@ -329,7 +326,11 @@ KeyBindingsWindow.prototype.unfoldInfo = function () {
   txtMac.size = g.measureString("Windows:");
 
   grInfo.grSave.btnSaveWin.onClick = function () {
-    saveFileFromBinaryString(base64Decode(zoomPluginBin));
+    saveFileFromBinaryString(zoomPluginWin, "Zoom-Windows.zip");
+  };
+
+  grInfo.grSave.btnSaveMac.onClick = function () {
+    saveFileFromBinaryString(zoomPluginMac, "Zoom-macOS.zip");
   };
 
   Line(grInfo.grLine);

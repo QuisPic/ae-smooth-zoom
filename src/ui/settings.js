@@ -154,7 +154,7 @@ function Settings(zoom, parentEl) {
           openURL("https://twitter.com/quismotion");
         });
         menuWindow.addMenuItem("Github", function () {
-          openURL("https://github.com/QuisPic/ae-smooth-zoom");
+          openURL("https://github.com/QuisPic/ae-zoom");
         });
 
         menuWindow.element.opacity = 0;

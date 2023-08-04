@@ -23,7 +23,6 @@ import {
   VC_LEFT_MOUSE_BUTTON,
   VC_RIGHT_MOUSE_BUTTON,
   VC_MIDDLE_MOUSE_BUTTON,
-  PLUGIN_FILE_NAME,
 } from "./constants";
 
 export function getPrimaryScreen() {
@@ -114,7 +113,7 @@ export function openURL(url) {
   }
 }
 
-export function saveFileFromBinaryString(binaryString) {
+export function saveFileFromBinaryString(binaryString, fileName) {
   function checkFileError(fo) {
     if (fo.error) {
       alert("Error saving file: " + fo.error, "Error", true);
@@ -125,7 +124,7 @@ export function saveFileFromBinaryString(binaryString) {
   }
 
   var err = false;
-  var fileObj = new File(Folder.current.absoluteURI + "/" + PLUGIN_FILE_NAME);
+  var fileObj = new File(Folder.current.absoluteURI + "/" + fileName);
   fileObj = fileObj.saveDlg();
 
   if (fileObj) {
