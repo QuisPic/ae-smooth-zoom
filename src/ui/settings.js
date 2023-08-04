@@ -1,21 +1,33 @@
 import MenuWindow from "./menu-window";
 import NumberValue from "./number-value";
-import { DEFAULT_SETTINGS, OS, SETTINGS_SECTION_NAME } from "../constants";
-import { checkOs, openURL } from "../utils";
+import { AE_OS, OS, STICK_TO } from "../constants";
+import { openURL } from "../utils";
+import bind from "../../extern/function-bind";
 import Checkbox from "./checkbox";
+import preferences from "../preferences";
+import windows from "../windows";
 
 function Settings(zoom, parentEl) {
   this.element = parentEl.add(
     "Group { \
       alignChildren: ['center', 'center'], \
       margins: [5, 0, 5, 0], \
-      grDots: Group { preferredSize: [4, 20] }, \
+      grDots: Custom { preferredSize: [4, 20] }, \
     }",
   );
 
-  this.element.grDots.onDraw = function () {
+  this.element.grDots.addEventListener("mouseover", function () {
+    this.notify("onDraw");
+  });
+
+  this.element.grDots.addEventListener("mouseout", function () {
+    this.notify("onDraw");
+  });
+
+  this.element.grDots.onDraw = function (drawState) {
     var g = this.graphics;
-    var b = g.newBrush(g.BrushType.SOLID_COLOR, [0.57, 0.57, 0.57, 1]);
+    var c = drawState.mouseOver ? [0.75, 0.75, 0.75, 1] : [0.55, 0.55, 0.55, 1];
+    var b = g.newBrush(g.BrushType.SOLID_COLOR, c);
 
     g.ellipsePath(0, 4, 2, 2);
     g.fillPath(b);
@@ -27,156 +39,136 @@ function Settings(zoom, parentEl) {
     g.fillPath(b);
   };
 
-  this.element.addEventListener("click", function (event) {
-    if (event.eventPhase === "target") {
-      var zoomSettings = Settings.getSettings();
-      var menuWindow = new MenuWindow();
-      var maxTextSize =
-        menuWindow.element.graphics.measureString("Sync with View");
+  this.element.addEventListener(
+    "click",
+    bind(function (event) {
+      if (event.eventPhase === "target") {
+        // var zoomSettings = Settings.getSettings();
 
-      var onScrubStartFn = function () {
-        menuWindow.element.shouldCloseOnDeactivate = false;
-      };
-      var onScrubEndFn = function () {
-        menuWindow.element.shouldCloseOnDeactivate = true;
+        this.menuWindow = new MenuWindow();
+        var menuWindow = this.menuWindow;
 
-        if (checkOs() === OS.WIN) {
-          // make the window active
-          menuWindow.element.hide();
-          menuWindow.element.show();
-        }
-      };
+        var maxTextSize =
+          menuWindow.element.graphics.measureString("Sync with View");
 
-      // we pass this empty function because there is a strage bug
-      // in AE where if a window doesn't have a reference to a function
-      // it will close immediately
-      var syncItem = menuWindow.addMenuItem("Sync with View", function () {});
+        var onScrubStartFn = bind(function () {
+          this.menuWindow.element.shouldCloseOnDeactivate = false;
+        }, this);
 
-      // "Sync With Viewport" checkbox
-      var syncCheck = new Checkbox(
-        zoom,
-        syncItem,
-        zoomSettings.syncWithView,
-        function () {
-          app.settings.saveSetting(
-            SETTINGS_SECTION_NAME,
-            "syncWithView",
-            this.value,
-          );
-        },
-      );
+        var onScrubEndFn = bind(function () {
+          if (AE_OS === OS.WIN && !this.menuWindow.element.shouldCloseOnDeactivate) {
+            // make the window active
+            this.menuWindow.element.hide();
+            this.menuWindow.element.show();
+          }
 
-      syncCheck.element.check.helpTip =
-        "If ON, the script will sync its value with the viewport when you hover over the script.";
+          this.menuWindow.element.shouldCloseOnDeactivate = true;
+        }, this);
 
-      var showSliderItem = menuWindow.addMenuItem(
-        "Show Slider",
-        function () {},
-      );
+        this.keyBindingsItem = menuWindow.addMenuItem(
+          "Key Bindings...",
+          function () {
+            windows.newKeyBindingsWindow();
+          },
+        );
 
-      // "Show Slider" checkbox
-      new Checkbox(zoom, showSliderItem, zoomSettings.showSlider, function () {
-        zoom.showHideSlider();
-      });
+        this.syncItem = menuWindow.addMenuItem("Sync with View");
 
-      var sliderMinItem = menuWindow.addMenuItem("Slider Min");
-      var sliderMaxItem = menuWindow.addMenuItem("Slider Max");
+        // "Sync With Viewport" checkbox
+        this.syncCheck = new Checkbox(
+          zoom,
+          this.syncItem,
+          preferences.syncWithView,
+          function () {
+            preferences.save("syncWithView", this.value);
+          },
+        );
 
-      var sliderMinValue = new NumberValue(
-        zoom,
-        sliderMinItem,
-        undefined,
-        onScrubStartFn,
-        onScrubEndFn,
-        "%",
-        zoomSettings.sliderMin || 1,
-        1,
-        zoomSettings.sliderMax,
-      );
+        this.syncCheck.element.check.helpTip =
+          "If ON, the script will sync its value with the viewport when you hover over the script.";
 
-      var sliderMaxValue = new NumberValue(
-        zoom,
-        sliderMaxItem,
-        undefined,
-        onScrubStartFn,
-        onScrubEndFn,
-        "%",
-        zoomSettings.sliderMax,
-        zoomSettings.sliderMin || 1,
-      );
+        this.showSliderItem = menuWindow.addMenuItem(
+          "Show Slider",
+          function () {},
+        );
 
-      sliderMinValue.onChangeFn = function (val) {
-        app.settings.saveSetting(SETTINGS_SECTION_NAME, "sliderMin", val);
-        sliderMaxValue.minValue = val;
+        // "Show Slider" checkbox
+        this.showSliderCheck = new Checkbox(
+          zoom,
+          this.showSliderItem,
+          preferences.showSlider,
+          function () {
+            zoom.showHideSlider();
+          },
+        );
 
-        if (zoom.zoomSlider && isValid(zoom.zoomSlider.element)) {
-          zoom.zoomSlider.setMin(val);
-        }
-      };
+        this.sliderMinItem = menuWindow.addMenuItem("Slider Min");
+        this.sliderMaxItem = menuWindow.addMenuItem("Slider Max");
 
-      sliderMaxValue.onChangeFn = function (val) {
-        app.settings.saveSetting(SETTINGS_SECTION_NAME, "sliderMax", val);
-        sliderMinValue.maxValue = val;
+        this.sliderMinValue = new NumberValue(
+          this.sliderMinItem,
+          "%",
+          preferences.sliderMin || 1,
+          1,
+          preferences.sliderMax,
+          undefined,
+          onScrubStartFn,
+          onScrubEndFn,
+        );
 
-        if (zoom.zoomSlider && isValid(zoom.zoomSlider.element)) {
-          zoom.zoomSlider.setMax(val);
-        }
-      };
+        this.sliderMaxValue = new NumberValue(
+          this.sliderMaxItem,
+          "%",
+          preferences.sliderMax,
+          preferences.sliderMin || 1,
+          undefined,
+          undefined,
+          onScrubStartFn,
+          onScrubEndFn,
+        );
 
-      showSliderItem.txtValue.preferredSize = maxTextSize;
-      sliderMinItem.txtValue.preferredSize = maxTextSize;
-      sliderMaxItem.txtValue.preferredSize = maxTextSize;
+        this.sliderMinValue.onChangeFn = bind(function (val) {
+          preferences.save("sliderMin", val);
+          this.sliderMaxValue.minValue = val;
 
-      menuWindow.addDivider();
-      menuWindow.addMenuItem("Author", function () {
-        openURL("https://twitter.com/quismotion");
-      });
-      menuWindow.addMenuItem("Github", function () {
-        openURL("https://github.com/QuisPic/ae-smooth-zoom");
-      });
+          if (zoom.zoomSlider && isValid(zoom.zoomSlider.element)) {
+            zoom.zoomSlider.setMin(val);
+          }
+        }, this);
 
-      menuWindow.element.opacity = 0;
-      menuWindow.element.show();
-      menuWindow.stickTo(this, false, event, this.grDots);
-      menuWindow.element.opacity = 1;
-    }
-  });
+        this.sliderMaxValue.onChangeFn = bind(function (val) {
+          preferences.save("sliderMax", val);
+          this.sliderMinValue.maxValue = val;
+
+          if (zoom.zoomSlider && isValid(zoom.zoomSlider.element)) {
+            zoom.zoomSlider.setMax(val);
+          }
+        }, this);
+
+        this.showSliderItem.txtValue.preferredSize = maxTextSize;
+        this.sliderMinItem.txtValue.preferredSize = maxTextSize;
+        this.sliderMaxItem.txtValue.preferredSize = maxTextSize;
+
+        menuWindow.addDivider();
+        menuWindow.addMenuItem("Author", function () {
+          openURL("https://twitter.com/quismotion");
+        });
+        menuWindow.addMenuItem("Github", function () {
+          openURL("https://github.com/QuisPic/ae-zoom");
+        });
+
+        menuWindow.element.opacity = 0;
+        menuWindow.element.show();
+        menuWindow.stickTo(
+          this.element,
+          STICK_TO.RIGHT,
+          event,
+          this.element.grDots,
+        );
+        menuWindow.element.opacity = 1;
+      }
+    }, this),
+  );
 }
-
-Settings.getSettings = function () {
-  var result = {};
-
-  if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "syncWithView")) {
-    result.syncWithView =
-      app.settings.getSetting(SETTINGS_SECTION_NAME, "syncWithView") === "true";
-  } else {
-    result.syncWithView = DEFAULT_SETTINGS.syncWithView;
-  }
-
-  if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "showSlider")) {
-    result.showSlider =
-      app.settings.getSetting(SETTINGS_SECTION_NAME, "showSlider") === "true";
-  } else {
-    result.showSlider = DEFAULT_SETTINGS.showSlider;
-  }
-
-  if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "sliderMin")) {
-    result.sliderMin = parseInt(
-      app.settings.getSetting(SETTINGS_SECTION_NAME, "sliderMin"),
-    );
-  } else {
-    result.sliderMin = DEFAULT_SETTINGS.sliderMin;
-  }
-
-  if (app.settings.haveSetting(SETTINGS_SECTION_NAME, "sliderMax")) {
-    result.sliderMax = parseInt(
-      app.settings.getSetting(SETTINGS_SECTION_NAME, "sliderMax"),
-    );
-  } else {
-    result.sliderMax = DEFAULT_SETTINGS.sliderMax;
-  }
-
-  return result;
-};
 
 export default Settings;

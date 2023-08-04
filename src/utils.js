@@ -1,4 +1,29 @@
-import { OS } from "./constants";
+import {
+  MASK_ALT,
+  MASK_CTRL,
+  MASK_META,
+  MASK_SHIFT,
+  OS,
+  VC_SHIFT_L,
+  VC_SHIFT_R,
+  VC_CONTROL_L,
+  VC_CONTROL_R,
+  VC_ALT_L,
+  VC_ALT_R,
+  VC_ALT_GRAPH,
+  VC_META_L,
+  VC_META_R,
+  VC_MAP,
+  EVENT_MOUSE_PRESSED,
+  EVENT_MOUSE_WHEEL,
+  EVENT_KEY_PRESSED,
+  VC_WHEEL_UP,
+  VC_WHEEL_DOWN,
+  AE_OS,
+  VC_LEFT_MOUSE_BUTTON,
+  VC_RIGHT_MOUSE_BUTTON,
+  VC_MIDDLE_MOUSE_BUTTON,
+} from "./constants";
 
 export function getPrimaryScreen() {
   for (var i = 0; i < $.screens.length; i++) {
@@ -20,8 +45,7 @@ export function makeDivisibleBy(val, divisor, goUp) {
     divisor = divisor < 0 ? Math.abs(divisor) : divisor;
 
     if (divisor < 1) {
-      // float-point math...
-      var epsilon = 0.00000000000001;
+      var epsilon = 0.00000000000001; // float-point math...
 
       divisor = 1 / divisor;
 
@@ -58,6 +82,25 @@ export function getElementLocationInWindow(element) {
   return location;
 }
 
+export function getPluginsFolder() {
+  var result;
+  var packageFolder = Folder.appPackage;
+
+  if (AE_OS === OS.MAC) {
+    packageFolder.changePath("..");
+  }
+
+  if (packageFolder.exists) {
+    var pluginsFolderArr = packageFolder.getFiles("Plug-ins");
+
+    if (pluginsFolderArr && pluginsFolderArr.length) {
+      result = pluginsFolderArr[0];
+    }
+  }
+
+  return result;
+}
+
 export function openURL(url) {
   try {
     if (checkOs() === OS.WIN) {
@@ -66,6 +109,137 @@ export function openURL(url) {
       system.callSystem("open " + url);
     }
   } catch (error) {
-    alert(error);
+    alert("Error at line " + error.line + ":\n" + error.message);
   }
+}
+
+export function saveFileFromBinaryString(binaryString, fileName) {
+  function checkFileError(fo) {
+    if (fo.error) {
+      alert("Error saving file: " + fo.error, "Error", true);
+      return fo.error;
+    }
+
+    return false;
+  }
+
+  var err = false;
+  var fileObj = new File(Folder.current.absoluteURI + "/" + fileName);
+  fileObj = fileObj.saveDlg();
+
+  if (fileObj) {
+    fileObj.encoding = "BINARY";
+
+    if (fileObj.open("w")) {
+      fileObj.write(binaryString);
+
+      err = checkFileError(fileObj);
+
+      fileObj.close();
+    }
+
+    err = checkFileError(fileObj);
+
+    return err;
+  }
+}
+
+export function indexOf(arr, el) {
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === el) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+export function findIndex(arr, testFn) {
+  for (var i = 0; i < arr.length; i++) {
+    if (testFn(arr[i])) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+export function isModifierKey(keycode) {
+  return (
+    keycode === VC_SHIFT_L ||
+    keycode === VC_SHIFT_R ||
+    keycode === VC_CONTROL_L ||
+    keycode === VC_CONTROL_R ||
+    keycode === VC_ALT_L ||
+    keycode === VC_ALT_R ||
+    keycode === VC_ALT_GRAPH ||
+    keycode === VC_META_L ||
+    keycode === VC_META_R
+  );
+}
+
+// get array of key names in readable format
+// from the info received from zoom plugin
+export function keysFromKeyCodes(keyCodes) {
+  var keys = [];
+  var type = keyCodes.type;
+  var mask = keyCodes.mask;
+  var keycode = keyCodes.keycode;
+
+  if (mask & MASK_CTRL) {
+    keys.push("Control");
+  }
+
+  if (mask & MASK_META) {
+    keys.push(AE_OS === OS.WIN ? "Win" : "Command");
+  }
+
+  if (mask & MASK_SHIFT) {
+    keys.push("Shift");
+  }
+
+  if (mask & MASK_ALT) {
+    keys.push(AE_OS === OS.WIN ? "Alt" : "Option");
+  }
+
+  if (type === EVENT_KEY_PRESSED) {
+    if (!isModifierKey(keycode)) {
+      var keyName = VC_MAP[keycode];
+
+      if (keyName) {
+        keys.push(keyName);
+      } else {
+        keys.push("[" + keycode + "]");
+      }
+    }
+  } else if (type === EVENT_MOUSE_PRESSED) {
+    switch (keycode) {
+      case VC_LEFT_MOUSE_BUTTON:
+        keys.push("Left Click");
+        break;
+      case VC_RIGHT_MOUSE_BUTTON:
+        keys.push("Right Click");
+        break;
+      case VC_MIDDLE_MOUSE_BUTTON:
+        keys.push("Middle Click");
+        break;
+      default:
+        keys.push("Mouse Button " + keycode);
+        break;
+    }
+  } else if (type === EVENT_MOUSE_WHEEL) {
+    switch (keycode) {
+      case VC_WHEEL_UP:
+        keys.push("Scroll Up");
+        break;
+      case VC_WHEEL_DOWN:
+        keys.push("Scroll Down");
+        break;
+      default:
+        keys.push("Scroll [" + keycode + "]");
+        break;
+    }
+  }
+
+  return keys;
 }
