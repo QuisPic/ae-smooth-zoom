@@ -24,11 +24,11 @@ ZoomWindows.prototype.newKeyBindingsWindow = function () {
 ZoomWindows.prototype.newKeyCaptureWindow = function (onEnterKeyFn) {
   closeWindowIfOpen(this.keyCapture);
 
-  if (zoomPlugin.isAvailable) {
+  if (zoomPlugin.isAvailable()) {
     this.keyCapture = new KeyCapture(onEnterKeyFn);
   } else {
     alert(
-      "Warning: Zoom plug-in is not found.\nPlease install Zoom plug-in to use key bindings.",
+      "Zoom plug-in is not found.\nPlease install Zoom plug-in to use key bindings.",
     );
   }
 };

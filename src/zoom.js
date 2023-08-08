@@ -7,7 +7,6 @@ import preferences from "./preferences";
 
 function Zoom(thisObj) {
   var currentZoom = Zoom.getViewZoom();
-  // var zoomSettings = Settings.getSettings();
   var zoomSetToFn = this.produceSetTo();
 
   this.w =
@@ -58,8 +57,6 @@ function Zoom(thisObj) {
 }
 
 Zoom.prototype.addSlider = function () {
-  // var zoomSettings = Settings.getSettings();
-
   this.zoomSlider = new Slider(
     this,
     this.w.grSlider,
@@ -201,7 +198,6 @@ Zoom.prototype.showHideSlider = function () {
     val = true;
   }
 
-  // app.settings.saveSetting(SETTINGS_SECTION_NAME, "showSlider", val);
   preferences.save("showSlider", val);
 
   this.w.layout.layout(true);

@@ -1,11 +1,11 @@
 export var OS = { WIN: 0, MAC: 1 };
 export var AE_OS = $.os.indexOf("Win") !== -1 ? OS.WIN : OS.MAC;
-export var PLUGIN_FILE_NAME =
-  AE_OS === OS.WIN ? "Zoom.aex" : "Zoom.plugin";
+export var PLUGIN_FILE_NAME = AE_OS === OS.WIN ? "Zoom.aex" : "Zoom.plugin";
 export var SETTINGS_SECTION_NAME = "Quis/Ae_Smooth_Zoom";
 export var BLUE_COLOR = [0.06, 0.52, 0.94, 1];
 export var ZOOM_STEP_ON_BTN_CLICK = 1;
 export var STICK_TO = { LEFT: 0, RIGHT: 1 };
+
 export var ZOOM_LIST_VALUES = [
   "1.5%",
   "3.1%",
@@ -22,6 +22,14 @@ export var ZOOM_LIST_VALUES = [
   "3200%",
   "6400%",
 ];
+
+export var ZOOM_PLUGIN_STATUS = {
+  INITIALIZATION_ERROR: 0,
+  INITIALIZED: 1,
+  FINISHED: 2,
+  NOT_FOUND: 3,
+  FOUND_NOT_INITIALIZED: 4,
+};
 
 export var DEFAULT_SETTINGS = {
   keyBindings:

@@ -2,7 +2,7 @@ import { getPluginsFolder, saveFileFromBinaryString } from "../../utils";
 import bind from "../../../extern/function-bind";
 import zoomPluginWin from "../../../extern/plug-in-bin/zoom-plugin-win";
 import zoomPluginMac from "../../../extern/plug-in-bin/zoom-plugin-mac";
-import { AE_OS, OS } from "../../constants";
+import { AE_OS, OS, ZOOM_PLUGIN_STATUS } from "../../constants";
 import KeyBinding from "./key-binding";
 import Line from "../line";
 import JSON from "../../../extern/json2";
@@ -12,11 +12,10 @@ import windows from "../../windows";
 import zoomPlugin from "../../zoomPlugin";
 
 function KeyBindingsWindow() {
+  zoomPlugin.resetStatus();
+
   this.keyBindingsArr = [];
   this.linesArr = [];
-
-  this.pluginFound = zoomPlugin.isAvailable;
-  this.isUnfoldInfo = !this.pluginFound;
 
   this.element = new Window("palette", "Zoom Key Bindings", undefined, {
     resizeable: false,
@@ -76,6 +75,12 @@ function KeyBindingsWindow() {
   var pnlKeyBindings = this.element.gr.pnlKeyBindings;
   var grBindings = pnlKeyBindings.grBindings;
   var keyBindings = JSON.parse(preferences.keyBindings);
+
+  this.element.gr.maximumSize.width = 600;
+  pnlKeyBindings.maximumSize.height = 500;
+
+  /** Create a group that holds plug-in status info */
+  this.createPluginStatusGroup();
 
   /** Check if Zoom plug-in is available */
   this.setPluginStatus();
@@ -151,7 +156,7 @@ function KeyBindingsWindow() {
 
     preferences.save("keyBindings", JSON.stringify(bindingsArr));
 
-    /** close the KeyBindings window */
+    /** Close the KeyBindings window */
     this.element.close();
   }, this);
 
@@ -164,7 +169,7 @@ function KeyBindingsWindow() {
   this.element.show();
 }
 
-KeyBindingsWindow.prototype.setPluginStatus = function () {
+KeyBindingsWindow.prototype.createPluginStatusGroup = function () {
   var pnlInstallPlugin = this.element.gr.pnlInstallPlugin;
 
   pnlInstallPlugin.grStatus = pnlInstallPlugin.add(
@@ -180,28 +185,11 @@ KeyBindingsWindow.prototype.setPluginStatus = function () {
   var foldIcon = grStatus.foldIcon;
   var statusIcon = grStatus.statusIcon;
 
-  pnlInstallPlugin.graphics.backgroundColor =
-    pnlInstallPlugin.graphics.newBrush(
-      pnlInstallPlugin.graphics.BrushType.SOLID_COLOR,
-      this.pluginFound ? [0.12, 0.2, 0.12, 1] : [0.2, 0.12, 0.12, 1],
-    );
-
-  grStatus.txt.text = this.pluginFound
-    ? "Zoom plug-in installed"
-    : "Zoom plug-in is not installed";
-
   grStatus.addEventListener(
     "click",
     bind(function (event) {
       if (event.eventPhase === "target") {
-        if (this.isUnfoldInfo) {
-          this.foldInfo();
-          this.isUnfoldInfo = false;
-        } else {
-          this.unfoldInfo();
-          this.isUnfoldInfo = true;
-        }
-
+        this.toggleInfo();
         foldIcon.notify("onDraw");
       }
     }, this),
@@ -263,82 +251,199 @@ KeyBindingsWindow.prototype.setPluginStatus = function () {
 
     g.strokePath(p);
   }, this);
+};
 
+KeyBindingsWindow.prototype.setPluginStatus = function () {
+  var pnlInstallPlugin = this.element.gr.pnlInstallPlugin;
+  var grStatus = pnlInstallPlugin.grStatus;
+
+  this.pluginFound = zoomPlugin.isAvailable();
+
+  pnlInstallPlugin.graphics.backgroundColor =
+    pnlInstallPlugin.graphics.newBrush(
+      pnlInstallPlugin.graphics.BrushType.SOLID_COLOR,
+      this.pluginFound ? [0.12, 0.2, 0.12, 1] : [0.2, 0.12, 0.12, 1],
+    );
+
+  switch (zoomPlugin.status()) {
+    case ZOOM_PLUGIN_STATUS.NOT_FOUND:
+      grStatus.txt.text = "Zoom plug-in is not installed";
+      break;
+    case ZOOM_PLUGIN_STATUS.FOUND_NOT_INITIALIZED:
+      grStatus.txt.text = "Unable to initialize Zoom plug-in";
+      break;
+    case ZOOM_PLUGIN_STATUS.FINISHED:
+      grStatus.txt.text = "Zoom plug-in stopped working";
+      break;
+    case ZOOM_PLUGIN_STATUS.INITIALIZATION_ERROR:
+      grStatus.txt.text = "Error initializing Zoom plugin";
+      break;
+    case ZOOM_PLUGIN_STATUS.INITIALIZED:
+      grStatus.txt.text = "Zoom plug-in installed";
+      break;
+    default:
+      grStatus.txt.text = "Unknown status";
+      break;
+  }
+
+  grStatus.txt.size = grStatus.txt.graphics.measureString(grStatus.txt.text);
+
+  if (!this.pluginFound) {
+    this.unfoldInfo();
+  } else if (this.unfoldInfo) {
+    this.foldInfo();
+  }
+};
+
+KeyBindingsWindow.prototype.fillInstallInfo = function (parentGr) {
+  var grInstallInfo = parentGr.add(
+    "Group { \
+      orientation: 'column', \
+      alignChildren: ['left', 'center'], \
+      txt0: StaticText { text: 'To use key bindings, you must first install Zoom plug-in.' }, \
+      grSave: Group { \
+        margins: [0, 10, 0, 10], \
+        alignment: ['fill', 'bottom'], \
+        alignChildren: ['center', 'center'], \
+        btnSaveWin: IconButton { title: 'Save Plug-in (Windows)' }, \
+        btnSaveMac: IconButton { title: 'Save Plug-in (macOS)' }, \
+      }, \
+      txt1: StaticText { text: '1. Click on \"Save Plug-in\" for your platform.' }, \
+      txt2: StaticText { text: '2. Save the zip archive to your disk and unzip it.' }, \
+      txt3: StaticText { text: '3. Copy the unzipped file (Zoom.aex or Zoom.plugin) to:' }, \
+      grWin: Group { \
+        grSpace: Group { size: [6, 1] }, \
+        txtWin: StaticText { text: 'Windows:' }, \
+        alignment: ['fill', 'center' ], \
+        txtPath: EditText { \
+          text: 'C:/Program Files/Adobe/Adobe After Effects [version]/Support Files/Plug-ins/', \
+          alignment: ['fill', 'center' ], \
+          properties: { readonly: true }, \
+        }, \
+      }, \
+      grMac: Group { \
+        grSpace: Group { size: [6, 1] }, \
+        txtMac: StaticText { text: 'macOS:' }, \
+        alignment: ['fill', 'center' ], \
+        txtPath: EditText { \
+          text: '/Applications/Adobe After Effects [version]/Plug-ins/', \
+          alignment: ['fill', 'center' ], \
+          properties: { readonly: true }, \
+        }, \
+      }, \
+      txt4: StaticText { text: '4. Restart After Effects.' }, \
+    }",
+  );
+
+  parentGr.grInstallInfo = grInstallInfo;
+  var pluginsFolder = getPluginsFolder();
+
+  if (pluginsFolder) {
+    if (AE_OS === OS.WIN) {
+      grInstallInfo.grWin.txtPath.text = pluginsFolder.fsName + "\\";
+    } else if (AE_OS === OS.MAC) {
+      grInstallInfo.grMac.txtPath.text = pluginsFolder.fsName + "/";
+    }
+  }
+
+  var txtMac = grInstallInfo.grMac.txtMac;
+  var g = txtMac.graphics;
+  txtMac.size = g.measureString("Windows:");
+
+  grInstallInfo.grSave.btnSaveWin.onClick = function () {
+    saveFileFromBinaryString(zoomPluginWin, "Zoom-Windows.zip");
+  };
+
+  grInstallInfo.grSave.btnSaveMac.onClick = function () {
+    saveFileFromBinaryString(zoomPluginMac, "Zoom-macOS.zip");
+  };
+};
+
+KeyBindingsWindow.prototype.fillErrorInfo = function (parentGr) {
+  var grErrorInfo = parentGr.add(
+    "Group { \
+      orientation: 'column', \
+      alignChildren: ['center', 'top'], \
+      txt: StaticText { \
+        alignment: 'fill', \
+        properties: { \
+          multiline: true, \
+        }, \
+      }, \
+      btnReload: Button { text: 'Reload' }, \
+    }",
+  );
+
+  parentGr.grErrorInfo = grErrorInfo;
+
+  var errorText = "";
+  if (zoomPlugin.foundEO) {
+    try {
+      errorText = zoomPlugin.getError();
+    } catch (error) {
+      /**/
+    }
+  }
+
+  if (errorText) {
+    grErrorInfo.txt.text = errorText;
+    grErrorInfo.txt.characters = 50; // this fixes the height of the text
+  }
+
+  grErrorInfo.btnReload.onClick = bind(function () {
+    if (zoomPlugin.foundEO) {
+      zoomPlugin.reload();
+
+      this.setPluginStatus();
+      this.element.layout.layout(true);
+    }
+  }, this);
+};
+
+KeyBindingsWindow.prototype.toggleInfo = function () {
   if (this.isUnfoldInfo) {
+    this.foldInfo();
+  } else {
     this.unfoldInfo();
   }
 };
 
 KeyBindingsWindow.prototype.unfoldInfo = function () {
+  if (this.isUnfoldInfo) {
+    this.foldInfo();
+  }
+
   var grInfo = this.element.gr.pnlInstallPlugin.add(
     "Group { \
         orientation: 'column', \
-        alignChildren: ['left', 'center'], \
+        alignChildren: ['fill', 'fill'], \
         grLine: Group { alignment: 'fill', orientation: 'column' }, \
-        txt0: StaticText { text: 'To use key bindings, you must first install Zoom plug-in.' }, \
-        grSave: Group { \
-          margins: [0, 10, 0, 10], \
-          alignment: ['fill', 'bottom'], \
-          alignChildren: ['center', 'center'], \
-          btnSaveWin: IconButton { title: 'Save Plug-in (Windows)' }, \
-          btnSaveMac: IconButton { title: 'Save Plug-in (macOS)' }, \
-        }, \
-        txt1: StaticText { text: '1. Click on \"Save Plug-in\" for your platform.' }, \
-        txt2: StaticText { text: '2. Save the zip archive to your disk and unzip it.' }, \
-        txt3: StaticText { text: '3. Copy the unzipped file (Zoom.aex or Zoom.plugin) to:' }, \
-        grWin: Group { \
-          grSpace: Group { size: [6, 1] }, \
-          txtWin: StaticText { text: 'Windows:' }, \
-          alignment: ['fill', 'center' ], \
-          txtPath: EditText { \
-            text: 'C:/Program Files/Adobe/Adobe After Effects [version]/Support Files/Plug-ins/', \
-            alignment: ['fill', 'center' ], \
-            properties: { readonly: true }, \
-          }, \
-        }, \
-        grMac: Group { \
-          grSpace: Group { size: [6, 1] }, \
-          txtMac: StaticText { text: 'macOS:' }, \
-          alignment: ['fill', 'center' ], \
-          txtPath: EditText { \
-            text: '/Applications/Adobe After Effects [version]/Plug-ins/', \
-            alignment: ['fill', 'center' ], \
-            properties: { readonly: true }, \
-          }, \
-        }, \
-        txt4: StaticText { text: '4. Restart After Effects.' }, \
-      }",
+    }",
   );
-
-  this.element.gr.pnlInstallPlugin.grInfo = grInfo;
-  var pluginsFolder = getPluginsFolder();
-
-  if (pluginsFolder) {
-    if (AE_OS === OS.WIN) {
-      grInfo.grWin.txtPath.text = pluginsFolder.fsName + "\\";
-    } else if (AE_OS === OS.MAC) {
-      grInfo.grMac.txtPath.text = pluginsFolder.fsName + "/";
-    }
-  }
-
-  var txtMac = grInfo.grMac.txtMac;
-  var g = txtMac.graphics;
-  txtMac.size = g.measureString("Windows:");
-
-  grInfo.grSave.btnSaveWin.onClick = function () {
-    saveFileFromBinaryString(zoomPluginWin, "Zoom-Windows.zip");
-  };
-
-  grInfo.grSave.btnSaveMac.onClick = function () {
-    saveFileFromBinaryString(zoomPluginMac, "Zoom-macOS.zip");
-  };
-
   Line(grInfo.grLine);
 
+  switch (zoomPlugin.status()) {
+    case ZOOM_PLUGIN_STATUS.INITIALIZED:
+    case ZOOM_PLUGIN_STATUS.NOT_FOUND:
+      this.fillInstallInfo(grInfo);
+      break;
+    case ZOOM_PLUGIN_STATUS.FOUND_NOT_INITIALIZED:
+    case ZOOM_PLUGIN_STATUS.FINISHED:
+    case ZOOM_PLUGIN_STATUS.INITIALIZATION_ERROR:
+      this.fillErrorInfo(grInfo);
+      break;
+  }
+
+  this.element.gr.pnlInstallPlugin.grInfo = grInfo;
   this.element.layout.layout(true);
+  this.isUnfoldInfo = true;
 };
 
 KeyBindingsWindow.prototype.foldInfo = function () {
+  if (!this.isUnfoldInfo) {
+    return;
+  }
+
   var grInfo = this.element.gr.pnlInstallPlugin.grInfo;
 
   if (grInfo && isValid(grInfo)) {
@@ -347,6 +452,7 @@ KeyBindingsWindow.prototype.foldInfo = function () {
 
   this.element.layout.layout(true);
   this.element.layout.resize();
+  this.isUnfoldInfo = false;
 };
 
 KeyBindingsWindow.prototype.findKeyBindingIndex = function (keyBinding) {
