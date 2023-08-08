@@ -38,6 +38,7 @@ function KeyBindingsWindow() {
       pnlKeyBindings: Panel { \
         alignment: 'fill', \
         orientation: 'column', \
+        alignChildren: ['left', 'top'], \
         margins: 0, \
         spacing: 0, \
         grColumnNames: Group { \
@@ -49,8 +50,16 @@ function KeyBindingsWindow() {
         }, \
         grBindings: Group {\
           spacing: 0, \
-          alignment: 'fill', \
+          alignChildren: ['left', 'top'], \
+          margins: 0, \
+          grList: Group { \
+            spacing: 0, \
+            orientation: 'column', \
+          }, \
+        }, \
+        grLine1: Group { \
           orientation: 'column', \
+          alignment: 'fill', \
         }, \
         grAdd: Group { \
           orientation: 'column', \
@@ -73,11 +82,10 @@ function KeyBindingsWindow() {
   );
 
   var pnlKeyBindings = this.element.gr.pnlKeyBindings;
-  var grBindings = pnlKeyBindings.grBindings;
   var keyBindings = JSON.parse(preferences.keyBindings);
 
   this.element.gr.maximumSize.width = 600;
-  pnlKeyBindings.maximumSize.height = 500;
+  pnlKeyBindings.grBindings.maximumSize.height = 140;
 
   /** Create a group that holds plug-in status info */
   this.createPluginStatusGroup();
@@ -98,35 +106,25 @@ function KeyBindingsWindow() {
         continue;
       }
 
-      this.keyBindingsArr.push(
-        new KeyBinding(grBindings, keyBindings[i], this),
-      );
-      this.linesArr.push(new Line(grBindings));
+      this.addKeyBinding(keyBindings[i]);
     }
 
     /** Sync the checkbox for all items in the table */
     pnlKeyBindings.grColumnNames.columnNames.syncCheck();
   }
   Line(pnlKeyBindings.grLine);
+  Line(pnlKeyBindings.grLine1);
 
   /** Add new key binding button */
   pnlKeyBindings.grAdd.btnAdd.onClick = bind(function () {
     windows.newKeyCaptureWindow(
       bind(function (keyNames, keyCodes) {
-        this.keyBindingsArr.push(
-          new KeyBinding(
-            grBindings,
-            {
-              enabled: true,
-              keyCodes: keyCodes,
-              action: 0,
-              amount: 1,
-            },
-            this,
-          ),
-        );
-
-        this.linesArr.push(new Line(grBindings));
+        this.addKeyBinding({
+          enabled: true,
+          keyCodes: keyCodes,
+          action: 0,
+          amount: 1,
+        });
         this.element.gr.pnlKeyBindings.grColumnNames.columnNames.syncCheck();
         this.element.layout.layout(true);
       }, this),
@@ -136,15 +134,10 @@ function KeyBindingsWindow() {
   /** Save the key bindings to the AE's preferences file */
   this.element.gr.grButtons.btnSave.onClick = bind(function () {
     var bindingsArr = [];
-    var bindingElements = grBindings.children;
+    // var bindingElements = grBindings.children;
 
-    for (var i = 0; i < bindingElements.length; i++) {
-      // skip lines
-      if (i % 2) {
-        continue;
-      }
-
-      var bEl = bindingElements[i];
+    for (var i = 0; i < this.keyBindingsArr.length; i++) {
+      var bEl = this.keyBindingsArr[i].element;
 
       bindingsArr.push({
         enabled: bEl.chkEnable.value,
@@ -467,6 +460,50 @@ KeyBindingsWindow.prototype.findKeyBindingIndex = function (keyBinding) {
   return kbInd;
 };
 
+KeyBindingsWindow.prototype.updateScrollBar = function () {
+  var grBindings = this.element.gr.pnlKeyBindings.grBindings;
+  var listGr = grBindings.grList;
+  var scrollBar = grBindings.scrollBar;
+  var sizeDiff = listGr.size.height - grBindings.size.height;
+
+  if (sizeDiff > 0) {
+    if (!scrollBar) {
+      grBindings.scrollBar = grBindings.add(
+        "Scrollbar { \
+          alignment: ['right', 'fill'], \
+        }",
+      );
+      grBindings.scrollBar.maximumSize.width = 10;
+
+      grBindings.scrollBar.onChanging = function () {
+        listGr.location.y = -this.value;
+      };
+
+      scrollBar = grBindings.scrollBar;
+    }
+
+    scrollBar.maxvalue = sizeDiff;
+    this.element.layout.layout(true);
+  } else if (scrollBar) {
+    grBindings.remove(scrollBar);
+    grBindings.scrollBar = undefined;
+    this.element.layout.layout(true);
+  }
+};
+
+KeyBindingsWindow.prototype.addKeyBinding = function (keyBindingValues) {
+  var listGr = this.element.gr.pnlKeyBindings.grBindings.grList;
+
+  if (this.keyBindingsArr.length > 0) {
+    this.linesArr.push(new Line(listGr));
+  }
+
+  this.keyBindingsArr.push(new KeyBinding(listGr, keyBindingValues, this));
+
+  this.element.layout.layout(true);
+  this.updateScrollBar();
+};
+
 KeyBindingsWindow.prototype.removeKeyBinding = function (keyBindingOrInd) {
   var kbInd;
 
@@ -480,13 +517,19 @@ KeyBindingsWindow.prototype.removeKeyBinding = function (keyBindingOrInd) {
     this.keyBindingsArr[kbInd].element.parent.remove(
       this.keyBindingsArr[kbInd].element,
     );
-
-    this.linesArr[kbInd].element.parent.remove(this.linesArr[kbInd].element);
-
     this.keyBindingsArr.splice(kbInd, 1);
-    this.linesArr.splice(kbInd, 1);
+
+    var lineInd =
+      kbInd >= this.linesArr.length ? this.linesArr.length - 1 : kbInd;
+    var line = this.linesArr[lineInd];
+
+    if (line) {
+      line.element.parent.remove(line.element);
+      this.linesArr.splice(lineInd, 1);
+    }
 
     this.element.layout.layout(true);
+    this.updateScrollBar();
   } else {
     alert("Can not remove Key Binding:\nThe Key Binding is not found.");
   }

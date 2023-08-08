@@ -17,7 +17,7 @@ function KeyBinding(parentEl, values, kbWindow) {
   this.element = parentEl.add(
     "Group { \
       spacing: 5, \
-      alignment: ['fill', 'top'], \
+      alignment: ['fill', 'center'], \
       margins: [10, 5, 10, 5], \
       chkEnable: Checkbox {}, \
       grLine0: Group { alignment: 'fill', visible: false }, \
@@ -90,7 +90,7 @@ function KeyBinding(parentEl, values, kbWindow) {
   new Line(gr.grLine4);
 
   this.element.chkEnable.preferredSize = [TABLE_SIZES[0], 14];
-  this.element.chkEnable.minimumSize = [TABLE_SIZES[0], 14];
+  this.element.chkEnable.maximumSize = [TABLE_SIZES[0], 14];
   gr.grEdit.preferredSize = [TABLE_SIZES[1], -1];
   gr.grEdit.minimumSize = [TABLE_SIZES[1], 0];
   gr.grKeys.preferredSize = [TABLE_SIZES[2], -1];
