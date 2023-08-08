@@ -54,7 +54,7 @@ Preferences.prototype.save = function (key, value) {
   }
 
   /** If the key is "keyBindings", tell the plugin to update key bindings info */
-  if (zoomPlugin.isAvailable && key === "keyBindings") {
+  if (zoomPlugin.isAvailable() && key === "keyBindings") {
     zoomPlugin.updateKeyBindings();
   }
 
