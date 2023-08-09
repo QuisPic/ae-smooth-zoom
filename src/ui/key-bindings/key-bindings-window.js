@@ -85,7 +85,7 @@ function KeyBindingsWindow() {
   var keyBindings = JSON.parse(preferences.keyBindings);
 
   this.element.gr.maximumSize.width = 600;
-  pnlKeyBindings.grBindings.maximumSize.height = 140;
+  pnlKeyBindings.grBindings.maximumSize.height = 200;
 
   /** Create a group that holds plug-in status info */
   this.createPluginStatusGroup();
@@ -263,7 +263,7 @@ KeyBindingsWindow.prototype.setPluginStatus = function () {
       grStatus.txt.text = "Zoom plug-in is not installed";
       break;
     case ZOOM_PLUGIN_STATUS.FOUND_NOT_INITIALIZED:
-      grStatus.txt.text = "Unable to initialize Zoom plug-in";
+      grStatus.txt.text = "Zoom plug-in is not initialized";
       break;
     case ZOOM_PLUGIN_STATUS.FINISHED:
       grStatus.txt.text = "Zoom plug-in stopped working";
@@ -381,6 +381,8 @@ KeyBindingsWindow.prototype.fillErrorInfo = function (parentGr) {
   if (errorText) {
     grErrorInfo.txt.text = errorText;
     grErrorInfo.txt.characters = 50; // this fixes the height of the text
+  } else if (zoomPlugin.status() === ZOOM_PLUGIN_STATUS.FOUND_NOT_INITIALIZED) {
+    grErrorInfo.txt.text = "Try restarting After Effects.";
   }
 
   grErrorInfo.btnReload.onClick = bind(function () {
