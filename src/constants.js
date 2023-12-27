@@ -40,6 +40,13 @@ export var DEFAULT_SETTINGS = {
   showSlider: true,
   sliderMin: 1,
   sliderMax: 400,
+  experimental: {
+    detectCursorInsideView: false,
+    fixViewportPosition: {
+      enabled: false,
+      zoomAround: 0,
+    },
+  },
 };
 
 export var TABLE_SIZES = [20, 25, 250, 100, 50, 30];

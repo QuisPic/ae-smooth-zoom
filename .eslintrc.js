@@ -9,6 +9,7 @@ module.exports = {
   },
   globals: {
     thisObj: "readonly",
+    ScriptUi: "readonly",
   },
   rules: {},
 };

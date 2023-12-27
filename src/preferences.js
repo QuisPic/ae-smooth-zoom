@@ -1,5 +1,6 @@
 import zoomPlugin from "./zoomPlugin";
 import { SETTINGS_SECTION_NAME, DEFAULT_SETTINGS } from "./constants";
+import JSON from "../extern/json2";
 
 function Preferences() {
   if (!app.preferences.havePref(SETTINGS_SECTION_NAME, "keyBindings")) {
@@ -16,6 +17,9 @@ function Preferences() {
   }
   if (!app.preferences.havePref(SETTINGS_SECTION_NAME, "sliderMax")) {
     this.save("sliderMax", DEFAULT_SETTINGS.sliderMax);
+  }
+  if (!app.preferences.havePref(SETTINGS_SECTION_NAME, "experimental")) {
+    this.save("experimental", DEFAULT_SETTINGS.experimental);
   }
 
   this.keyBindings = app.preferences.getPrefAsString(
@@ -42,6 +46,11 @@ function Preferences() {
     SETTINGS_SECTION_NAME,
     "sliderMax",
   );
+
+  this.experimental = app.preferences.getPrefAsString(
+    SETTINGS_SECTION_NAME,
+    "experimental",
+  );
 }
 
 Preferences.prototype.save = function (key, value) {
@@ -51,6 +60,8 @@ Preferences.prototype.save = function (key, value) {
     app.preferences.savePrefAsFloat(SETTINGS_SECTION_NAME, key, value);
   } else if (typeof value === "string") {
     app.preferences.savePrefAsString(SETTINGS_SECTION_NAME, key, value);
+  } else if (typeof value === "object") {
+    app.preferences.savePrefAsString(SETTINGS_SECTION_NAME, key, JSON.stringify(value));
   }
 
   /** If the key is "keyBindings", tell the plugin to update key bindings info */

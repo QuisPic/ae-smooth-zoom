@@ -43,8 +43,6 @@ function Settings(zoom, parentEl) {
     "click",
     bind(function (event) {
       if (event.eventPhase === "target") {
-        // var zoomSettings = Settings.getSettings();
-
         this.menuWindow = new MenuWindow();
         var menuWindow = this.menuWindow;
 
@@ -56,7 +54,10 @@ function Settings(zoom, parentEl) {
         }, this);
 
         var onScrubEndFn = bind(function () {
-          if (AE_OS === OS.WIN && !this.menuWindow.element.shouldCloseOnDeactivate) {
+          if (
+            AE_OS === OS.WIN &&
+            !this.menuWindow.element.shouldCloseOnDeactivate
+          ) {
             // make the window active
             this.menuWindow.element.hide();
             this.menuWindow.element.show();
@@ -148,6 +149,13 @@ function Settings(zoom, parentEl) {
         this.showSliderItem.txtValue.preferredSize = maxTextSize;
         this.sliderMinItem.txtValue.preferredSize = maxTextSize;
         this.sliderMaxItem.txtValue.preferredSize = maxTextSize;
+
+        this.keyBindingsItem = menuWindow.addMenuItem(
+          "Experimental...",
+          function () {
+            windows.newExperimentalWindow();
+          },
+        );
 
         menuWindow.addDivider();
         menuWindow.addMenuItem("Author", function () {

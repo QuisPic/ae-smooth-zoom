@@ -134,7 +134,6 @@ function KeyBindingsWindow() {
   /** Save the key bindings to the AE's preferences file */
   this.element.gr.grButtons.btnSave.onClick = bind(function () {
     var bindingsArr = [];
-    // var bindingElements = grBindings.children;
 
     for (var i = 0; i < this.keyBindingsArr.length; i++) {
       var bEl = this.keyBindingsArr[i].element;
