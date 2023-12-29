@@ -35,7 +35,7 @@ function ExperimentalWindow() {
           }, \
           grZoomAround: Group { \
             txtZoomAround: StaticText {\
-              text: 'Zoom around: ', \
+              text: 'Zoom relative to: ', \
             }, \
             ddlistZoomPoint: DropDownList { \
               properties: { \
@@ -64,6 +64,7 @@ function ExperimentalWindow() {
   var fixViewportPositionChkGr = this.element.gr.pnlFixViewportPosition.grCheck;
   var detectCursorInsideViewChkGr = this.element.gr.pnlDetectCursorInsideView.grCheck;
 
+  /** Make clicks on the text next to a check act as click on the check */
   detectCursorInsideViewChkGr.addEventListener("click", function (event) {
     if (event.eventPhase === "target") {
       this.chk.notify();

@@ -97,6 +97,9 @@ ZoomPlugin.prototype.reload = function () {
 ZoomPlugin.prototype.updateKeyBindings = function () {
   this.externalObject.updateKeyBindings();
 };
+ZoomPlugin.prototype.updateExperimentalOptions = function () {
+  this.externalObject.updateExperimentalOptions();
+};
 
 ZoomPlugin.prototype.startKeyCapture = function () {
   this.externalObject.startKeyCapture();

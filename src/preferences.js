@@ -61,12 +61,27 @@ Preferences.prototype.save = function (key, value) {
   } else if (typeof value === "string") {
     app.preferences.savePrefAsString(SETTINGS_SECTION_NAME, key, value);
   } else if (typeof value === "object") {
-    app.preferences.savePrefAsString(SETTINGS_SECTION_NAME, key, JSON.stringify(value));
+    app.preferences.savePrefAsString(
+      SETTINGS_SECTION_NAME,
+      key,
+      JSON.stringify(value),
+    );
   }
 
-  /** If the key is "keyBindings", tell the plugin to update key bindings info */
-  if (zoomPlugin.isAvailable() && key === "keyBindings") {
-    zoomPlugin.updateKeyBindings();
+  /** If the plugin is available and the preference that was saved is related to the plugin
+   * then tell the plugin to read the updated option.
+   */
+  if (zoomPlugin.isAvailable()) {
+    switch (key) {
+      case "keyBindings":
+        zoomPlugin.updateKeyBindings();
+        break;
+      case "experimental":
+        zoomPlugin.updateExperimentalOptions();
+        break;
+      default:
+        break;
+    }
   }
 
   this[key] = value;
