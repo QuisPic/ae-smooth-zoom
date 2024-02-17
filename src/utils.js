@@ -243,3 +243,35 @@ export function keysFromKeyCodes(keyCodes) {
 
   return keys;
 }
+
+export function updateScrollBar(el, parentEl) {
+  // var grBindings = this.element.pnlKeyBindings.grBindings;
+  // var listGr = grBindings.grList;
+  var scrollBar = parentEl.scrollBar;
+  var sizeDiff = el.size.height - parentEl.size.height;
+
+  if (sizeDiff > 0) {
+    if (!scrollBar) {
+      parentEl.scrollBar = parentEl.add(
+        "Scrollbar { \
+          alignment: ['right', 'fill'], \
+        }",
+      );
+      parentEl.scrollBar.maximumSize.width = 10;
+
+      parentEl.scrollBar.onChanging = function () {
+        el.location.y = -this.value;
+      };
+
+      scrollBar = parentEl.scrollBar;
+    }
+
+    scrollBar.maxvalue = sizeDiff;
+    // this.element.layout.layout(true);
+  } else if (scrollBar) {
+    parentEl.remove(scrollBar);
+    parentEl.scrollBar = undefined;
+    // this.element.layout.layout(true);
+  }
+};
+

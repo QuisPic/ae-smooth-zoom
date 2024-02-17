@@ -66,12 +66,16 @@ function Settings(zoom, parentEl) {
           this.menuWindow.element.shouldCloseOnDeactivate = true;
         }, this);
 
-        this.keyBindingsItem = menuWindow.addMenuItem(
-          "Key Bindings...",
-          function () {
-            windows.newKeyBindingsWindow();
-          },
-        );
+        this.settingsItem = menuWindow.addMenuItem("Settings", function () {
+          windows.newSettingsWindow();
+        });
+
+        // this.keyBindingsItem = menuWindow.addMenuItem(
+        //   "Key Bindings...",
+        //   function () {
+        //     windows.newKeyBindingsWindow();
+        //   },
+        // );
 
         this.syncItem = menuWindow.addMenuItem("Sync with View");
 
@@ -150,12 +154,12 @@ function Settings(zoom, parentEl) {
         this.sliderMinItem.txtValue.preferredSize = maxTextSize;
         this.sliderMaxItem.txtValue.preferredSize = maxTextSize;
 
-        this.keyBindingsItem = menuWindow.addMenuItem(
-          "Experimental...",
-          function () {
-            windows.newExperimentalWindow();
-          },
-        );
+        // this.keyBindingsItem = menuWindow.addMenuItem(
+        //   "Experimental...",
+        //   function () {
+        //     windows.newExperimentalWindow();
+        //   },
+        // );
 
         menuWindow.addDivider();
         menuWindow.addMenuItem("Author", function () {

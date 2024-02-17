@@ -1,12 +1,15 @@
-import ExperimentalWindow from "./ui/experimental-window";
-import KeyBindingsWindow from "./ui/key-bindings/key-bindings-window";
+// import ExperimentalSettings from "./ui/experimental-window";
+// import KeyBindingsWindow from "./ui/key-bindings/key-bindings-window";
+
+import SettingsWindow from "./ui/settings/settings-window";
 import KeyCapture from "./ui/key-bindings/key-capture";
 import zoomPlugin from "./zoomPlugin";
 
 function ZoomWindows() {
   this.zoom = undefined;
-  this.keyBindings = undefined;
-  this.experimental = undefined;
+  // this.keyBindings = undefined;
+  // this.experimental = undefined;
+  this.settings = undefined;
   this.keyCapture = undefined;
 }
 
@@ -16,17 +19,23 @@ function closeWindowIfOpen(uiObj) {
   }
 }
 
-ZoomWindows.prototype.newKeyBindingsWindow = function () {
-  closeWindowIfOpen(this.keyBindings);
-  closeWindowIfOpen(this.keyCapture);
+// ZoomWindows.prototype.newKeyBindingsWindow = function () {
+//   closeWindowIfOpen(this.keyBindings);
+//   closeWindowIfOpen(this.keyCapture);
+//
+//   this.keyBindings = new KeyBindingsWindow();
+// };
+//
+// ZoomWindows.prototype.newExperimentalWindow = function () {
+//   closeWindowIfOpen(this.experimental);
+//
+//   this.experimental = new ExperimentalSettings();
+// };
 
-  this.keyBindings = new KeyBindingsWindow();
-};
+ZoomWindows.prototype.newSettingsWindow = function () {
+  closeWindowIfOpen(this.settings);
 
-ZoomWindows.prototype.newExperimentalWindow = function () {
-  closeWindowIfOpen(this.experimental);
-
-  this.experimental = new ExperimentalWindow();
+  this.settings = new SettingsWindow();
 };
 
 ZoomWindows.prototype.newKeyCaptureWindow = function (onEnterKeyFn) {

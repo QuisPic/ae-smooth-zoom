@@ -1,13 +1,13 @@
-import bind from "../../extern/function-bind";
+import { updateScrollBar } from "../utils";
 import preferences from "../preferences";
 import JSON from "../../extern/json2";
 
-function ExperimentalWindow() {
-  this.element = new Window(
-    "palette { \
-      properties: { resizeable: false }, \
-      preferredSize: [500, -1], \
-      alignChildren: 'fill', \
+function ExperimentalSettings(parentEl) {
+  this.element = parentEl.add(
+    "tab { \
+      text: 'Experimental', \
+      alignChildren: ['left', 'top'], \
+      orientation: 'row', \
       gr: Group { \
         orientation: 'column', \
         alignChildren: 'fill', \
@@ -33,9 +33,14 @@ function ExperimentalWindow() {
             chk: Checkbox { preferredSize: [-1, 14] }, \
             txt: StaticText { text: 'Maintain view position' }, \
           }, \
+          txtDescription: StaticText {\
+            text: 'If enabled, the composition view will maintain its position relative to the point selected above after zooming. If disabled, the view will always be centered after zooming.', \
+            characters: 50, \
+            properties: { multiline: true }, \
+          },\
           grZoomAround: Group { \
             txtZoomAround: StaticText {\
-              text: 'Zoom relative to: ', \
+              text: 'Change zoom relative to: ', \
             }, \
             ddlistZoomPoint: DropDownList { \
               properties: { \
@@ -43,26 +48,15 @@ function ExperimentalWindow() {
               }, \
             }, \
           }, \
-          txtDescription: StaticText {\
-            text: 'If enabled, the composition view will maintain its position relative to the point selected above after zooming. If disabled, the view will always be centered after zooming.', \
-            characters: 50, \
-            properties: { multiline: true }, \
-          },\
         }, \
       }, \
-      grButtons: Group { \
-        alignChildren: ['right', 'center'], \
-        btnSave: IconButton { title: 'Save', preferredSize: [100, 22] }, \
-        btnCancel: IconButton { title: 'Cancel', preferredSize: [100, 22] }, \
-      }, \
     }",
-    "Zoom Experimental",
-    undefined,
   );
 
   var experimentalPrefs = JSON.parse(preferences.experimental);
   var fixViewportPositionChkGr = this.element.gr.pnlFixViewportPosition.grCheck;
-  var detectCursorInsideViewChkGr = this.element.gr.pnlDetectCursorInsideView.grCheck;
+  var detectCursorInsideViewChkGr =
+    this.element.gr.pnlDetectCursorInsideView.grCheck;
 
   /** Make clicks on the text next to a check act as click on the check */
   detectCursorInsideViewChkGr.addEventListener("click", function (event) {
@@ -77,35 +71,44 @@ function ExperimentalWindow() {
     }
   });
 
-  detectCursorInsideViewChkGr.chk.value = experimentalPrefs.detectCursorInsideView;
+  detectCursorInsideViewChkGr.chk.value =
+    experimentalPrefs.detectCursorInsideView;
 
-  fixViewportPositionChkGr.chk.value = experimentalPrefs.fixViewportPosition.enabled;
+  fixViewportPositionChkGr.chk.value =
+    experimentalPrefs.fixViewportPosition.enabled;
   this.element.gr.pnlFixViewportPosition.grZoomAround.ddlistZoomPoint.selection =
     experimentalPrefs.fixViewportPosition.zoomAround;
 
-  this.element.grButtons.btnSave.onClick = bind(function () {
-    preferences.save(
-      "experimental",
-      JSON.stringify({
-        detectCursorInsideView:
-          this.element.gr.pnlDetectCursorInsideView.grCheck.chk.value,
-        fixViewportPosition: {
-          enabled: this.element.gr.pnlFixViewportPosition.grCheck.chk.value,
-          zoomAround: this.element.gr.pnlFixViewportPosition.grZoomAround.ddlistZoomPoint.selection.index,
-        }
-      }),
-    );
-
-    /** Close the window */
-    this.element.close();
-  }, this);
+  // this.element.grButtons.btnSave.onClick = bind(function () {
+  //   preferences.save(
+  //     "experimental",
+  //     JSON.stringify({
+  //       detectCursorInsideView:
+  //         this.element.gr.pnlDetectCursorInsideView.grCheck.chk.value,
+  //       fixViewportPosition: {
+  //         enabled: this.element.gr.pnlFixViewportPosition.grCheck.chk.value,
+  //         zoomAround:
+  //           this.element.gr.pnlFixViewportPosition.grZoomAround.ddlistZoomPoint
+  //             .selection.index,
+  //       },
+  //     }),
+  //   );
+  //
+  //   /** Close the window */
+  //   this.element.close();
+  // }, this);
 
   /** Cancel button */
-  this.element.grButtons.btnCancel.onClick = function () {
-    this.window.close();
-  };
-
-  this.element.show();
+  // this.element.grButtons.btnCancel.onClick = function () {
+  //   this.window.close();
+  // };
+  //
+  // this.element.show();
 }
 
-export default ExperimentalWindow;
+ExperimentalSettings.prototype.updateScrollBar = function () {
+  updateScrollBar(this.element.gr, this.element);
+  this.element.layout.layout(true);
+};
+
+export default ExperimentalSettings;
