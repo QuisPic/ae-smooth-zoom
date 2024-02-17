@@ -1,11 +1,11 @@
-import bind from "../../../extern/function-bind";
-import { TABLE_SIZES } from "../../constants";
+import bind from "../../../../extern/function-bind";
+import { TABLE_SIZES } from "../../../constants";
 import EditIcon from "./edit-icon";
 import KeyCombination from "./key-combination";
-import Line from "../line";
-import NumberValue from "../number-value";
+import Line from "../../line";
+import NumberValue from "../../number-value";
 import TrashIcon from "./trash-icon";
-import windows from "../../windows";
+import windows from "../../../windows";
 
 function KeyBinding(parentEl, values, kbWindow) {
   this.kbWindow = kbWindow;

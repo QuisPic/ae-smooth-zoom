@@ -1,4 +1,4 @@
-import { keysFromKeyCodes } from "../../utils";
+import { keysFromKeyCodes } from "../../../utils";
 
 function KeyCombination(parentEl, keyNames, minWidth, alignChildren) {
   /**

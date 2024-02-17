@@ -1,6 +1,6 @@
-import { updateScrollBar } from "../utils";
-import preferences from "../preferences";
-import JSON from "../../extern/json2";
+import { updateScrollBar } from "../../utils";
+import preferences from "../../preferences";
+import JSON from "../../../extern/json2";
 
 function ExperimentalSettings(parentEl) {
   this.element = parentEl.add(

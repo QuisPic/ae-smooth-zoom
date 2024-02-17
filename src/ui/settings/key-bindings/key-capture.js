@@ -5,8 +5,8 @@ import {
   VC_ENTER,
   VC_ESCAPE,
   VC_EX_ENTER,
-} from "../../constants";
-import zoomPlugin from "../../zoomPlugin";
+} from "../../../constants";
+import zoomPlugin from "../../../zoomPlugin";
 
 function KeyCapture(onEnterKeyFn) {
   this.onEnterKeyFn = onEnterKeyFn;

@@ -2,7 +2,7 @@
 // import KeyBindingsWindow from "./ui/key-bindings/key-bindings-window";
 
 import SettingsWindow from "./ui/settings/settings-window";
-import KeyCapture from "./ui/key-bindings/key-capture";
+import KeyCapture from "./ui/settings/key-bindings/key-capture";
 import zoomPlugin from "./zoomPlugin";
 
 function ZoomWindows() {

@@ -2,18 +2,18 @@ import {
   getPluginsFolder,
   saveFileFromBinaryString,
   updateScrollBar,
-} from "../../utils";
-import bind from "../../../extern/function-bind";
-import zoomPluginWin from "../../../extern/plug-in-bin/zoom-plugin-win";
-import zoomPluginMac from "../../../extern/plug-in-bin/zoom-plugin-mac";
-import { AE_OS, OS, ZOOM_PLUGIN_STATUS } from "../../constants";
+} from "../../../utils";
+import bind from "../../../../extern/function-bind";
+import zoomPluginWin from "../../../../extern/plug-in-bin/zoom-plugin-win";
+import zoomPluginMac from "../../../../extern/plug-in-bin/zoom-plugin-mac";
+import { AE_OS, OS, ZOOM_PLUGIN_STATUS } from "../../../constants";
 import KeyBinding from "./key-binding";
-import Line from "../line";
-import JSON from "../../../extern/json2";
+import Line from "../../line";
+import JSON from "../../../../extern/json2";
 import ColumnNames from "./column-names";
-import preferences from "../../preferences";
-import windows from "../../windows";
-import zoomPlugin from "../../zoomPlugin";
+import preferences from "../../../preferences";
+import windows from "../../../windows";
+import zoomPlugin from "../../../zoomPlugin";
 
 function KeyBindingsSettings(parentEl) {
   zoomPlugin.resetStatus();

@@ -1,7 +1,7 @@
 import TrashIcon from "./trash-icon";
-import Line from "../line";
-import { TABLE_SIZES } from "../../constants";
-import bind from "../../../extern/function-bind";
+import Line from "../../line";
+import { TABLE_SIZES } from "../../../constants";
+import bind from "../../../../extern/function-bind";
 
 function ColumnNames(parentEl, kbWindow) {
   this.kbWindow = kbWindow;

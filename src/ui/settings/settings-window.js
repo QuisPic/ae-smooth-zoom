@@ -1,6 +1,6 @@
 import bind from "../../../extern/function-bind";
-import ExperimentalSettings from "../experimental-settings";
-import KeyBindingsSettings from "../key-bindings/key-bindings-settings";
+import ExperimentalSettings from "./experimental-settings";
+import KeyBindingsSettings from "./key-bindings/key-bindings-settings";
 
 function SettingsWindow() {
   this.element = new Window(
