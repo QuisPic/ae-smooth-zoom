@@ -106,7 +106,7 @@ function KeyBinding(parentEl, values, kbWindow) {
 
   this.element.chkEnable.onClick = bind(function () {
     this.onOff(this.element.chkEnable.value);
-    this.kbWindow.element.pnlKeyBindings.grColumnNames.columnNames.syncCheck();
+    this.kbWindow.element.gr.pnlKeyBindings.grColumnNames.columnNames.syncCheck();
   }, this);
 }
 

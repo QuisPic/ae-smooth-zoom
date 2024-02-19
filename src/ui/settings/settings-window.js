@@ -1,6 +1,7 @@
 import bind from "../../../extern/function-bind";
 import ExperimentalSettings from "./experimental-settings";
 import KeyBindingsSettings from "./key-bindings/key-bindings-settings";
+import PluginSettings from "./plug-in-settings";
 
 function SettingsWindow() {
   this.element = new Window(
@@ -15,10 +16,10 @@ function SettingsWindow() {
 
   this.element.onResize = bind(function () {
     this.element.layout.resize();
-    var tabs = this.element.tabs;
+    // var tabs = this.element.tabs;
 
-    tabs.keyBindings.updateScrollBar();
-    tabs.experimentalSettings.updateScrollBar();
+    // tabs.keyBindings.updateScrollBar();
+    // tabs.experimentalSettings.updateScrollBar();
   }, this);
 
   this.element.onResizing = this.element.onResize;
@@ -30,8 +31,16 @@ function SettingsWindow() {
     }",
   );
 
+  tabs.plugin = new PluginSettings(tabs);
   tabs.keyBindings = new KeyBindingsSettings(tabs);
   tabs.experimentalSettings = new ExperimentalSettings(tabs);
+
+  /** Draw Key Bindings tab only when it's selected because it takes too long to draw */
+  tabs.onChange = function () {
+    if (this.selection && this.selection.text == "Key Bindings") {
+      this.keyBindings.draw();
+    }
+  };
 
   this.element.grButtons = this.element.add(
     "Group { \
