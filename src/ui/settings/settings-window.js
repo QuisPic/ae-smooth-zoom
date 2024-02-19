@@ -6,7 +6,6 @@ import PluginSettings from "./plug-in-settings";
 function SettingsWindow() {
   this.element = new Window(
     "palette { \
-      minimumSize: [560, 300], \
       margins: 0, \
       spacing: 0, \
     }",
@@ -28,6 +27,7 @@ function SettingsWindow() {
     "tabbedpanel { \
       properties: { name: 'tabs' }, \
       alignment: ['fill', 'fill'], \
+      minimumSize: [560, 380], \
     }",
   );
 

@@ -44,7 +44,8 @@ function PluginSettings(parentEl) {
   /** Check if Zoom plug-in is available */
   this.setPluginStatus();
 
-  if (!this.pluginFound) {
+  if (this.pluginStatus !== ZOOM_PLUGIN_STATUS.INITIALIZED) {
+    this.fillErrorInfo(this.element.pnlStatus);
     this.element.pnlInstallPlugin.unfoldInfo();
   }
 }
@@ -92,13 +93,14 @@ PluginSettings.prototype.setPluginStatus = function () {
   var grStatus = pnlStatus.grStatus;
 
   this.pluginFound = zoomPlugin.isAvailable();
+  this.pluginStatus = zoomPlugin.status();
 
   pnlStatus.graphics.backgroundColor = pnlStatus.graphics.newBrush(
     pnlStatus.graphics.BrushType.SOLID_COLOR,
     this.pluginFound ? [0.12, 0.2, 0.12, 1] : [0.2, 0.12, 0.12, 1],
   );
 
-  switch (zoomPlugin.status()) {
+  switch (this.pluginStatus) {
     case ZOOM_PLUGIN_STATUS.NOT_FOUND:
       grStatus.txt.text = "Zoom plug-in is not installed";
       break;
