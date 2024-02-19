@@ -6,7 +6,7 @@ import PluginSettings from "./plug-in-settings";
 function SettingsWindow() {
   this.element = new Window(
     "palette { \
-      properties: { resizeable: true }, \
+      minimumSize: [560, 300], \
       margins: 0, \
       spacing: 0, \
     }",
