@@ -11,6 +11,20 @@ function PluginSettings(parentEl) {
     "tab { \
       text: 'Plug-in', \
       alignChildren: ['fill', 'top'], \
+      margins: [12, 0, 0, 0], \
+      spacing: 10, \
+      grTxt: Group { \
+        margins: [0, 10, 0, 0], \
+        orientation: 'column', \
+        alignChildren: 'left', \
+        spacing: 4, \
+        txt0: StaticText { \
+          text: 'Zoom plug-in provides additional features to the script.', \
+        }, \
+        txt0: StaticText { \
+          text: 'It is necessary to have the plug-in installed to use Key Bindings and Experimental settings.', \
+        }, \
+      }, \
       pnlStatus: Panel { \
         alignChildren: 'fill', \
       }, \
@@ -23,13 +37,16 @@ function PluginSettings(parentEl) {
     this.fillInstallInfo,
     "How to install the plug-in",
   );
-  this.element.pnlInstallPlugin.unfoldInfo();
 
   /** Create a group that holds plug-in status info */
   this.createPluginStatusGroup();
 
   /** Check if Zoom plug-in is available */
   this.setPluginStatus();
+
+  if (!this.pluginFound) {
+    this.element.pnlInstallPlugin.unfoldInfo();
+  }
 }
 
 PluginSettings.prototype.createPluginStatusGroup = function () {
@@ -83,7 +100,7 @@ PluginSettings.prototype.setPluginStatus = function () {
 
   switch (zoomPlugin.status()) {
     case ZOOM_PLUGIN_STATUS.NOT_FOUND:
-      grStatus.txt.text = "Zoom plug-in is not found";
+      grStatus.txt.text = "Zoom plug-in is not installed";
       break;
     case ZOOM_PLUGIN_STATUS.FOUND_NOT_INITIALIZED:
       grStatus.txt.text = "Zoom plug-in is found but isn't initialized";
@@ -95,7 +112,7 @@ PluginSettings.prototype.setPluginStatus = function () {
       grStatus.txt.text = "Error initializing Zoom plugin";
       break;
     case ZOOM_PLUGIN_STATUS.INITIALIZED:
-      grStatus.txt.text = "Zoom plug-in found";
+      grStatus.txt.text = "Zoom plug-in is installed";
       break;
     default:
       grStatus.txt.text = "Unknown status";
