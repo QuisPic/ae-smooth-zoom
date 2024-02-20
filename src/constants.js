@@ -31,6 +31,11 @@ export var ZOOM_PLUGIN_STATUS = {
   FOUND_NOT_INITIALIZED: 4,
 };
 
+export var UI_STATUS = {
+  ERROR: 0,
+  OK: 1,
+};
+
 export var DEFAULT_SETTINGS = {
   keyBindings:
     AE_OS === OS.WIN
