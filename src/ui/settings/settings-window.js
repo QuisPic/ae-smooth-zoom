@@ -27,7 +27,7 @@ function SettingsWindow() {
     "tabbedpanel { \
       properties: { name: 'tabs' }, \
       alignment: ['fill', 'fill'], \
-      minimumSize: [560, 380], \
+      minimumSize: [560, 350], \
     }",
   );
 

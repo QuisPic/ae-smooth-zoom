@@ -147,50 +147,65 @@ PluginSettings.prototype.setPluginStatus = function () {
 // };
 
 PluginSettings.prototype.fillInstallInfo = function (parentGr) {
+  var pluginFileName = AE_OS === OS.WIN ? "Zoom.aex" : "Zoom.plugin";
   var grInstallInfo = parentGr.add(
     "Group { \
       orientation: 'column', \
       alignChildren: ['left', 'center'], \
-      txt1: StaticText { text: '1. Find the file named Zoom.aex (Windows) or Zoom.plugin (Mac) in the same archive as this script.' }, \
-      txt2: StaticText { text: '2. Copy the file (Zoom.aex or Zoom.plugin) to:' }, \
-      grWin: Group { \
-        alignment: 'fill', \
+      txt1: StaticText {}, \
+      txt2: StaticText {}, \
+      grPath: Group { \
         grSpace: Group { size: [6, 1] }, \
-        txtWin: StaticText { text: 'Windows:' }, \
+        alignment: 'fill', \
         txtPath: EditText { \
-          text: 'C:/Program Files/Adobe/Adobe After Effects [version]/Support Files/Plug-ins/', \
           alignment: ['fill', 'center' ], \
           properties: { readonly: true }, \
-        }, \
-      }, \
-      grMac: Group { \
-        alignment: 'fill', \
-        grSpace: Group { size: [6, 1] }, \
-        txtMac: StaticText { text: 'macOS:' }, \
-        txtPath: EditText { \
-          text: '/Applications/Adobe After Effects [version]/Plug-ins/', \
-          alignment: ['fill', 'center' ], \
-          properties: { readonly: true }, \
+          text: 'After Effects Plug-ins folder', \
         }, \
       }, \
       txt3: StaticText { text: '3. Restart After Effects.' }, \
     }",
   );
 
+  grInstallInfo.txt1.text =
+    "1. Find the file named " +
+    pluginFileName +
+    " in the same archive as this script.";
+
+  grInstallInfo.txt2.text = "2. Copy the file (" + pluginFileName + ") to:";
+
+  // if (AE_OS === OS.WIN) {
+  //   grInstallInfo.grWin = grInstallInfo.add(
+  //     "Group { \
+  //       alignment: 'fill', \
+  //       grSpace: Group { size: [6, 1] }, \
+  //       txtWin: StaticText { text: 'Windows:' }, \
+  //       txtPath: EditText { \
+  //         text: 'C:/Program Files/Adobe/Adobe After Effects [version]/Support Files/Plug-ins/', \
+  //         alignment: ['fill', 'center' ], \
+  //         properties: { readonly: true }, \
+  //       }, \
+  //     }",
+  //   );
+  // }
+
   parentGr.grInstallInfo = grInstallInfo;
   var pluginsFolder = getPluginsFolder();
 
   if (pluginsFolder) {
-    if (AE_OS === OS.WIN) {
-      grInstallInfo.grWin.txtPath.text = pluginsFolder.fsName + "\\";
-    } else if (AE_OS === OS.MAC) {
-      grInstallInfo.grMac.txtPath.text = pluginsFolder.fsName + "/";
-    }
+    grInstallInfo.grPath.txtPath.text =
+      pluginsFolder.fsName + (AE_OS === OS.WIN ? "\\" : "/");
+  } else if (AE_OS === OS.WIN) {
+    grInstallInfo.grPath.txtPath.text =
+      "C:/Program Files/Adobe/Adobe After Effects [version]/Support Files/Plug-ins/";
+  } else if (AE_OS === OS.MAC) {
+    grInstallInfo.grPath.txtPath.text =
+      "/Applications/Adobe After Effects [version]/Plug-ins/";
   }
 
-  var txtMac = grInstallInfo.grMac.txtMac;
-  var g = txtMac.graphics;
-  txtMac.size = g.measureString("Windows:");
+  // var txtMac = grInstallInfo.grMac.txtMac;
+  // var g = txtMac.graphics;
+  // txtMac.size = g.measureString("Windows:");
 
   // grInstallInfo.grSave.btnSaveWin.onClick = function () {
   //   saveFileFromBinaryString(zoomPluginWin, "Zoom-Windows.zip");
