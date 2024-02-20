@@ -6,6 +6,7 @@ import Line from "../../line";
 import NumberValue from "../../number-value";
 import TrashIcon from "./trash-icon";
 import windows from "../../../windows";
+import KeyCapture from "./key-capture";
 
 function KeyBinding(parentEl, values, kbWindow) {
   this.kbWindow = kbWindow;
@@ -51,13 +52,15 @@ function KeyBinding(parentEl, values, kbWindow) {
     values.enabled,
     bind(function (event) {
       if (event.eventPhase === "target") {
-        windows.newKeyCaptureWindow(
-          bind(function (keyNames, keyCodes) {
-            var targetKeyCombination = this.element.gr.grKeys.keyCombination;
+        windows.new(
+          new KeyCapture(
+            bind(function (keyNames, keyCodes) {
+              var targetKeyCombination = this.element.gr.grKeys.keyCombination;
 
-            targetKeyCombination.updateKeys(keyNames);
-            targetKeyCombination.keyCodes = keyCodes;
-          }, this),
+              targetKeyCombination.updateKeys(keyNames);
+              targetKeyCombination.keyCodes = keyCodes;
+            }, this),
+          ),
         );
       }
     }, this),

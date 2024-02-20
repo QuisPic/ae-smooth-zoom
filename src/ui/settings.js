@@ -6,6 +6,7 @@ import bind from "../../extern/function-bind";
 import Checkbox from "./checkbox";
 import preferences from "../preferences";
 import windows from "../windows";
+import SettingsWindow from "./settings/settings-window";
 
 function Settings(zoom, parentEl) {
   this.element = parentEl.add(
@@ -67,7 +68,7 @@ function Settings(zoom, parentEl) {
         }, this);
 
         this.settingsItem = menuWindow.addMenuItem("Settings", function () {
-          windows.newSettingsWindow();
+          windows.new(SettingsWindow);
         });
 
         // this.keyBindingsItem = menuWindow.addMenuItem(

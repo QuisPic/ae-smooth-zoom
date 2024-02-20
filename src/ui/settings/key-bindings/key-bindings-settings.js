@@ -6,6 +6,7 @@ import JSON from "../../../../extern/json2";
 import ColumnNames from "./column-names";
 import preferences from "../../../preferences";
 import windows from "../../../windows";
+import KeyCapture from "./key-capture";
 
 function KeyBindingsSettings(parentEl) {
   this.keyBindingsArr = [];
@@ -127,17 +128,19 @@ KeyBindingsSettings.prototype.draw = function () {
 
     /** Add new key binding button */
     pnlKeyBindings.grAdd.btnAdd.onClick = bind(function () {
-      windows.newKeyCaptureWindow(
-        bind(function (keyNames, keyCodes) {
-          this.addKeyBinding({
-            enabled: true,
-            keyCodes: keyCodes,
-            action: 0,
-            amount: 1,
-          });
-          this.element.gr.pnlKeyBindings.grColumnNames.columnNames.syncCheck();
-          this.element.layout.layout(true);
-        }, this),
+      windows.new(
+        new KeyCapture(
+          bind(function (keyNames, keyCodes) {
+            this.addKeyBinding({
+              enabled: true,
+              keyCodes: keyCodes,
+              action: 0,
+              amount: 1,
+            });
+            this.element.gr.pnlKeyBindings.grColumnNames.columnNames.syncCheck();
+            this.element.layout.layout(true);
+          }, this),
+        ),
       );
     }, this);
 

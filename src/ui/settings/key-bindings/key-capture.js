@@ -9,6 +9,13 @@ import {
 import zoomPlugin from "../../../zoomPlugin";
 
 function KeyCapture(onEnterKeyFn) {
+  if (!zoomPlugin.isAvailable()) {
+    alert(
+      "Zoom plug-in is not found.\nPlease install Zoom plug-in to use key bindings.",
+    );
+    return;
+  }
+
   this.onEnterKeyFn = onEnterKeyFn;
 
   this.element = new Window(
