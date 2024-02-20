@@ -147,7 +147,7 @@ PluginSettings.prototype.setPluginStatus = function () {
 // };
 
 PluginSettings.prototype.fillInstallInfo = function (parentGr) {
-  var pluginFileName = AE_OS === OS.WIN ? "Zoom.aex" : "Zoom.plugin";
+  var pluginFileName = AE_OS === OS.WIN ? "\"Zoom-plugin-win.aex\"" : "\"Zoom-plugin-mac.plugin\"";
   var grInstallInfo = parentGr.add(
     "Group { \
       orientation: 'column', \
