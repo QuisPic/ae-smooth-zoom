@@ -71,7 +71,15 @@ function KeyBinding(parentEl, values, kbWindow) {
     true,
     bind(function (event) {
       if (event.eventPhase === "target") {
-        this.kbWindow.removeKeyBinding(this);
+        var isConfirmed = confirm(
+          "Delete this key binding?",
+          true,
+          "Zoom Alert",
+        );
+
+        if (isConfirmed) {
+          this.kbWindow.removeKeyBinding(this);
+        }
       }
     }, this),
   );
@@ -105,7 +113,7 @@ function KeyBinding(parentEl, values, kbWindow) {
 
   gr.grEdit.editIcon.element.icon.helpTip = "Edit";
   this.element.chkEnable.helpTip = values.enabled ? "Enabled" : "Disabled";
-  this.element.trash.element.icon.helpTip = "Remove";
+  this.element.trash.element.icon.helpTip = "Delete";
 
   this.element.chkEnable.onClick = bind(function () {
     this.onOff(this.element.chkEnable.value);

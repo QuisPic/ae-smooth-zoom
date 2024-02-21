@@ -77,6 +77,8 @@ function ColumnNames(parentEl, kbWindow) {
       this.kbWindow.onOffKeyBinding(this.element.cCheck.value, i);
     }
   }, this);
+
+  trashIcon.icon.helpTip = "Delete All";
 }
 
 ColumnNames.prototype.syncCheck = function () {
