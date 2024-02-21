@@ -7,6 +7,9 @@ import ColumnNames from "./column-names";
 import preferences from "../../../preferences";
 import windows from "../../../windows";
 import KeyCapture from "./key-capture";
+import zoomPlugin from "../../../zoomPlugin";
+import { ZOOM_PLUGIN_STATUS } from "../../../constants";
+import PluginStatusWithButton from "../../status/plugin-status-with-button";
 
 function KeyBindingsSettings(parentEl) {
   this.keyBindingsArr = [];
@@ -55,8 +58,12 @@ KeyBindingsSettings.prototype.draw = function () {
   if (!this.drawn) {
     this.element.gr = this.element.add(
       "Group { \
+        alignment: ['fill', 'fill'], \
         alignChildren: ['fill', 'top'], \
         orientation: 'column', \
+        grPluginStatus: Group { \
+          alignChildren: ['fill', 'top'], \
+        }, \
         pnlKeyBindings: Panel { \
           alignment: 'fill', \
           orientation: 'column', \
@@ -103,6 +110,14 @@ KeyBindingsSettings.prototype.draw = function () {
 
     this.element.maximumSize.width = 600;
     pnlKeyBindings.grBindings.maximumSize.height = 200;
+
+    /** Show plug-in status if plug-in is not found */
+    if (zoomPlugin.status() !== ZOOM_PLUGIN_STATUS.INITIALIZED) {
+      var grPluginStatus = this.element.gr.grPluginStatus;
+      grPluginStatus.pluginStatusPanel = new PluginStatusWithButton(
+        grPluginStatus,
+      );
+    }
 
     /** Create column names for the key bindings table */
     pnlKeyBindings.grColumnNames.columnNames = new ColumnNames(

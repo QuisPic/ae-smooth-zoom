@@ -4,8 +4,8 @@ import Status from "./status";
 import { ZOOM_PLUGIN_STATUS } from "../../constants";
 import bind from "../../../extern/function-bind";
 
-function PluginStatus(parenEl) {
-  Status.call(this, parenEl);
+function PluginStatus(parentEl) {
+  Status.call(this, parentEl);
 
   this.pluginFound = false;
   this.pluginStatus = ZOOM_PLUGIN_STATUS.NOT_FOUND;

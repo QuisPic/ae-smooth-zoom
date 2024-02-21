@@ -1,6 +1,9 @@
 import { updateScrollBar } from "../../utils";
 import preferences from "../../preferences";
 import JSON from "../../../extern/json2";
+import zoomPlugin from "../../zoomPlugin";
+import PluginStatusWithButton from "../status/plugin-status-with-button";
+import { ZOOM_PLUGIN_STATUS } from "../../constants";
 
 function ExperimentalSettings(parentEl) {
   this.element = parentEl.add(
@@ -10,7 +13,11 @@ function ExperimentalSettings(parentEl) {
       orientation: 'row', \
       gr: Group { \
         orientation: 'column', \
+        alignment: ['fill', 'fill'], \
         alignChildren: 'fill', \
+        grPluginStatus: Group { \
+          alignChildren: ['fill', 'top'], \
+        }, \
         pnlDetectCursorInsideView: Panel { \
           orientation: 'column', \
           alignChildren: 'left', \
@@ -78,6 +85,14 @@ function ExperimentalSettings(parentEl) {
     experimentalPrefs.fixViewportPosition.enabled;
   this.element.gr.pnlFixViewportPosition.grZoomAround.ddlistZoomPoint.selection =
     experimentalPrefs.fixViewportPosition.zoomAround;
+
+  /** Show plug-in status if plug-in is not found */
+  if (zoomPlugin.status() !== ZOOM_PLUGIN_STATUS.INITIALIZED) {
+    var grPluginStatus = this.element.gr.grPluginStatus;
+    grPluginStatus.pluginStatusPanel = new PluginStatusWithButton(
+      grPluginStatus,
+    );
+  }
 
   // this.element.grButtons.btnSave.onClick = bind(function () {
   //   preferences.save(
