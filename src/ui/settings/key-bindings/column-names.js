@@ -29,10 +29,18 @@ function ColumnNames(parentEl, kbWindow) {
     true,
     bind(function (event) {
       if (event.eventPhase === "target") {
-        var kbArray = this.kbWindow.keyBindingsArr;
+        var isConfirmed = confirm(
+          "Delete all key bindings?",
+          true,
+          "Zoom Alert",
+        );
 
-        for (var i = kbArray.length - 1; i >= 0; i--) {
-          this.kbWindow.removeKeyBinding(i);
+        if (isConfirmed) {
+          var kbArray = this.kbWindow.keyBindingsArr;
+
+          for (var i = kbArray.length - 1; i >= 0; i--) {
+            this.kbWindow.removeKeyBinding(i);
+          }
         }
       }
     }, this),
