@@ -1,6 +1,7 @@
 import bind from "../../../extern/function-bind";
 import preferences from "../../preferences";
 import NumberValue from "../number-value";
+import Checkbox from "../checkbox";
 
 function GeneralSettings(parentEl, zoom) {
   this.element = parentEl.add(
@@ -13,11 +14,7 @@ function GeneralSettings(parentEl, zoom) {
         alignChildren: ['fill', 'top'], \
         pnlSync: Panel { \
           alignChildren: 'left', \
-          grCheck1: Group { \
-            spacing: 2, \
-            chk: Checkbox { preferredSize: [-1, 14] }, \
-            txt: StaticText { text: 'Sync zoom value with viewport' }, \
-          }, \
+          grCheck: Group {}, \
           txtDescription: StaticText { \
             text: 'Synchronize zoom value in the script with the actual value in the active viewport when hovering over the panel with mouse cursor.', \
             characters: 55, \
@@ -27,11 +24,7 @@ function GeneralSettings(parentEl, zoom) {
         pnlSlider: Panel { \
           text: 'Slider', \
           alignChildren: 'left', \
-          grCheck1: Group { \
-            spacing: 2, \
-            chk: Checkbox { preferredSize: [-1, 14] }, \
-            txt: StaticText { text: 'Show Slider' }, \
-          }, \
+          grCheck: Group {}, \
           grMinValue: Group { \
             spacing: 0, \
             txt: StaticText { text: 'Min Value: ' }, \
@@ -45,7 +38,16 @@ function GeneralSettings(parentEl, zoom) {
     }",
   );
 
+  var pnlSync = this.element.gr.pnlSync;
   var pnlSlider = this.element.gr.pnlSlider;
+
+  pnlSync.grCheck = new Checkbox(
+    pnlSync,
+    "Sync zoom value with viewport",
+    pnlSync.grCheck,
+  );
+
+  pnlSlider.grCheck = new Checkbox(pnlSlider, "Show Slider", pnlSlider.grCheck);
 
   pnlSlider.grMinValue.numValue = new NumberValue(
     pnlSlider.grMinValue,

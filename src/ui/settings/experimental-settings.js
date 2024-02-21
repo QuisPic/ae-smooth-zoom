@@ -5,6 +5,7 @@ import zoomPlugin from "../../zoomPlugin";
 import PluginStatusWithButton from "../status/plugin-status-with-button";
 import { ZOOM_PLUGIN_STATUS } from "../../constants";
 import bind from "../../../extern/function-bind";
+import Checkbox from "../checkbox";
 
 function ExperimentalSettings(parentEl) {
   this.element = parentEl.add(
@@ -22,11 +23,7 @@ function ExperimentalSettings(parentEl) {
         pnlDetectCursorInsideView: Panel { \
           orientation: 'column', \
           alignChildren: 'left', \
-          grCheck: Group { \
-            spacing: 2, \
-            chk: Checkbox { preferredSize: [-1, 14] }, \
-            txt: StaticText { text: 'Change zoom only when cursor is inside a viewport' }, \
-          }, \
+          grCheck: Group {}, \
           txtDescription: StaticText { \
             text: 'If enabled, Zoom key bindings that include mouse events will be captured only when the mouse cursor is inside a viewport. If multiple viewports are open, Zoom will target the viewport currently under the mouse cursor.', \
             characters: 55, \
@@ -36,11 +33,7 @@ function ExperimentalSettings(parentEl) {
         pnlFixViewportPosition: Panel { \
           orientation: 'column', \
           alignChildren: 'left', \
-          grCheck: Group { \
-            spacing: 2, \
-            chk: Checkbox { preferredSize: [-1, 14] }, \
-            txt: StaticText { text: 'Maintain View Position' }, \
-          }, \
+          grCheck: Group {}, \
           txtDescription: StaticText {\
             text: 'If enabled, the composition view will maintain its position after zooming.', \
             characters: 50, \
@@ -67,35 +60,38 @@ function ExperimentalSettings(parentEl) {
   );
 
   var experimentalPrefs = JSON.parse(preferences.experimental);
-  var fixViewportPositionChkGr = this.element.gr.pnlFixViewportPosition.grCheck;
-  var detectCursorInsideViewChkGr =
-    this.element.gr.pnlDetectCursorInsideView.grCheck;
+  var pnlDetectCursorInsideView = this.element.gr.pnlDetectCursorInsideView;
+  var pnlFixViewportPosition = this.element.gr.pnlFixViewportPosition;
 
-  /** Make clicks on the text next to a check act as click on the check */
-  detectCursorInsideViewChkGr.addEventListener("click", function (event) {
-    if (event.eventPhase === "target") {
-      this.chk.notify();
-    }
-  });
+  pnlDetectCursorInsideView.grCheck = new Checkbox(
+    pnlDetectCursorInsideView,
+    "Change zoom only when cursor is inside a viewport",
+    pnlDetectCursorInsideView.grCheck,
+  );
 
-  fixViewportPositionChkGr.addEventListener("click", function (event) {
-    if (event.eventPhase === "target") {
-      this.chk.notify();
-    }
-  });
+  pnlFixViewportPosition.grCheck = new Checkbox(
+    pnlFixViewportPosition,
+    "Maintain View Position",
+    pnlFixViewportPosition.grCheck,
+  );
 
-  fixViewportPositionChkGr.chk.onClick = bind(function () {
-    var pnlFixViewportPosition = this.element.gr.pnlFixViewportPosition;
+  pnlFixViewportPosition.grCheck.setOnClick(
+    bind(function () {
+      var pnlFixViewportPosition = this.element.gr.pnlFixViewportPosition;
 
-    pnlFixViewportPosition.pnlZoomAround.enabled =
-      pnlFixViewportPosition.grCheck.chk.value;
-  }, this);
+      pnlFixViewportPosition.pnlZoomAround.enabled =
+        pnlFixViewportPosition.grCheck.element.check.value;
+    }, this),
+  );
 
-  detectCursorInsideViewChkGr.chk.value =
-    experimentalPrefs.detectCursorInsideView;
+  pnlDetectCursorInsideView.grCheck.setValue(
+    experimentalPrefs.detectCursorInsideView,
+  );
 
-  fixViewportPositionChkGr.chk.value =
-    experimentalPrefs.fixViewportPosition.enabled;
+  pnlFixViewportPosition.grCheck.setValue(
+    experimentalPrefs.fixViewportPosition.enabled,
+  );
+
   this.element.gr.pnlFixViewportPosition.pnlZoomAround.grZoomAround.ddlistZoomPoint.selection =
     experimentalPrefs.fixViewportPosition.zoomAround;
 
