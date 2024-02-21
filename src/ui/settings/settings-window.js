@@ -1,9 +1,10 @@
 import bind from "../../../extern/function-bind";
 import ExperimentalSettings from "./experimental-settings";
+import GeneralSettings from "./general-settings";
 import KeyBindingsSettings from "./key-bindings/key-bindings-settings";
 import PluginSettings from "./plug-in-settings";
 
-function SettingsWindow() {
+function SettingsWindow(zoom) {
   this.element = new Window(
     "palette { \
       margins: 0, \
@@ -31,6 +32,7 @@ function SettingsWindow() {
     }",
   );
 
+  tabs.general = new GeneralSettings(tabs, zoom);
   tabs.plugin = new PluginSettings(tabs);
   tabs.keyBindings = new KeyBindingsSettings(tabs);
   tabs.experimentalSettings = new ExperimentalSettings(tabs);

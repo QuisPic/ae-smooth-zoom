@@ -1,5 +1,4 @@
 import { getPluginsFolder } from "../../utils";
-import bind from "../../../extern/function-bind";
 import { AE_OS, OS, ZOOM_PLUGIN_STATUS } from "../../constants";
 import zoomPlugin from "../../zoomPlugin";
 import FoldingInfo from "../folding-info";

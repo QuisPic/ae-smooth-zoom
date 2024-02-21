@@ -47,28 +47,28 @@ function Settings(zoom, parentEl) {
         this.menuWindow = new MenuWindow();
         var menuWindow = this.menuWindow;
 
-        var maxTextSize =
-          menuWindow.element.graphics.measureString("Sync with View");
-
-        var onScrubStartFn = bind(function () {
-          this.menuWindow.element.shouldCloseOnDeactivate = false;
-        }, this);
-
-        var onScrubEndFn = bind(function () {
-          if (
-            AE_OS === OS.WIN &&
-            !this.menuWindow.element.shouldCloseOnDeactivate
-          ) {
-            // make the window active
-            this.menuWindow.element.hide();
-            this.menuWindow.element.show();
-          }
-
-          this.menuWindow.element.shouldCloseOnDeactivate = true;
-        }, this);
+        // var maxTextSize =
+        //   menuWindow.element.graphics.measureString("Sync with View");
+        //
+        // var onScrubStartFn = bind(function () {
+        //   this.menuWindow.element.shouldCloseOnDeactivate = false;
+        // }, this);
+        //
+        // var onScrubEndFn = bind(function () {
+        //   if (
+        //     AE_OS === OS.WIN &&
+        //     !this.menuWindow.element.shouldCloseOnDeactivate
+        //   ) {
+        //     // make the window active
+        //     this.menuWindow.element.hide();
+        //     this.menuWindow.element.show();
+        //   }
+        //
+        //   this.menuWindow.element.shouldCloseOnDeactivate = true;
+        // }, this);
 
         this.settingsItem = menuWindow.addMenuItem("Settings", function () {
-          windows.new(SettingsWindow);
+          windows.new(new SettingsWindow(zoom));
         });
 
         // this.keyBindingsItem = menuWindow.addMenuItem(
@@ -78,82 +78,82 @@ function Settings(zoom, parentEl) {
         //   },
         // );
 
-        this.syncItem = menuWindow.addMenuItem("Sync with View");
+        // this.syncItem = menuWindow.addMenuItem("Sync with View");
 
         // "Sync With Viewport" checkbox
-        this.syncCheck = new Checkbox(
-          zoom,
-          this.syncItem,
-          preferences.syncWithView,
-          function () {
-            preferences.save("syncWithView", this.value);
-          },
-        );
-
-        this.syncCheck.element.check.helpTip =
-          "If ON, the script will sync its value with the viewport when you hover over the script.";
-
-        this.showSliderItem = menuWindow.addMenuItem(
-          "Show Slider",
-          function () {},
-        );
+        // this.syncCheck = new Checkbox(
+        //   zoom,
+        //   this.syncItem,
+        //   preferences.syncWithView,
+        //   function () {
+        //     preferences.save("syncWithView", this.value);
+        //   },
+        // );
+        //
+        // this.syncCheck.element.check.helpTip =
+        //   "If ON, the script will sync its value with the viewport when you hover over the script.";
+        //
+        // this.showSliderItem = menuWindow.addMenuItem(
+        //   "Show Slider",
+        //   function () {},
+        // );
 
         // "Show Slider" checkbox
-        this.showSliderCheck = new Checkbox(
-          zoom,
-          this.showSliderItem,
-          preferences.showSlider,
-          function () {
-            zoom.showHideSlider();
-          },
-        );
+        // this.showSliderCheck = new Checkbox(
+        //   zoom,
+        //   this.showSliderItem,
+        //   preferences.showSlider,
+        //   function () {
+        //     zoom.showHideSlider();
+        //   },
+        // );
+        //
+        // this.sliderMinItem = menuWindow.addMenuItem("Slider Min");
+        // this.sliderMaxItem = menuWindow.addMenuItem("Slider Max");
 
-        this.sliderMinItem = menuWindow.addMenuItem("Slider Min");
-        this.sliderMaxItem = menuWindow.addMenuItem("Slider Max");
+        // this.sliderMinValue = new NumberValue(
+        //   this.sliderMinItem,
+        //   "%",
+        //   preferences.sliderMin || 1,
+        //   1,
+        //   preferences.sliderMax,
+        //   undefined,
+        //   onScrubStartFn,
+        //   onScrubEndFn,
+        // );
+        //
+        // this.sliderMaxValue = new NumberValue(
+        //   this.sliderMaxItem,
+        //   "%",
+        //   preferences.sliderMax,
+        //   preferences.sliderMin || 1,
+        //   undefined,
+        //   undefined,
+        //   onScrubStartFn,
+        //   onScrubEndFn,
+        // );
+        //
+        // this.sliderMinValue.onChangeFn = bind(function (val) {
+        //   preferences.save("sliderMin", val);
+        //   this.sliderMaxValue.minValue = val;
+        //
+        //   if (zoom.zoomSlider && isValid(zoom.zoomSlider.element)) {
+        //     zoom.zoomSlider.setMin(val);
+        //   }
+        // }, this);
+        //
+        // this.sliderMaxValue.onChangeFn = bind(function (val) {
+        //   preferences.save("sliderMax", val);
+        //   this.sliderMinValue.maxValue = val;
+        //
+        //   if (zoom.zoomSlider && isValid(zoom.zoomSlider.element)) {
+        //     zoom.zoomSlider.setMax(val);
+        //   }
+        // }, this);
 
-        this.sliderMinValue = new NumberValue(
-          this.sliderMinItem,
-          "%",
-          preferences.sliderMin || 1,
-          1,
-          preferences.sliderMax,
-          undefined,
-          onScrubStartFn,
-          onScrubEndFn,
-        );
-
-        this.sliderMaxValue = new NumberValue(
-          this.sliderMaxItem,
-          "%",
-          preferences.sliderMax,
-          preferences.sliderMin || 1,
-          undefined,
-          undefined,
-          onScrubStartFn,
-          onScrubEndFn,
-        );
-
-        this.sliderMinValue.onChangeFn = bind(function (val) {
-          preferences.save("sliderMin", val);
-          this.sliderMaxValue.minValue = val;
-
-          if (zoom.zoomSlider && isValid(zoom.zoomSlider.element)) {
-            zoom.zoomSlider.setMin(val);
-          }
-        }, this);
-
-        this.sliderMaxValue.onChangeFn = bind(function (val) {
-          preferences.save("sliderMax", val);
-          this.sliderMinValue.maxValue = val;
-
-          if (zoom.zoomSlider && isValid(zoom.zoomSlider.element)) {
-            zoom.zoomSlider.setMax(val);
-          }
-        }, this);
-
-        this.showSliderItem.txtValue.preferredSize = maxTextSize;
-        this.sliderMinItem.txtValue.preferredSize = maxTextSize;
-        this.sliderMaxItem.txtValue.preferredSize = maxTextSize;
+        // this.showSliderItem.txtValue.preferredSize = maxTextSize;
+        // this.sliderMinItem.txtValue.preferredSize = maxTextSize;
+        // this.sliderMaxItem.txtValue.preferredSize = maxTextSize;
 
         // this.keyBindingsItem = menuWindow.addMenuItem(
         //   "Experimental...",
