@@ -114,8 +114,6 @@ GeneralSettings.prototype.cancel = function () {
   this.zoom.showHideSlider(this.settingsOnStart.showSlider);
   pnlSlider.grMinValue.numValue.onChangeFn(this.settingsOnStart.sliderMin);
   pnlSlider.grMaxValue.numValue.onChangeFn(this.settingsOnStart.sliderMax);
-  // preferences.save("sliderMin", this.settingsOnStart.sliderMin);
-  // preferences.save("sliderMax", this.settingsOnStart.sliderMax);
 };
 
 export default GeneralSettings;
