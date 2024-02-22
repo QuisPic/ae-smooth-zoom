@@ -4,6 +4,7 @@ import { openURL } from "../utils";
 import bind from "../../extern/function-bind";
 import windows from "../windows";
 import SettingsWindow from "./settings/settings-window";
+import AboutWindow from "./about-window";
 
 function Settings(zoom, parentEl) {
   this.element = parentEl.add(
@@ -160,8 +161,8 @@ function Settings(zoom, parentEl) {
         // );
 
         menuWindow.addDivider();
-        menuWindow.addMenuItem("Author", function () {
-          openURL("https://twitter.com/quismotion");
+        menuWindow.addMenuItem("About", function () {
+          windows.new(new AboutWindow());
         });
         menuWindow.addMenuItem("Github", function () {
           openURL("https://github.com/QuisPic/ae-zoom");
