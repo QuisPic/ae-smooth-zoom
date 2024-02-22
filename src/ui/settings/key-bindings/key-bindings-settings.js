@@ -21,6 +21,7 @@ function KeyBindingsSettings(parentEl) {
       text: 'Key Bindings', \
       alignChildren: ['left', 'top'], \
       orientation: 'row', \
+      margins: [12, 10, 0, 10], \
     }",
   );
 

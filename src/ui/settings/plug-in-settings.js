@@ -11,10 +11,9 @@ function PluginSettings(parentEl) {
     "tab { \
       text: 'Plug-in', \
       alignChildren: ['fill', 'top'], \
-      margins: [12, 0, 0, 0], \
+      margins: [12, 10, 0, 10], \
       spacing: 10, \
       grTxt: Group { \
-        margins: [0, 10, 0, 0], \
         orientation: 'column', \
         alignChildren: 'left', \
         spacing: 4, \

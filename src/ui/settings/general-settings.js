@@ -11,6 +11,7 @@ function GeneralSettings(parentEl, zoom) {
       text: 'General', \
       alignChildren: ['left', 'top'], \
       orientation: 'row', \
+      margins: [12, 10, 0, 10], \
       gr: Group { \
         orientation: 'column', \
         alignChildren: ['fill', 'top'], \

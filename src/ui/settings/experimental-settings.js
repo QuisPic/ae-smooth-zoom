@@ -6,6 +6,7 @@ import PluginStatusWithButton from "../status/plugin-status-with-button";
 import { ZOOM_PLUGIN_STATUS } from "../../constants";
 import bind from "../../../extern/function-bind";
 import Checkbox from "../checkbox";
+import ExperimentalSettingsWarning from "./experimental-settings-warning";
 
 function ExperimentalSettings(parentEl) {
   this.settingsOnStart = preferences.experimental;
@@ -15,31 +16,23 @@ function ExperimentalSettings(parentEl) {
       text: 'Experimental', \
       alignChildren: ['left', 'top'], \
       orientation: 'row', \
+      margins: [12, 10, 0, 10], \
       gr: Group { \
         orientation: 'column', \
         alignment: ['fill', 'fill'], \
         alignChildren: 'fill', \
+        txt0: StaticText { \
+          text: 'Options that make using Zoom more convenient. Zoom Plug-in is required.', \
+        }, \
         grPluginStatus: Group { \
           alignChildren: ['fill', 'top'], \
-        }, \
-        pnlDetectCursorInsideView: Panel { \
-          orientation: 'column', \
-          alignChildren: 'left', \
-          grCheck: Group {}, \
-          txtDescription: StaticText { \
-            text: 'If enabled, Zoom key bindings that include mouse events will be captured only when the mouse cursor is inside a viewport. If multiple viewports are open, Zoom will target the viewport currently under the mouse cursor.', \
-            characters: 55, \
-            properties: { multiline: true }, \
-          },\
         }, \
         pnlFixViewportPosition: Panel { \
           orientation: 'column', \
           alignChildren: 'left', \
           grCheck: Group {}, \
           txtDescription: StaticText {\
-            text: 'If enabled, the composition view will maintain its position after zooming.', \
-            characters: 50, \
-            properties: { multiline: false }, \
+            text: 'Enabling this option fixes the automatic centering of the composition view when zoom is changed.', \
           },\
           pnlZoomAround: Panel { \
             alignment: 'fill', \
@@ -57,6 +50,16 @@ function ExperimentalSettings(parentEl) {
             }, \
           }, \
         }, \
+        pnlDetectCursorInsideView: Panel { \
+          orientation: 'column', \
+          alignChildren: 'left', \
+          grCheck: Group {}, \
+          txtDescription: StaticText { \
+            text: 'If enabled, Zoom key bindings that include mouse events will be captured only when the mouse cursor is inside a viewport. If multiple viewports are open, Zoom will target the viewport currently under the mouse cursor.', \
+            characters: 55, \
+            properties: { multiline: true }, \
+          },\
+        }, \
       }, \
     }",
   );
@@ -73,7 +76,7 @@ function ExperimentalSettings(parentEl) {
 
   pnlFixViewportPosition.grCheck = new Checkbox(
     pnlFixViewportPosition,
-    "Maintain View Position",
+    "Maintain View position after zooming",
     pnlFixViewportPosition.grCheck,
   );
 
@@ -111,6 +114,8 @@ function ExperimentalSettings(parentEl) {
 
   pnlFixViewportPosition.pnlZoomAround.grZoomAround.ddlistZoomPoint.onChange =
     bind(this.saveAll, this);
+
+  this.element.gr.warning = new ExperimentalSettingsWarning(this.element.gr);
 }
 
 ExperimentalSettings.prototype.updateScrollBar = function () {
