@@ -3,7 +3,7 @@ import Line from "../../line";
 import { TABLE_SIZES } from "../../../constants";
 import bind from "../../../../extern/function-bind";
 
-function ColumnNames(parentEl, kbWindow) {
+function ColumnNames(parentEl, kbWindow, onChangeFn) {
   this.kbWindow = kbWindow;
 
   this.element = parentEl.add(
@@ -41,6 +41,8 @@ function ColumnNames(parentEl, kbWindow) {
           for (var i = kbArray.length - 1; i >= 0; i--) {
             this.kbWindow.removeKeyBinding(i);
           }
+
+          onChangeFn();
         }
       }
     }, this),
@@ -76,6 +78,8 @@ function ColumnNames(parentEl, kbWindow) {
     for (var i = kbArray.length - 1; i >= 0; i--) {
       this.kbWindow.onOffKeyBinding(this.element.cCheck.value, i);
     }
+
+    onChangeFn();
   }, this);
 
   trashIcon.icon.helpTip = "Delete All";

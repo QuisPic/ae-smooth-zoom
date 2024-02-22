@@ -5,6 +5,8 @@ import KeyBindingsSettings from "./key-bindings/key-bindings-settings";
 import PluginSettings from "./plug-in-settings";
 
 function SettingsWindow(zoom) {
+  this.saveOnClose = false;
+
   this.element = new Window(
     "palette { \
       margins: 0, \
@@ -13,16 +15,6 @@ function SettingsWindow(zoom) {
     "Zoom Settings",
     undefined,
   );
-
-  this.element.onResize = bind(function () {
-    this.element.layout.resize();
-    // var tabs = this.element.tabs;
-
-    // tabs.keyBindings.updateScrollBar();
-    // tabs.experimentalSettings.updateScrollBar();
-  }, this);
-
-  this.element.onResizing = this.element.onResize;
 
   var tabs = this.element.add(
     "tabbedpanel { \
@@ -37,9 +29,16 @@ function SettingsWindow(zoom) {
   tabs.keyBindings = new KeyBindingsSettings(tabs);
   tabs.experimentalSettings = new ExperimentalSettings(tabs);
 
+  this.tabsArr = [
+    tabs.general,
+    tabs.plugin,
+    tabs.keyBindings,
+    tabs.experimentalSettings,
+  ];
+
   /** Draw Key Bindings tab only when it's selected because it takes too long to draw */
   tabs.onChange = function () {
-    if (this.selection && this.selection.text == "Key Bindings") {
+    if (this.selection && this.selection.text === "Key Bindings") {
       this.keyBindings.draw();
     }
   };
@@ -49,32 +48,49 @@ function SettingsWindow(zoom) {
       alignment: ['fill', 'bottom'], \
       margins: 10, \
       alignChildren: ['right', 'center'], \
-      btnSave: IconButton { title: 'Save', preferredSize: [100, 22] }, \
+      btnSave: IconButton { title: 'OK', preferredSize: [100, 22] }, \
       btnCancel: IconButton { title: 'Cancel', preferredSize: [100, 22] }, \
     }",
   );
 
   this.element.grButtons.btnSave.onClick = bind(function () {
-    preferences.save(
-      "experimental",
-      JSON.stringify({
-        detectCursorInsideView:
-          this.element.gr.pnlDetectCursorInsideView.grCheck.chk.value,
-        fixViewportPosition: {
-          enabled: this.element.gr.pnlFixViewportPosition.grCheck.chk.value,
-          zoomAround:
-            this.element.gr.pnlFixViewportPosition.grZoomAround.ddlistZoomPoint
-              .selection.index,
-        },
-      }),
-    );
+    this.saveOnClose = true;
 
     /** Close the window */
     this.element.close();
   }, this);
 
+  this.element.grButtons.btnCancel.onClick = bind(function () {
+    /** Close the window */
+    this.element.close();
+  }, this);
+
+  this.element.onClose = bind(function () {
+    if (this.saveOnClose) {
+      this.saveChanges();
+    } else {
+      this.cancelChanges();
+    }
+  }, this);
+
   this.element.layout.layout(true);
   this.element.show();
 }
+
+SettingsWindow.prototype.saveChanges = function () {
+  for (var i = 0; i < this.tabsArr.length; i++) {
+    if (typeof this.tabsArr[i].save === "function") {
+      this.tabsArr[i].save();
+    }
+  }
+};
+
+SettingsWindow.prototype.cancelChanges = function () {
+  for (var i = 0; i < this.tabsArr.length; i++) {
+    if (typeof this.tabsArr[i].cancel === "function") {
+      this.tabsArr[i].cancel();
+    }
+  }
+};
 
 export default SettingsWindow;

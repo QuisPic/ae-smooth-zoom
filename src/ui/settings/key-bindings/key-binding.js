@@ -8,12 +8,12 @@ import TrashIcon from "./trash-icon";
 import windows from "../../../windows";
 import KeyCapture from "./key-capture";
 
-function KeyBinding(parentEl, values, kbWindow) {
+function KeyBinding(parentEl, values, kbWindow, onChangeFn) {
   this.kbWindow = kbWindow;
 
   /**
    * invisible lines here are just to add space in between elements
-   * to line up them with the column names
+   * to line them up with the column names
    */
   this.element = parentEl.add(
     "Group { \
@@ -43,8 +43,10 @@ function KeyBinding(parentEl, values, kbWindow) {
   var gr = this.element.gr;
 
   this.element.chkEnable.value = values.enabled;
+
   gr.enabled = values.enabled;
   gr.ddlistAction.selection = values.action;
+  gr.ddlistAction.onChange = onChangeFn;
 
   gr.grEdit.editIcon = new EditIcon(
     gr.grEdit,
@@ -59,6 +61,8 @@ function KeyBinding(parentEl, values, kbWindow) {
 
               targetKeyCombination.updateKeys(keyNames);
               targetKeyCombination.keyCodes = keyCodes;
+
+              onChangeFn();
             }, this),
           ),
         );
@@ -79,6 +83,7 @@ function KeyBinding(parentEl, values, kbWindow) {
 
         if (isConfirmed) {
           this.kbWindow.removeKeyBinding(this);
+          onChangeFn();
         }
       }
     }, this),
@@ -92,7 +97,16 @@ function KeyBinding(parentEl, values, kbWindow) {
   );
   gr.grKeys.keyCombination.updateKeysWithCodes(values.keyCodes);
 
-  gr.grAmount.numberValue = new NumberValue(gr.grAmount, "%", values.amount, 0);
+  gr.grAmount.numberValue = new NumberValue(
+    gr.grAmount,
+    "%",
+    values.amount,
+    0,
+    undefined,
+    undefined,
+    undefined,
+    onChangeFn,
+  );
 
   new Line(this.element.grLine0);
   new Line(gr.grLine1);
@@ -118,6 +132,7 @@ function KeyBinding(parentEl, values, kbWindow) {
   this.element.chkEnable.onClick = bind(function () {
     this.onOff(this.element.chkEnable.value);
     this.kbWindow.element.gr.pnlKeyBindings.grColumnNames.columnNames.syncCheck();
+    onChangeFn();
   }, this);
 }
 

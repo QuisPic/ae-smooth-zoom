@@ -8,6 +8,8 @@ import bind from "../../../extern/function-bind";
 import Checkbox from "../checkbox";
 
 function ExperimentalSettings(parentEl) {
+  this.settingsOnStart = preferences.experimental;
+
   this.element = parentEl.add(
     "tab { \
       text: 'Experimental', \
@@ -75,15 +77,6 @@ function ExperimentalSettings(parentEl) {
     pnlFixViewportPosition.grCheck,
   );
 
-  pnlFixViewportPosition.grCheck.setOnClick(
-    bind(function () {
-      var pnlFixViewportPosition = this.element.gr.pnlFixViewportPosition;
-
-      pnlFixViewportPosition.pnlZoomAround.enabled =
-        pnlFixViewportPosition.grCheck.element.check.value;
-    }, this),
-  );
-
   pnlDetectCursorInsideView.grCheck.setValue(
     experimentalPrefs.detectCursorInsideView,
   );
@@ -103,36 +96,49 @@ function ExperimentalSettings(parentEl) {
     );
   }
 
-  // this.element.grButtons.btnSave.onClick = bind(function () {
-  //   preferences.save(
-  //     "experimental",
-  //     JSON.stringify({
-  //       detectCursorInsideView:
-  //         this.element.gr.pnlDetectCursorInsideView.grCheck.chk.value,
-  //       fixViewportPosition: {
-  //         enabled: this.element.gr.pnlFixViewportPosition.grCheck.chk.value,
-  //         zoomAround:
-  //           this.element.gr.pnlFixViewportPosition.grZoomAround.ddlistZoomPoint
-  //             .selection.index,
-  //       },
-  //     }),
-  //   );
-  //
-  //   /** Close the window */
-  //   this.element.close();
-  // }, this);
+  pnlDetectCursorInsideView.grCheck.setOnClick(bind(this.saveAll, this));
 
-  /** Cancel button */
-  // this.element.grButtons.btnCancel.onClick = function () {
-  //   this.window.close();
-  // };
-  //
-  // this.element.show();
+  pnlFixViewportPosition.grCheck.setOnClick(
+    bind(function () {
+      var pnlFixViewportPosition = this.element.gr.pnlFixViewportPosition;
+
+      pnlFixViewportPosition.pnlZoomAround.enabled =
+        pnlFixViewportPosition.grCheck.element.check.value;
+
+      this.saveAll();
+    }, this),
+  );
+
+  pnlFixViewportPosition.pnlZoomAround.grZoomAround.ddlistZoomPoint.onChange =
+    bind(this.saveAll, this);
 }
 
 ExperimentalSettings.prototype.updateScrollBar = function () {
   updateScrollBar(this.element.gr, this.element);
   this.element.layout.layout(true);
+};
+
+ExperimentalSettings.prototype.saveAll = function () {
+  preferences.save(
+    "experimental",
+    JSON.stringify({
+      detectCursorInsideView:
+        this.element.gr.pnlDetectCursorInsideView.grCheck.element.check.value,
+      fixViewportPosition: {
+        enabled:
+          this.element.gr.pnlFixViewportPosition.grCheck.element.check.value,
+        zoomAround:
+          this.element.gr.pnlFixViewportPosition.pnlZoomAround.grZoomAround
+            .ddlistZoomPoint.selection.index,
+      },
+    }),
+  );
+};
+
+ExperimentalSettings.prototype.cancel = function () {
+  if (this.settingsOnStart !== preferences.experimental) {
+    preferences.save("experimental", this.settingsOnStart);
+  }
 };
 
 export default ExperimentalSettings;

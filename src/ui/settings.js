@@ -1,10 +1,7 @@
 import MenuWindow from "./menu-window";
-import NumberValue from "./number-value";
-import { AE_OS, OS, STICK_TO } from "../constants";
+import { STICK_TO } from "../constants";
 import { openURL } from "../utils";
 import bind from "../../extern/function-bind";
-import Checkbox from "./checkbox";
-import preferences from "../preferences";
 import windows from "../windows";
 import SettingsWindow from "./settings/settings-window";
 

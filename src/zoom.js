@@ -181,21 +181,18 @@ Zoom.prototype.produceOnIncrement = function () {
   };
 };
 
-Zoom.prototype.showHideSlider = function () {
-  var val;
+Zoom.prototype.showHideSlider = function (val) {
+  val = val === undefined ? !preferences.showSlider : val;
+  var hasSlider = this.zoomSlider && isValid(this.zoomSlider.element);
 
-  if (this.zoomSlider && isValid(this.zoomSlider.element)) {
+  if (val && !hasSlider) {
+    this.addSlider();
+  } else if (!val && hasSlider) {
     this.zoomSlider.parentEl.remove(this.zoomSlider.element);
     this.zoomSlider.parentEl.preferredSize = [0, 0];
 
     this.w.grSlider.alignment = ["left", "center"];
     this.settings.element.alignment = ["left", "center"];
-
-    val = false;
-  } else {
-    this.addSlider();
-
-    val = true;
   }
 
   preferences.save("showSlider", val);

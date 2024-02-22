@@ -4,6 +4,8 @@ import NumberValue from "../number-value";
 import Checkbox from "../checkbox";
 
 function GeneralSettings(parentEl, zoom) {
+  this.zoom = zoom;
+
   this.element = parentEl.add(
     "tab { \
       text: 'General', \
@@ -27,16 +29,23 @@ function GeneralSettings(parentEl, zoom) {
           grCheck: Group {}, \
           grMinValue: Group { \
             spacing: 0, \
-            txt: StaticText { text: 'Min Value: ' }, \
+            txt: StaticText { text: 'Slider Min Value: ' }, \
           }, \
           grMaxValue: Group { \
             spacing: 0, \
-            txt: StaticText { text: 'Max Value: ' }, \
+            txt: StaticText { text: 'Slider Max Value: ' }, \
           }, \
         }, \
       }, \
     }",
   );
+
+  this.settingsOnStart = {
+    syncWithView: preferences.syncWithView,
+    showSlider: preferences.showSlider,
+    sliderMin: preferences.sliderMin,
+    sliderMax: preferences.sliderMax,
+  };
 
   var pnlSync = this.element.gr.pnlSync;
   var pnlSlider = this.element.gr.pnlSlider;
@@ -47,7 +56,16 @@ function GeneralSettings(parentEl, zoom) {
     pnlSync.grCheck,
   );
 
+  pnlSync.grCheck.setValue(preferences.syncWithView);
+  pnlSync.grCheck.setOnClick(function () {
+    preferences.save("syncWithView", this.value);
+  });
+
   pnlSlider.grCheck = new Checkbox(pnlSlider, "Show Slider", pnlSlider.grCheck);
+  pnlSlider.grCheck.setValue(preferences.showSlider);
+  pnlSlider.grCheck.setOnClick(function () {
+    zoom.showHideSlider(this.value);
+  });
 
   pnlSlider.grMinValue.numValue = new NumberValue(
     pnlSlider.grMinValue,
@@ -88,5 +106,16 @@ function GeneralSettings(parentEl, zoom) {
   pnlSlider.grMinValue.txt.preferredSize = maxTextSize;
   pnlSlider.grMaxValue.txt.preferredSize = maxTextSize;
 }
+
+GeneralSettings.prototype.cancel = function () {
+  var pnlSlider = this.element.gr.pnlSlider;
+
+  preferences.save("syncWithView", this.settingsOnStart.syncWithView);
+  this.zoom.showHideSlider(this.settingsOnStart.showSlider);
+  pnlSlider.grMinValue.numValue.onChangeFn(this.settingsOnStart.sliderMin);
+  pnlSlider.grMaxValue.numValue.onChangeFn(this.settingsOnStart.sliderMax);
+  // preferences.save("sliderMin", this.settingsOnStart.sliderMin);
+  // preferences.save("sliderMax", this.settingsOnStart.sliderMax);
+};
 
 export default GeneralSettings;

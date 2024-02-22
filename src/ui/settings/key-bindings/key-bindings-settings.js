@@ -24,34 +24,7 @@ function KeyBindingsSettings(parentEl) {
     }",
   );
 
-  /** Save the key bindings to the AE's preferences file */
-  // this.element.grButtons.btnSave.onClick = bind(function () {
-  //   var bindingsArr = [];
-  //
-  //   for (var i = 0; i < this.keyBindingsArr.length; i++) {
-  //     var bEl = this.keyBindingsArr[i].element;
-  //
-  //     bindingsArr.push({
-  //       enabled: bEl.chkEnable.value,
-  //       keyCodes: bEl.grKeys.keyCombination.keyCodes,
-  //       action: bEl.ddlistAction.selection.index,
-  //       amount: bEl.grAmount.numberValue.getValue(),
-  //     });
-  //   }
-  //
-  //   preferences.save("keyBindings", JSON.stringify(bindingsArr));
-  //
-  //   /** Close the KeyBindings window */
-  //   this.element.close();
-  // }, this);
-
-  /** Cancel button */
-  // this.element.grButtons.btnCancel.onClick = function () {
-  //   this.window.close();
-  // };
-  //
-  // this.element.layout.layout(true);
-  // this.element.show();
+  this.settingsOnStart = preferences.keyBindings;
 }
 
 KeyBindingsSettings.prototype.draw = function () {
@@ -123,6 +96,7 @@ KeyBindingsSettings.prototype.draw = function () {
     pnlKeyBindings.grColumnNames.columnNames = new ColumnNames(
       pnlKeyBindings.grColumnNames,
       this,
+      bind(this.saveAll, this),
     );
 
     /** Fill the key bindings table */
@@ -152,6 +126,8 @@ KeyBindingsSettings.prototype.draw = function () {
               action: 0,
               amount: 1,
             });
+
+            this.saveAll();
             this.element.gr.pnlKeyBindings.grColumnNames.columnNames.syncCheck();
             this.element.layout.layout(true);
           }, this),
@@ -184,7 +160,9 @@ KeyBindingsSettings.prototype.addKeyBinding = function (keyBindingValues) {
     this.linesArr.push(new Line(listGr));
   }
 
-  this.keyBindingsArr.push(new KeyBinding(listGr, keyBindingValues, this));
+  this.keyBindingsArr.push(
+    new KeyBinding(listGr, keyBindingValues, this, bind(this.saveAll, this)),
+  );
 
   this.element.layout.layout(true);
   this.updateKeyBindingsScrollBar();
@@ -250,6 +228,32 @@ KeyBindingsSettings.prototype.findKeyBindingIndex = function (keyBinding) {
   }
 
   return kbInd;
+};
+
+/** Save the key bindings to the AE's preferences file */
+KeyBindingsSettings.prototype.saveAll = function () {
+  if (this.drawn) {
+    var bindingsArr = [];
+
+    for (var i = 0; i < this.keyBindingsArr.length; i++) {
+      var bEl = this.keyBindingsArr[i].element;
+
+      bindingsArr.push({
+        enabled: bEl.chkEnable.value,
+        keyCodes: bEl.gr.grKeys.keyCombination.keyCodes,
+        action: bEl.gr.ddlistAction.selection.index,
+        amount: bEl.gr.grAmount.numberValue.getValue(),
+      });
+    }
+
+    preferences.save("keyBindings", JSON.stringify(bindingsArr));
+  }
+};
+
+KeyBindingsSettings.prototype.cancel = function () {
+  if (this.drawn && this.settingsOnStart !== preferences.keyBindings) {
+    preferences.save("keyBindings", this.settingsOnStart);
+  }
 };
 
 export default KeyBindingsSettings;
