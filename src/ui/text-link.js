@@ -19,12 +19,12 @@ function TextLink(parentEl, text, linkAddress) {
   var textGraphics = this.element.txt.graphics;
   var lightBluePen = textGraphics.newPen(
     textGraphics.PenType.SOLID_COLOR,
-    [45 / 255, 140 / 255, 235 / 255, 1],
+    [65 / 255, 160 / 255, 1, 1],
     2,
   );
   var darkBluePen = textGraphics.newPen(
     textGraphics.PenType.SOLID_COLOR,
-    [52 / 255, 105 / 255, 1, 1],
+    [0.176, 0.411, 0.921, 1],
     2,
   );
 

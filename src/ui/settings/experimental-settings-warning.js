@@ -1,3 +1,6 @@
+import windows from "../../windows";
+import AboutWindow from "../about-window";
+
 function ExperimentalSettingsWarning(parentEl) {
   this.element = parentEl.add(
     "Panel { \
@@ -18,6 +21,10 @@ function ExperimentalSettingsWarning(parentEl) {
     "or may cause After Effects to crash.";
   this.element.txt1.text =
     "If you experience such issues, please report to the author.";
+
+  this.element.btnContacts.onClick = function () {
+    windows.new(AboutWindow);
+  };
 
   this.element.graphics.backgroundColor = this.element.graphics.newBrush(
     this.element.graphics.BrushType.SOLID_COLOR,

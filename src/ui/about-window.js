@@ -4,10 +4,15 @@ import TextLink from "./text-link";
 function AboutWindow() {
   this.element = new Window(
     "palette { \
-      margins: 0, \
-      spacing: 0, \
       minimumSize: [300, 0], \
       alignChildren: ['fill', 'top'], \
+      grTitle: Group { \
+        spacing: 0, \
+        orientation: 'column', \
+        alignChildren: 'center', \
+        txtVersion: StaticText {}, \
+        txtDescription: StaticText { text: 'Improved zoom experience inside compositions.' }, \
+      }, \
       pnlInfo: Panel { \
         orientation: 'row', \
         grName: Group { \
@@ -17,29 +22,46 @@ function AboutWindow() {
           spacing: 4, \
           txtName: StaticText { text: 'Developed by Denis Mozgovoy' }, \
         }, \
-        grVersion: Group { \
-          orientation: 'column', \
-          alignment: ['right', 'top'], \
-          alignChildren: 'left', \
-          spacing: 4, \
-          txtVersion: StaticText {}, \
-          txtYear: StaticText { text: '2024' }, \
+      }, \
+      pnlReport: Panel { \
+        spacing: 4, \
+        alignChildren: 'fill', \
+        txt: StaticText { text: 'Report Issues to:' }, \
+        grGithubLink: Group {}, \
+        grEmail: Group { \
+          txt: StaticText { text: 'Email: ' }, \
+          etxtEmail: EditText { \
+            alignment: ['fill', 'center' ], \
+            properties: { readonly: true }, \
+            text: 'hello@motionprincess.com', \
+          }, \
         }, \
+      }, \
+      txtYear: StaticText { \
+        text: '2024', \
+        alignment: 'right', \
       }, \
     }",
     "Zoom About",
   );
 
-  this.element.pnlInfo.grVersion.txtVersion.text = "Zoom " + VERSION;
+  this.element.grTitle.txtVersion.text = "Zoom " + VERSION;
   this.element.pnlInfo.grName.linkSite = new TextLink(
     this.element.pnlInfo.grName,
     "Motionprincess.com",
     "https://motionprincess.com/",
   );
+
   this.element.pnlInfo.grName.linkTwitter = new TextLink(
     this.element.pnlInfo.grName,
     "X / Twitter",
     "https://twitter.com/quismotion",
+  );
+
+  this.element.pnlReport.grGithubLink.linkGithubIssues = new TextLink(
+    this.element.pnlReport.grGithubLink,
+    "Github Issues",
+    "https://github.com/QuisPic/ae-zoom/issues",
   );
 
   this.element.layout.layout(true);

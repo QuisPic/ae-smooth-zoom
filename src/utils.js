@@ -115,7 +115,7 @@ export function openURL(url) {
     ) {
       alert(
         "Cannot open URL. Permission denied.\n" +
-          'Enable "Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network."',
+          'Enable "Edit > Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network."',
       );
     } else {
       alert("Error at line " + error.line + ":\n" + error.message);
