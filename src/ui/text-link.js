@@ -1,4 +1,5 @@
 import bind from "../../extern/function-bind";
+import { openURL } from "../utils";
 
 function TextLink(parentEl, text, linkAddress) {
   this.element = parentEl.add(
@@ -29,6 +30,10 @@ function TextLink(parentEl, text, linkAddress) {
 
   this.element.txt.text = text;
   this.element.txt.graphics.foregroundColor = darkBluePen;
+
+  this.element.txt.addEventListener("click", function () {
+    openURL(linkAddress);
+  });
 
   this.element.txt.addEventListener(
     "mouseover",

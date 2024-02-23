@@ -6,7 +6,7 @@ function AboutWindow() {
     "palette { \
       margins: 0, \
       spacing: 0, \
-      minimumSize: [300, 100], \
+      minimumSize: [300, 0], \
       alignChildren: ['fill', 'top'], \
       pnlInfo: Panel { \
         orientation: 'row', \
@@ -34,10 +34,12 @@ function AboutWindow() {
   this.element.pnlInfo.grName.linkSite = new TextLink(
     this.element.pnlInfo.grName,
     "Motionprincess.com",
+    "https://motionprincess.com/",
   );
   this.element.pnlInfo.grName.linkTwitter = new TextLink(
     this.element.pnlInfo.grName,
     "X / Twitter",
+    "https://twitter.com/quismotion",
   );
 
   this.element.layout.layout(true);

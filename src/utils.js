@@ -109,7 +109,17 @@ export function openURL(url) {
       system.callSystem("open " + url);
     }
   } catch (error) {
-    alert("Error at line " + error.line + ":\n" + error.message);
+    if (
+      error.message ===
+      "Permission denied (is Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network enabled?)"
+    ) {
+      alert(
+        "Cannot open URL. Permission denied.\n" +
+          'Enable "Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network."',
+      );
+    } else {
+      alert("Error at line " + error.line + ":\n" + error.message);
+    }
   }
 }
 
@@ -273,5 +283,4 @@ export function updateScrollBar(el, parentEl) {
     parentEl.scrollBar = undefined;
     // this.element.layout.layout(true);
   }
-};
-
+}
