@@ -131,26 +131,6 @@ function NumberValue(
           }, this),
         );
 
-        // editText.addEventListener("keydown", function (event) {
-        //   if (event.eventPhase === "target") {
-        //     if (event.keyName === "Up") {
-        //       event.preventDefault();
-        //       var val = parseFloat(this.text);
-        //
-        //       if (!isNaN(val)) {
-        //         this.text = val + 1;
-        //       }
-        //     } else if (event.keyName === "Down") {
-        //       event.preventDefault();
-        //       val = parseFloat(this.text);
-        //
-        //       if (!isNaN(val)) {
-        //         this.text = val - 1;
-        //       }
-        //     }
-        //   }
-        // });
-
         grValue.hide();
         this.element.layout.layout(true);
       }
