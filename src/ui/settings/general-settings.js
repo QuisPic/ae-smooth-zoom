@@ -2,7 +2,7 @@ import bind from "../../../extern/function-bind";
 import preferences from "../../preferences";
 import NumberValue from "../number-value";
 import Checkbox from "../checkbox";
-import ValuesList from "./values-list";
+import ValuesList from "./list/values-list";
 
 function GeneralSettings(parentEl, zoom) {
   this.zoom = zoom;
@@ -37,6 +37,9 @@ function GeneralSettings(parentEl, zoom) {
             spacing: 0, \
             txt: StaticText { text: 'Slider Max Value: ' }, \
           }, \
+        }, \
+        pnlPresetList: Panel { \
+          text: 'Preset Values', \
         }, \
       }, \
     }",
@@ -108,7 +111,9 @@ function GeneralSettings(parentEl, zoom) {
   pnlSlider.grMinValue.txt.preferredSize = maxTextSize;
   pnlSlider.grMaxValue.txt.preferredSize = maxTextSize;
 
-  this.element.gr.presetList = new ValuesList(this.element.gr);
+  this.element.gr.pnlPresetList.list = new ValuesList(
+    this.element.gr.pnlPresetList,
+  );
 }
 
 GeneralSettings.prototype.cancel = function () {

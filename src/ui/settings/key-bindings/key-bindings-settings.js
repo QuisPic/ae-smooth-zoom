@@ -1,4 +1,3 @@
-import { updateScrollBar } from "../../../utils";
 import bind from "../../../../extern/function-bind";
 import KeyBinding from "./key-binding";
 import Line from "../../line";
@@ -141,18 +140,18 @@ KeyBindingsSettings.prototype.draw = function () {
   }
 };
 
-KeyBindingsSettings.prototype.updateScrollBar = function () {
-  updateScrollBar(this.element.gr, this.element);
-  this.element.layout.layout(true);
-};
-
-KeyBindingsSettings.prototype.updateKeyBindingsScrollBar = function () {
-  var grBindings = this.element.gr.pnlKeyBindings.grBindings;
-  var listGr = grBindings.grList;
-
-  updateScrollBar(listGr, grBindings);
-  this.element.layout.layout(true);
-};
+// KeyBindingsSettings.prototype.updateScrollBar = function () {
+//   updateScrollBar(this.element.gr, this.element);
+//   this.element.layout.layout(true);
+// };
+//
+// KeyBindingsSettings.prototype.updateKeyBindingsScrollBar = function () {
+//   var grBindings = this.element.gr.pnlKeyBindings.grBindings;
+//   var listGr = grBindings.grList;
+//
+//   updateScrollBar(listGr, grBindings);
+//   this.element.layout.layout(true);
+// };
 
 KeyBindingsSettings.prototype.addKeyBinding = function (keyBindingValues) {
   var listGr = this.element.gr.pnlKeyBindings.grBindings.grList;
@@ -166,7 +165,7 @@ KeyBindingsSettings.prototype.addKeyBinding = function (keyBindingValues) {
   );
 
   this.element.layout.layout(true);
-  this.updateKeyBindingsScrollBar();
+  // this.updateKeyBindingsScrollBar();
 };
 
 KeyBindingsSettings.prototype.removeKeyBinding = function (keyBindingOrInd) {
@@ -194,7 +193,7 @@ KeyBindingsSettings.prototype.removeKeyBinding = function (keyBindingOrInd) {
     }
 
     this.element.layout.layout(true);
-    this.updateKeyBindingsScrollBar();
+    // this.updateKeyBindingsScrollBar();
   } else {
     alert("Can not remove Key Binding:\nThe Key Binding is not found.");
   }

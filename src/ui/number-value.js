@@ -90,16 +90,6 @@ function NumberValue(
       if (event.eventPhase === "target" && isMouseDown) {
         isMouseDown = false;
 
-        // var editText = thisNumberValue.element.add(
-        //   "EditText { \
-        //     active: true, \
-        //     alignment: 'left', \
-        //     text: '" +
-        //     txtValue.text +
-        //     "', \
-        //   }",
-        // );
-
         var editText = new FloatEditText(this.element, txtValue.text);
 
         editText.setSize([

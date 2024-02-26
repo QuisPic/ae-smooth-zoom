@@ -1,4 +1,3 @@
-import { updateScrollBar } from "../../utils";
 import preferences from "../../preferences";
 import JSON from "../../../extern/json2";
 import zoomPlugin from "../../zoomPlugin";
@@ -118,10 +117,10 @@ function ExperimentalSettings(parentEl) {
   this.element.gr.warning = new ExperimentalSettingsWarning(this.element.gr);
 }
 
-ExperimentalSettings.prototype.updateScrollBar = function () {
-  updateScrollBar(this.element.gr, this.element);
-  this.element.layout.layout(true);
-};
+// ExperimentalSettings.prototype.updateScrollBar = function () {
+//   updateScrollBar(this.element.gr, this.element);
+//   this.element.layout.layout(true);
+// };
 
 ExperimentalSettings.prototype.saveAll = function () {
   preferences.save(
