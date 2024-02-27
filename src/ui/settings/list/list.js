@@ -26,6 +26,10 @@ function List(parentEl) {
     this.element.graphics.BrushType.SOLID_COLOR,
     [0.113, 0.113, 0.113, 1],
   );
+
+  this.element.grList.grColumns.addEventListener("mousedown", function () {
+    writeLn("list click: " + $.hiresTimer);
+  });
 }
 
 List.prototype.setMaxSize = function (maxSize) {
@@ -46,7 +50,7 @@ List.prototype.updateScrollBar = function () {
   }
 
   var scrollBar = this.element.scrollBar;
-  var scrollSlider = this.element.grList.scrollSlider;
+  var grSlider = this.element.grList.grSlider;
   var sizeDiff =
     this.element.grList.grColumns.size.height - this.element.grList.size.height;
 
@@ -67,28 +71,44 @@ List.prototype.updateScrollBar = function () {
 
       this.element.scrollBar = scrollBar;
 
-      if (!scrollSlider) {
-        /** slider that will be used to scroll with mouse wheel */
-        scrollSlider = this.element.grList.add("slider");
-        scrollSlider.minvalue = -1;
-        scrollSlider.maxvalue = 1;
+      if (!grSlider) {
+        /** slider to scroll the list using mouse wheel */
+        grSlider = this.element.grList.add(
+          "Group {\
+            alignment: 'top', \
+            maximumSize: [1, 1], \
+            slider: Slider { \
+              minvalue: -1, \
+              maxvalue: 1, \
+            }, \
+          }"
+        );
 
         /** remove all appearance on the slider */
-        scrollSlider.onDraw = function () {};
+        grSlider.slider.onDraw = function () {};
 
-        scrollSlider.oldValue = scrollSlider.value;
-        scrollSlider.onChange = function () {
-          scrollBar.value += this.value * 5;
+        grSlider.slider.onChanging = function () {
+          scrollBar.value += this.value * 8;
           scrollBar.notify();
 
           this.value = 0;
         };
-        scrollSlider.onChanging = scrollSlider.onChange;
 
-        /** TODO: remove onClick event */
-        scrollSlider.onClick = function () {};
-
-        this.element.grList.scrollSlider = scrollSlider;
+        /** remove mousedown event */
+        grSlider.slider.addEventListener("mousedown", function (event) {
+          writeLn("slider click: " + $.hiresTimer);
+          
+          if (event.cancelable) {
+            event.preventDefault();
+          }
+        });
+        
+        this.element.grList.grSlider = grSlider;
+        
+        this.element.grList.addEventListener("mousemove", function (event) {
+          grSlider.location.x = event.clientX;
+          grSlider.location.y = event.clientY;
+        });
       }
     }
 

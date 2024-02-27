@@ -18,6 +18,14 @@ function ValuesList(parentEl) {
     valuesColumn.addRow("StaticText { text: '" + ZOOM_LIST_VALUES[i] + "' }");
     // listBox.add("item", ZOOM_LIST_VALUES[i]);
   }
+  
+  valuesColumn.addRow(
+    "DropDownList { \
+      properties: { \
+        items: ['one', 'two', 'three'], \
+      }, \
+    }",
+  );
 
   this.setMaxSize([9999, 140]);
   var scrollBarUpdated = this.updateScrollBar();
