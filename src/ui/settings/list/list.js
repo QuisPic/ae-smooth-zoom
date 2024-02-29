@@ -2,10 +2,12 @@ import bind from "../../../../extern/function-bind";
 import { binarySearch, positionRelativeToParent } from "../../../utils";
 import indexOf from "../../../../extern/array-indexOf";
 import Row from "./row";
-import { AE_OS, OS } from "../../../constants";
+import { AE_OS, BLUE_COLOR, OS } from "../../../constants";
 
 function List(parentEl) {
   this.RowClass = Row;
+  this.active = false;
+  this.lastClickEventTime = undefined;
   this.rows = [];
   this.selectedRows = [];
   this.colorSelected = [0.27, 0.27, 0.27, 1];
@@ -17,12 +19,28 @@ function List(parentEl) {
   // fn to call when adding a new row
   this.addRowHandler = undefined;
 
-  this.element = parentEl.add(
+  this.parentGroup = parentEl.add(
+    "Group { \
+      orientation: 'stack', \
+      alignment: ['fill', 'fill'], \
+      alignChildren: 'fill', \
+      grBorder: Group {}, \
+      grElement: Group { \
+        margins: 1, \
+      }, \
+    }",
+  );
+
+  this.element = this.parentGroup.grElement.add(
     "Panel { \
       margins: 0, \
       spacing: 0, \
       alignment: ['fill', 'fill'], \
       orientation: 'row', \
+      grBorder: Group { \
+        alignment: ['left', 'top'], \
+        minimumSize: [1, 1], \
+      }, \
       grList: Group { \
         orientation: 'stack', \
         alignment: ['fill', 'top'], \
@@ -37,15 +55,66 @@ function List(parentEl) {
     }",
   );
 
+  this.parentGroup.grBorder.visible = this.active;
+  this.parentGroup.grBorder.onDraw = function () {
+    var r = 3; // round corner radius
+    var d = 2 * r; // round corner diameter
+    var g = this.graphics;
+    var b = g.newBrush(g.BrushType.SOLID_COLOR, BLUE_COLOR);
+    var s = this.size;
+    var drawCircle = function (left, top) {
+      g.ellipsePath(left, top, d, d);
+      g.fillPath(b);
+    };
+
+    drawCircle(0, 0);
+    drawCircle(s[0] - d, 0);
+    drawCircle(s[0] - d, s[1] - d);
+    drawCircle(0, s[1] - d);
+
+    g.newPath();
+    g.moveTo(r, 0);
+    g.lineTo(s[0] - r, 0);
+    g.lineTo(s[0], r);
+    g.lineTo(s[0], s[1] - r);
+    g.lineTo(s[0] - r, s[1]);
+    g.lineTo(r, s[1]);
+    g.lineTo(0, s[1] - r);
+    g.lineTo(0, r);
+
+    g.fillPath(b);
+  };
+
   /** pass click events to our custom handler */
   this.element.grList.addEventListener(
     "mousedown",
     bind(function (event) {
       this.onClick(event);
-      event.stopPropagation();
-      event.preventDefault();
+
+      this.lastClickEventTime = event.timeStamp.getTime();
+      this.activate();
     }, this),
     true,
+  );
+
+  /** TODO breaks sometimes when deleting with shift after prev deletion */
+  /** TODO active status isn't reset when switching tabs */
+  this.element.window.addEventListener(
+    "mousedown",
+    bind(function (event) {
+      if (event.timeStamp.getTime() !== this.lastClickEventTime) {
+        this.deactivate();
+      }
+    }, this),
+  );
+
+  this.element.window.addEventListener(
+    "keydown",
+    bind(function (event) {
+      if (event.keyName === "Delete" && this.active) {
+        this.deleteSelectedRows();
+      }
+    }, this),
   );
 
   this.element.graphics.backgroundColor = this.element.graphics.newBrush(
@@ -53,6 +122,20 @@ function List(parentEl) {
     [0.113, 0.113, 0.113, 1],
   );
 }
+
+List.prototype.activate = function () {
+  if (!this.active) {
+    this.active = true;
+    this.parentGroup.grBorder.visible = true;
+  }
+};
+
+List.prototype.deactivate = function () {
+  if (this.active) {
+    this.active = false;
+    this.parentGroup.grBorder.visible = false;
+  }
+};
 
 List.prototype.setMaxSize = function (maxSize) {
   this.element.grList.maximumSize = maxSize;
@@ -68,6 +151,16 @@ List.prototype.addRow = function (content) {
 
   this.rows.push(row);
   return row;
+};
+
+List.prototype.deleteSelectedRows = function () {
+  for (var i = 0; i < this.selectedRows.length; i++) {
+    this.element.grList.grRows.remove(this.rows[this.selectedRows[i]].element);
+    this.rows.splice(this.selectedRows[i], 1);
+  }
+
+  this.selectedRows.length = 0;
+  this.element.grList.grRows.layout.layout(true);
 };
 
 List.prototype.getCursorPosFromEvent = function (event) {
