@@ -1,6 +1,8 @@
 import bind from "../../extern/function-bind";
 
 function FloatEditText(parentEl, initTextValue) {
+  this.parentEl = parentEl;
+
   this.element = parentEl.add(
     "EditText { \
           active: true, \
@@ -47,6 +49,10 @@ function FloatEditText(parentEl, initTextValue) {
     if (typeof this.onBlurFn === "function") {
       this.onBlurFn(this.element.text);
     }
+
+    if (this.element && isValid(this.element)) {
+      this.removeSelf();
+    }
   }, this);
 
   /** If a user presses Escape it may stop any code execution on Windows. In this case
@@ -60,12 +66,20 @@ FloatEditText.prototype.setSize = function (size) {
   this.element.size = size;
 };
 
+FloatEditText.prototype.setLocation = function (location) {
+  this.element.location = location;
+};
+
 FloatEditText.prototype.setOnChangeFn = function (fn) {
   this.onChangeFn = fn;
 };
 
 FloatEditText.prototype.setOnBlurFn = function (fn) {
   this.onBlurFn = fn;
+};
+
+FloatEditText.prototype.removeSelf = function () {
+  this.parentEl.remove(this.element);
 };
 
 export default FloatEditText;

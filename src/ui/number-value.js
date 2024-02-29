@@ -1,5 +1,5 @@
 import { OS, BLUE_COLOR, AE_OS } from "../constants";
-import { isNaN, makeDivisibleBy } from "../utils";
+import { makeDivisibleBy } from "../utils";
 import bind from "../../extern/function-bind";
 import ScreenWindow from "./screen-window";
 import FloatEditText from "./float-edit-text";
@@ -116,7 +116,6 @@ function NumberValue(
               this.onChange();
             }
 
-            this.element.remove(editText.element);
             grValue.show();
           }, this),
         );

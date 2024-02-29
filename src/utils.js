@@ -64,9 +64,9 @@ export function makeDivisibleBy(val, divisor, goUp) {
   return val;
 }
 
-export function isNaN(number) {
-  return number != number;
-}
+// export function isNaN(number) {
+//   return number != number;
+// }
 
 export function getElementLocationInWindow(element) {
   var location = [element.bounds.left, element.bounds.top];
@@ -154,15 +154,15 @@ export function saveFileFromBinaryString(binaryString, fileName) {
   }
 }
 
-export function indexOf(arr, el) {
-  for (var i = 0; i < arr.length; i++) {
-    if (arr[i] === el) {
-      return i;
-    }
-  }
-
-  return -1;
-}
+// export function indexOf(arr, el) {
+//   for (var i = 0; i < arr.length; i++) {
+//     if (arr[i] === el) {
+//       return i;
+//     }
+//   }
+//
+//   return -1;
+// }
 
 export function findIndex(arr, testFn) {
   for (var i = 0; i < arr.length; i++) {
@@ -252,4 +252,65 @@ export function keysFromKeyCodes(keyCodes) {
   }
 
   return keys;
+}
+
+/**
+ * Return 0 <= i <= array.length such that !pred(array[i - 1]) && pred(array[i]).
+ */
+export function binarySearch(array, pred) {
+  var lo = -1,
+    hi = array.length;
+
+  while (1 + lo < hi) {
+    var mi = lo + ((hi - lo) >> 1);
+    if (pred(array[mi])) {
+      hi = mi;
+    } else {
+      lo = mi;
+    }
+  }
+
+  return hi;
+}
+
+export function posToScreen(element) {
+  var result = [element.location.x, element.location.y];
+  var parentEl = element.parent;
+
+  while (parentEl) {
+    result[0] += parentEl.location.x;
+    result[1] += parentEl.location.y;
+
+    parentEl = parentEl.parent;
+  }
+
+  return result;
+}
+
+/** returns point relative to the parent supplied, parentEl must be a parent of childEl */
+export function positionRelativeToParent(parentEl, childEl, position) {
+  if (!position) {
+    position = childEl.location;
+  }
+
+  var result = [position[0], position[1]];
+  var directParentEl = childEl.parent;
+
+  while (directParentEl && parentEl !== directParentEl) {
+    result[0] += directParentEl.location.x;
+    result[1] += directParentEl.location.y;
+
+    directParentEl = directParentEl.parent;
+  }
+
+  return result;
+}
+
+/** remove any non number charactes from a string, respects float point values */
+export function strToNumStr(str) {
+  var numStr = str.match(/^\d*\.?\d+/);
+
+  if (numStr) {
+    return numStr[0];
+  }
 }

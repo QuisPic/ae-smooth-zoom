@@ -1,11 +1,15 @@
 import create from "../../../../extern/object-create";
 import { ZOOM_LIST_VALUES } from "../../../constants";
+import FloatEditText from "../../float-edit-text";
 import List from "./list";
+import ValuesRow from "./values-row";
 
 function ValuesList(parentEl) {
   List.call(this, parentEl);
 
-  var valuesColumn = this.addColumn("Preset Values");
+  this.RowClass = ValuesRow;
+
+  // var valuesColumn = this.addColumn("Preset Values");
 
   // var listBox = parentEl.add(
   //   "ListBox { \
@@ -15,17 +19,19 @@ function ValuesList(parentEl) {
   // );
 
   for (var i = 0; i < ZOOM_LIST_VALUES.length; i++) {
-    valuesColumn.addRow("StaticText { text: '" + ZOOM_LIST_VALUES[i] + "' }");
+    this.addRow(ZOOM_LIST_VALUES[i]);
+    // row.setOnDoubleClickHandler(editRowValue);
     // listBox.add("item", ZOOM_LIST_VALUES[i]);
   }
-  
-  valuesColumn.addRow(
-    "DropDownList { \
-      properties: { \
-        items: ['one', 'two', 'three'], \
-      }, \
-    }",
-  );
+
+  // var lastRow = this.addRow();
+  // lastRow.add(
+  //   "DropDownList { \
+  //     properties: { \
+  //       items: ['one', 'two', 'three'], \
+  //     }, \
+  //   }",
+  // );
 
   this.setMaxSize([9999, 140]);
   var scrollBarUpdated = this.updateScrollBar();
