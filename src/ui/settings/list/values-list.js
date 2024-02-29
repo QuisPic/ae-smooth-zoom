@@ -20,7 +20,6 @@ function ValuesList(parentEl) {
 
   for (var i = 0; i < ZOOM_LIST_VALUES.length; i++) {
     this.addRow(ZOOM_LIST_VALUES[i]);
-    // row.setOnDoubleClickHandler(editRowValue);
     // listBox.add("item", ZOOM_LIST_VALUES[i]);
   }
 
@@ -34,11 +33,7 @@ function ValuesList(parentEl) {
   // );
 
   this.setMaxSize([9999, 140]);
-  var scrollBarUpdated = this.updateScrollBar();
-
-  if (scrollBarUpdated) {
-    this.element.window.layout.layout(true);
-  }
+  this.updateScrollBar();
 }
 
 ValuesList.prototype = create(List.prototype);
