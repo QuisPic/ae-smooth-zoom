@@ -96,7 +96,6 @@ function List(parentEl) {
 
   /** TODO breaks sometimes when deleting with shift after prev deletion */
   /** TODO active status isn't reset when switching tabs */
-  /** TODO scrolling is bugged after range deletion */
   this.element.window.addEventListener(
     "mousedown",
     bind(function (event) {
@@ -109,12 +108,12 @@ function List(parentEl) {
   this.element.window.addEventListener(
     "keyup",
     bind(function (event) {
-      if (
-        this.active &&
-        event.eventPhase === "target" &&
-        event.keyName === "Delete"
-      ) {
-        this.deleteSelectedRows();
+      if (this.active && event.eventPhase === "target") {
+        if (event.keyName === "Delete") {
+          this.deleteSelectedRows();
+        } else if (event.keyName === "Enter") {
+          this.editSelectedRow();
+        }
       }
     }, this),
   );
@@ -169,6 +168,17 @@ List.prototype.addRow = function (content) {
   return row;
 };
 
+List.prototype.editSelectedRow = function () {
+  if (this.selectedRows.length > 0) {
+    var lastSelectedRow =
+      this.rows[this.selectedRows[this.selectedRows.length - 1]];
+
+    if (lastSelectedRow.editHandler) {
+      lastSelectedRow.editHandler();
+    }
+  }
+};
+
 List.prototype.deleteSelectedRows = function () {
   this.selectedRows.sort(function (a, b) {
     return a - b;
@@ -188,12 +198,8 @@ List.prototype.deleteSelectedRows = function () {
 
   this.selectedRows.length = 0;
 
-  var grRowsLocation = this.element.grList.grRows.location;
   this.element.layout.layout(true);
   this.updateScrollBar();
-
-  /** restore grRows location */
-  // this.element.grList.grRows.location = grRowsLocation;
 };
 
 List.prototype.getCursorPosFromEvent = function (event) {
