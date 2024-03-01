@@ -37,10 +37,6 @@ function List(parentEl) {
       spacing: 0, \
       alignment: ['fill', 'fill'], \
       orientation: 'row', \
-      grBorder: Group { \
-        alignment: ['left', 'top'], \
-        minimumSize: [1, 1], \
-      }, \
       grList: Group { \
         orientation: 'stack', \
         alignment: ['fill', 'top'], \
@@ -123,6 +119,10 @@ function List(parentEl) {
     }, this),
   );
 
+  this.element.window.addEventListener("show", bind(function () {
+    this.updateScrollBar();
+  }, this));
+
   this.element.graphics.backgroundColor = this.element.graphics.newBrush(
     this.element.graphics.BrushType.SOLID_COLOR,
     [0.113, 0.113, 0.113, 1],
@@ -143,9 +143,16 @@ List.prototype.deactivate = function () {
   }
 };
 
+List.prototype.setSize = function (size) {
+  this.element.grList.size = size;
+};
+
 List.prototype.setMaxSize = function (maxSize) {
   this.element.grList.maximumSize = maxSize;
-  this.element.grList.size = maxSize;
+};
+
+List.prototype.setMinSize = function (minSize) {
+  this.element.grList.minimumSize = minSize;
 };
 
 List.prototype.addRow = function (content) {
@@ -291,7 +298,7 @@ List.prototype.inverseRowSelection = function (rowIndex) {
 
 List.prototype.updateScrollBar = function () {
   if (!this.element.grList.grRows.size) {
-    this.element.grList.layout.layout(true);
+    this.element.layout.layout(true);
   }
 
   var scrollBar = this.element.scrollBar;
@@ -338,6 +345,7 @@ List.prototype.updateScrollBar = function () {
         /** remove all appearance on the slider */
         grSlider.slider.onDraw = function () {};
 
+        // grSlider.bounds = [0, 0, 1, 1];
         grSlider.slider.onChanging = function () {
           scrollBar.value += this.value * 10;
           scrollBar.notify();
@@ -360,7 +368,8 @@ List.prototype.updateScrollBar = function () {
     scrollBar.minvalue = 0;
     scrollBar.maxvalue = sizeDiff;
 
-    return true;
+    this.element.layout.layout(true);
+    this.element.layout.resize();
   } else if (scrollBar) {
     this.element.remove(scrollBar);
     this.element.scrollBar = undefined;
@@ -371,10 +380,9 @@ List.prototype.updateScrollBar = function () {
       this.element.grList.grSlider = undefined;
     }
 
-    return true;
+    this.element.layout.layout(true);
+    this.element.layout.resize();
   }
-
-  return false;
 };
 
 export default List;

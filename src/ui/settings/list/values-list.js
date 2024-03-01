@@ -33,7 +33,7 @@ function ValuesList(parentEl) {
   // );
 
   this.setMaxSize([9999, 140]);
-  this.updateScrollBar();
+  this.setMinSize([0, 140]);
 }
 
 ValuesList.prototype = create(List.prototype);
