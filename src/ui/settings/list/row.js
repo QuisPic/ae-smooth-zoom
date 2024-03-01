@@ -5,7 +5,8 @@ function Row(parentEl) {
 
   this.element = parentEl.add(
     "Group { \
-      alignChildren: 'left', \
+      alignment: ['fill', 'top'], \
+      alignChildren: ['fill', 'top'], \
       spacing: 0, \
     }",
   );
@@ -35,7 +36,7 @@ Row.prototype.setColumnMargins = function (columnMargins) {
 Row.prototype.add = function (element) {
   var columnGroup = this.element.add(
     "Group { \
-      alignChildren: ['left', 'center'], \
+      alignChildren: ['fill', 'top'], \
     }",
   );
 

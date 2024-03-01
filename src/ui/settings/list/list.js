@@ -89,6 +89,7 @@ function List(parentEl) {
   this.element.grList.addEventListener(
     "mousedown",
     bind(function (event) {
+      event.preventDefault();
       this.onClick(event);
 
       this.lastClickEventTime = event.timeStamp.getTime();
@@ -99,6 +100,7 @@ function List(parentEl) {
 
   /** TODO breaks sometimes when deleting with shift after prev deletion */
   /** TODO active status isn't reset when switching tabs */
+  /** TODO scrolling is bugged after range deletion */
   this.element.window.addEventListener(
     "mousedown",
     bind(function (event) {
@@ -109,9 +111,13 @@ function List(parentEl) {
   );
 
   this.element.window.addEventListener(
-    "keydown",
+    "keyup",
     bind(function (event) {
-      if (event.keyName === "Delete" && this.active) {
+      if (
+        this.active &&
+        event.eventPhase === "target" &&
+        event.keyName === "Delete"
+      ) {
         this.deleteSelectedRows();
       }
     }, this),
@@ -154,13 +160,25 @@ List.prototype.addRow = function (content) {
 };
 
 List.prototype.deleteSelectedRows = function () {
-  for (var i = 0; i < this.selectedRows.length; i++) {
+  this.selectedRows.sort(function (a, b) {
+    return a - b;
+  });
+
+  for (var i = this.selectedRows.length - 1; i >= 0; i--) {
     this.element.grList.grRows.remove(this.rows[this.selectedRows[i]].element);
     this.rows.splice(this.selectedRows[i], 1);
   }
 
+  if (
+    this.lastClickedRowInd !== undefined &&
+    indexOf(this.selectedRows, this.lastClickedRowInd) !== -1
+  ) {
+    this.lastClickedRowInd = 0;
+  }
+
   this.selectedRows.length = 0;
-  this.element.grList.grRows.layout.layout(true);
+  this.element.layout.layout(true);
+  this.updateScrollBar();
 };
 
 List.prototype.getCursorPosFromEvent = function (event) {
@@ -201,7 +219,7 @@ List.prototype.onClick = function (event) {
     var selectRange = undefined;
     if (event.shiftKey) {
       selectRange = {
-        start: this.lastClickedRowInd,
+        start: this.lastClickedRowInd || 0,
         end: rowIndUnderCursor,
       };
     } else {
@@ -281,6 +299,13 @@ List.prototype.updateScrollBar = function () {
   var sizeDiff =
     this.element.grList.grRows.size.height - this.element.grList.size.height;
 
+  var moveSliderGroup = function (event) {
+    if (this.grSlider) {
+      this.grSlider.location.x = event.clientX;
+      this.grSlider.location.y = event.clientY;
+    }
+  };
+
   if (sizeDiff > 0) {
     if (!scrollBar) {
       scrollBar = this.element.add(
@@ -328,11 +353,7 @@ List.prototype.updateScrollBar = function () {
         });
 
         this.element.grList.grSlider = grSlider;
-
-        this.element.grList.addEventListener("mousemove", function (event) {
-          grSlider.location.x = event.clientX;
-          grSlider.location.y = event.clientY;
-        });
+        this.element.grList.addEventListener("mousemove", moveSliderGroup);
       }
     }
 
@@ -343,10 +364,11 @@ List.prototype.updateScrollBar = function () {
   } else if (scrollBar) {
     this.element.remove(scrollBar);
     this.element.scrollBar = undefined;
+    this.element.grList.removeEventListener("mousemove", moveSliderGroup);
 
     if (grSlider) {
       this.element.grList.remove(grSlider);
-      this.element.grList.scrollSlider = undefined;
+      this.element.grList.grSlider = undefined;
     }
 
     return true;
