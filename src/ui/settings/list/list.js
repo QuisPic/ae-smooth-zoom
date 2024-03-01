@@ -119,9 +119,12 @@ function List(parentEl) {
     }, this),
   );
 
-  this.element.window.addEventListener("show", bind(function () {
-    this.updateScrollBar();
-  }, this));
+  this.element.window.addEventListener(
+    "show",
+    bind(function () {
+      this.updateScrollBar();
+    }, this),
+  );
 
   this.element.graphics.backgroundColor = this.element.graphics.newBrush(
     this.element.graphics.BrushType.SOLID_COLOR,
@@ -184,8 +187,13 @@ List.prototype.deleteSelectedRows = function () {
   }
 
   this.selectedRows.length = 0;
+
+  var grRowsLocation = this.element.grList.grRows.location;
   this.element.layout.layout(true);
   this.updateScrollBar();
+
+  /** restore grRows location */
+  // this.element.grList.grRows.location = grRowsLocation;
 };
 
 List.prototype.getCursorPosFromEvent = function (event) {
@@ -345,7 +353,6 @@ List.prototype.updateScrollBar = function () {
         /** remove all appearance on the slider */
         grSlider.slider.onDraw = function () {};
 
-        // grSlider.bounds = [0, 0, 1, 1];
         grSlider.slider.onChanging = function () {
           scrollBar.value += this.value * 10;
           scrollBar.notify();
@@ -365,11 +372,12 @@ List.prototype.updateScrollBar = function () {
       }
     }
 
-    scrollBar.minvalue = 0;
-    scrollBar.maxvalue = sizeDiff;
-
     this.element.layout.layout(true);
     this.element.layout.resize();
+
+    scrollBar.minvalue = 0;
+    scrollBar.maxvalue = sizeDiff;
+    scrollBar.notify();
   } else if (scrollBar) {
     this.element.remove(scrollBar);
     this.element.scrollBar = undefined;
