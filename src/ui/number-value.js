@@ -101,21 +101,15 @@ function NumberValue(
           bind(function (txt) {
             var newValue = parseFloat(txt);
 
-            if (!isNaN(newValue) && typeof this.onChangeFn === "function") {
-              this.onChangeFn(newValue);
+            if (!isNaN(newValue)) {
+              this.setValue(newValue);
+              this.onChange();
             }
           }, this),
         );
 
         editText.setOnBlurFn(
-          bind(function (txt) {
-            var newValue = txt ? parseFloat(txt) : this.getValue();
-
-            if (!isNaN(newValue)) {
-              this.setValue(newValue);
-              this.onChange();
-            }
-
+          bind(function () {
             grValue.show();
           }, this),
         );

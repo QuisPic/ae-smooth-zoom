@@ -98,8 +98,6 @@ Zoom.prototype.setUiTo = function (zoomValue) {
 
 Zoom.prototype.setTo = function (zoomValue) {
   zoomValue = zoomValue < 0.8 ? 0.8 : zoomValue;
-
-  this.setUiTo(zoomValue);
   app.activeViewer.views[0].options.zoom = zoomValue / 100;
 };
 
@@ -147,6 +145,7 @@ Zoom.prototype.produceSliderOnChange = function () {
     var viewer = app.activeViewer.views[0];
 
     thisZoom.setTo(zoomValue);
+    thisZoom.setUiTo(zoomValue);
 
     // this exposure trick makes AE refresh the view panel everytime we move the slider
     if (thisZoom.origExposure !== undefined) {
