@@ -50,7 +50,7 @@ function FloatEditText(parentEl, initTextValue) {
    * to later call this handler from a task. */
   $.global.__zoom_blur_handler = bind(function () {
     if (typeof this.onBlurFn === "function") {
-      this.onBlurFn(this.element.text);
+      this.onBlurFn();
     }
 
     if (this.element && isValid(this.element)) {
