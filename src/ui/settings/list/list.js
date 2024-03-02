@@ -21,17 +21,27 @@ function List(parentEl) {
 
   this.parentGroup = parentEl.add(
     "Group { \
-      orientation: 'stack', \
+      orientation: 'column', \
       alignment: ['fill', 'fill'], \
-      alignChildren: 'fill', \
-      grBorder: Group {}, \
-      grElement: Group { \
-        margins: 1, \
+      alignChildren: ['fill', 'top'], \
+      gr: Group { \
+        orientation: 'stack', \
+        alignment: ['fill', 'fill'], \
+        alignChildren: 'fill', \
+        grBorder: Group {}, \
+        grElement: Group { \
+          margins: 1, \
+        }, \
+      }, \
+      grButtons: Group { \
+        btnNew: IconButton { title: 'New', preferredSize: [100, 22] }, \
+        btnEdit: IconButton { title: 'Edit', preferredSize: [100, 22] }, \
+        btnDelete: IconButton { title: 'Delete', preferredSize: [100, 22] }, \
       }, \
     }",
   );
 
-  this.element = this.parentGroup.grElement.add(
+  this.element = this.parentGroup.gr.grElement.add(
     "Panel { \
       margins: 0, \
       spacing: 0, \
@@ -51,8 +61,8 @@ function List(parentEl) {
     }",
   );
 
-  this.parentGroup.grBorder.visible = this.active;
-  this.parentGroup.grBorder.onDraw = function () {
+  this.parentGroup.gr.grBorder.visible = this.active;
+  this.parentGroup.gr.grBorder.onDraw = function () {
     var r = 3; // round corner radius
     var d = 2 * r; // round corner diameter
     var g = this.graphics;
@@ -125,6 +135,10 @@ function List(parentEl) {
     }, this),
   );
 
+  this.parentGroup.grButtons.btnNew.onClick = bind(function () {
+    this.new();
+  }, this);
+
   this.element.graphics.backgroundColor = this.element.graphics.newBrush(
     this.element.graphics.BrushType.SOLID_COLOR,
     [0.113, 0.113, 0.113, 1],
@@ -134,14 +148,14 @@ function List(parentEl) {
 List.prototype.activate = function () {
   if (!this.active) {
     this.active = true;
-    this.parentGroup.grBorder.visible = true;
+    this.parentGroup.gr.grBorder.visible = true;
   }
 };
 
 List.prototype.deactivate = function () {
   if (this.active) {
     this.active = false;
-    this.parentGroup.grBorder.visible = false;
+    this.parentGroup.gr.grBorder.visible = false;
   }
 };
 
@@ -155,6 +169,32 @@ List.prototype.setMaxSize = function (maxSize) {
 
 List.prototype.setMinSize = function (minSize) {
   this.element.grList.minimumSize = minSize;
+};
+
+List.prototype.new = function () {
+  for (var i = 0; i < this.rows.length; i++) {
+    if (this.rows[i].editing && this.rows[i].abortEditHandler) {
+      this.rows[i].abortEditHandler();
+    }
+  }
+
+  var newRow = this.addRow();
+  // var strSize = newRow.element.graphics.measureString("1");
+  //
+  // newRow.setMinSize([
+  //   0,
+  //   strSize[1] + newRow.rowMargins[1] + newRow.rowMargins[3],
+  // ]);
+
+  this.element.layout.layout(true);
+  this.updateScrollBar();
+  this.scrollToBottom();
+  this.deselectAllRows();
+  this.selectRow(this.rows.length - 1);
+
+  if (newRow.editHandler) {
+    newRow.editHandler(this);
+  }
 };
 
 List.prototype.addRow = function (content) {
@@ -177,6 +217,27 @@ List.prototype.editSelectedRow = function () {
       lastSelectedRow.editHandler();
     }
   }
+};
+
+List.prototype.deleteRow = function (row) {
+  row = typeof row === "number" ? this.rows[row] : row;
+  var rowIndex = row === "number" ? row : indexOf(this.rows, row);
+  var indInSelectedRows = indexOf(this.selectedRows, rowIndex);
+
+  if (row.element && isValid(row.element)) {
+    this.element.grList.grRows.remove(row.element);
+  }
+
+  if (rowIndex !== -1) {
+    this.rows.splice(rowIndex, 1);
+  }
+
+  if (indInSelectedRows !== -1) {
+    this.selectedRows.splice(indInSelectedRows, 1);
+  }
+
+  this.element.layout.layout(true);
+  this.updateScrollBar();
 };
 
 List.prototype.deleteSelectedRows = function () {
@@ -397,6 +458,13 @@ List.prototype.updateScrollBar = function () {
     this.element.layout.layout(true);
     this.element.layout.resize();
   }
+};
+
+List.prototype.scrollToBottom = function () {
+  var scrollBar = this.element.scrollBar;
+
+  scrollBar.value = scrollBar.maxvalue;
+  scrollBar.notify();
 };
 
 export default List;

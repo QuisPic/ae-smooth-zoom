@@ -2,6 +2,7 @@ import bind from "../../extern/function-bind";
 
 function FloatEditText(parentEl, initTextValue) {
   this.parentEl = parentEl;
+  this.blurTaskId = undefined;
 
   this.element = parentEl.add(
     "EditText { \
@@ -49,20 +50,27 @@ function FloatEditText(parentEl, initTextValue) {
   /** Put onDeactivate handler in the gloval scope
    * to later call this handler from a task. */
   $.global.__zoom_blur_handler = bind(function () {
+    /** check if this element has put the task */
+    if (!this.blurTaskId) {
+      return;
+    }
+
     if (typeof this.onBlurFn === "function") {
       this.onBlurFn();
     }
 
-    if (this.element && isValid(this.element)) {
-      this.removeSelf();
-    }
+    this.removeSelf();
   }, this);
 
   /** If a user presses Escape it may stop any code execution on Windows. In this case
    * the callback won't finish. Putting the callback in a task fixes this behavior. */
-  this.element.onDeactivate = function () {
-    app.scheduleTask("$.global.__zoom_blur_handler()", 0, false);
-  };
+  this.element.onDeactivate = bind(function () {
+    this.blurTaskId = app.scheduleTask(
+      "$.global.__zoom_blur_handler()",
+      0,
+      false,
+    );
+  }, this);
 }
 
 FloatEditText.prototype.setSize = function (size) {
@@ -82,7 +90,9 @@ FloatEditText.prototype.setOnBlurFn = function (fn) {
 };
 
 FloatEditText.prototype.removeSelf = function () {
-  this.parentEl.remove(this.element);
+  if (this.element && isValid(this.element)) {
+    this.parentEl.remove(this.element);
+  }
 };
 
 export default FloatEditText;

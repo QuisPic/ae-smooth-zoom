@@ -4,9 +4,9 @@ import { strToNumStr } from "../../../utils";
 import FloatEditText from "../../float-edit-text";
 import Row from "./row";
 
-function ValuesRow(parentEl, value) {
+function ValuesRow(parentEl) {
   Row.call(this, parentEl);
-  this.fillHandler(value);
+  this.filled = false;
 }
 
 ValuesRow.prototype = create(Row.prototype);
@@ -14,29 +14,57 @@ ValuesRow.prototype = create(Row.prototype);
 ValuesRow.prototype.fillHandler = function (value) {
   if (value !== undefined) {
     this.add("StaticText { text: '" + value + "%' }");
+    this.filled = true;
+  } else {
+    var strSize = this.element.graphics.measureString("1");
+
+    this.setMinSize([
+      0,
+      strSize[1] + this.columnMargins[1] + this.columnMargins[3],
+    ]);
   }
 };
 
-ValuesRow.prototype.editHandler = function () {
-  var valueEl = this.columns[0].element;
-  var value = strToNumStr(valueEl.text);
+ValuesRow.prototype.editHandler = function (list) {
+  this.editing = true;
 
-  var floatText = new FloatEditText(this.element, value ? value : "");
+  var valueEl = this.columns.length > 0 ? this.columns[0].element : undefined;
+  var value = valueEl ? strToNumStr(valueEl.text) : "";
 
-  floatText.setSize(this.element.size);
-  floatText.setLocation([0, 0]);
-  floatText.setOnChangeFn(
+  this.floatText = new FloatEditText(this.element, value ? value : "");
+
+  this.floatText.setSize(this.element.size);
+  this.floatText.setLocation([0, 0]);
+
+  this.floatText.setOnBlurFn(
+    bind(function () {
+      if (!this.filled && list) {
+        list.deleteRow(this);
+      }
+
+      this.floatText.removeSelf();
+      this.editing = false;
+    }, this),
+  );
+
+  this.floatText.setOnChangeFn(
     bind(function (text) {
       var inputValue = strToNumStr(text);
 
       if (inputValue) {
         // remove floatText to free up space for new text element
-        floatText.removeSelf();
+        this.floatText.removeSelf();
 
         this.edit(inputValue);
       }
     }, this),
   );
+};
+
+ValuesRow.prototype.abortEditHandler = function () {
+  if (this.floatText && this.floatText.onBlurFn) {
+    this.floatText.onBlurFn();
+  }
 };
 
 ValuesRow.prototype.onDoubleClickHandler = function () {

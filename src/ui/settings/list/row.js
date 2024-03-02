@@ -2,6 +2,8 @@ function Row(parentEl) {
   this.columns = [];
   this.minSize = [0, 0];
   this.columnMargins = [5, 2, 0, 2];
+  this.rowMargins = [0, 0, 0, 0];
+  this.editing = false;
 
   this.element = parentEl.add(
     "Group { \
@@ -10,12 +12,15 @@ function Row(parentEl) {
       spacing: 0, \
     }",
   );
+
+  this.element.margins = this.rowMargins;
 }
 
 Row.prototype.onClickHandler = undefined;
 Row.prototype.onDoubleClickHandler = undefined;
 Row.prototype.fillHandler = undefined;
 Row.prototype.editHandler = undefined;
+Row.prototype.abortEditHandler = undefined;
 
 Row.prototype.setOnAllColumns = function (key, value) {
   for (var i = 0; i < this.columns.length; i++) {
@@ -25,7 +30,8 @@ Row.prototype.setOnAllColumns = function (key, value) {
 
 Row.prototype.setMinSize = function (minSize) {
   this.minSize = minSize;
-  this.setOnAllRows("minimumSize", this.minSize);
+  this.element.minimumSize = minSize;
+  this.setOnAllColumns("minimumSize", this.minSize);
 };
 
 Row.prototype.setColumnMargins = function (columnMargins) {
@@ -87,6 +93,12 @@ Row.prototype.onClick = function (event) {
     this.onDoubleClickHandler(this);
   } else if (this.onClickHandler) {
     this.onClickHandler(this);
+  }
+};
+
+Row.prototype.removeSelf = function () {
+  if (this.element && isValid(this.element)) {
+    this.element.parent.remove(this.element);
   }
 };
 
