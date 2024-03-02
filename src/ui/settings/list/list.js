@@ -49,7 +49,7 @@ function List(parentEl) {
       orientation: 'row', \
       grList: Group { \
         orientation: 'stack', \
-        alignment: ['fill', 'top'], \
+        alignment: ['fill', 'fill'], \
         alignChildren: 'fill', \
         grRows: Group { \
           orientation: 'column', \
@@ -101,11 +101,9 @@ function List(parentEl) {
       this.lastClickEventTime = event.timeStamp.getTime();
       this.activate();
     }, this),
-    true,
+    // true,
   );
 
-  /** TODO breaks sometimes when deleting with shift after prev deletion */
-  /** TODO active status isn't reset when switching tabs */
   this.element.window.addEventListener(
     "mousedown",
     bind(function (event) {
@@ -137,6 +135,14 @@ function List(parentEl) {
 
   this.parentGroup.grButtons.btnNew.onClick = bind(function () {
     this.new();
+  }, this);
+
+  this.parentGroup.grButtons.btnEdit.onClick = bind(function () {
+    this.editSelectedRow();
+  }, this);
+
+  this.parentGroup.grButtons.btnDelete.onClick = bind(function () {
+    this.deleteSelectedRows();
   }, this);
 
   this.element.graphics.backgroundColor = this.element.graphics.newBrush(
@@ -179,12 +185,6 @@ List.prototype.new = function () {
   }
 
   var newRow = this.addRow();
-  // var strSize = newRow.element.graphics.measureString("1");
-  //
-  // newRow.setMinSize([
-  //   0,
-  //   strSize[1] + newRow.rowMargins[1] + newRow.rowMargins[3],
-  // ]);
 
   this.element.layout.layout(true);
   this.updateScrollBar();
@@ -321,6 +321,8 @@ List.prototype.onClick = function (event) {
     }
 
     this.rows[rowIndUnderCursor].onClick(event);
+  } else {
+    this.deselectAllRows();
   }
 };
 
@@ -463,8 +465,10 @@ List.prototype.updateScrollBar = function () {
 List.prototype.scrollToBottom = function () {
   var scrollBar = this.element.scrollBar;
 
-  scrollBar.value = scrollBar.maxvalue;
-  scrollBar.notify();
+  if (scrollBar) {
+    scrollBar.value = scrollBar.maxvalue;
+    scrollBar.notify();
+  }
 };
 
 export default List;
