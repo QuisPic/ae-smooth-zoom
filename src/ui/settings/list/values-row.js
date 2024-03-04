@@ -37,10 +37,14 @@ ValuesRow.prototype.editHandler = function (list) {
   var valueEl = this.columns.length > 0 ? this.columns[0].element : undefined;
   var value = valueEl ? strToNumStr(valueEl.text) : "";
 
-  this.floatText = new FloatEditText(this.element, value ? value : "");
+  this.floatText = new FloatEditText(this.element);
 
   this.floatText.setSize(this.element.size);
   this.floatText.setLocation([0, 0]);
+
+  if (value) {
+    this.floatText.setValue(value);
+  }
 
   this.floatText.setOnBlurFn(
     bind(function () {

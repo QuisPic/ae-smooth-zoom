@@ -6,13 +6,14 @@ function FloatEditText(parentEl, initTextValue) {
 
   this.element = parentEl.add(
     "EditText { \
-          active: true, \
-          alignment: 'left', \
-          text: '" +
-      initTextValue +
-      "', \
-        }",
+      active: true, \
+      alignment: 'left', \
+    }",
   );
+
+  if (initTextValue) {
+    this.setValue(initTextValue);
+  }
 
   this.element.onChange = bind(function () {
     if (
@@ -72,6 +73,10 @@ function FloatEditText(parentEl, initTextValue) {
     );
   }, this);
 }
+
+FloatEditText.prototype.setValue = function (txt) {
+  this.element.text = txt;
+};
 
 FloatEditText.prototype.setSize = function (size) {
   this.element.size = size;
