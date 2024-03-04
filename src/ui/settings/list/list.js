@@ -55,6 +55,7 @@ function List(parentEl) {
         alignChildren: 'fill', \
         grRows: Group { \
           orientation: 'column', \
+          margins: [0, 0, 0, 1], \
           alignment: ['fill', 'top'], \
           alignChildren: ['fill', 'top'], \
           spacing: 1, \
@@ -151,8 +152,14 @@ function List(parentEl) {
 
   this.element.graphics.backgroundColor = this.element.graphics.newBrush(
     this.element.graphics.BrushType.SOLID_COLOR,
-    [0.164, 0.164, 0.164, 1],
+    [0.113, 0.113, 0.113, 1],
   );
+
+  this.element.grList.grRows.graphics.backgroundColor =
+    this.element.graphics.newBrush(
+      this.element.graphics.BrushType.SOLID_COLOR,
+      [0.164, 0.164, 0.164, 1],
+    );
 
   this.updateButtons();
 }
