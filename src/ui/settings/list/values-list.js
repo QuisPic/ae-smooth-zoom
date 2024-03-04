@@ -9,8 +9,6 @@ function ValuesList(parentEl) {
 
   this.RowClass = ValuesRow;
 
-  // var valuesColumn = this.addColumn("Preset Values");
-
   // var listBox = parentEl.add(
   //   "ListBox { \
   //     alignment: ['fill', 'fill'], \
@@ -23,17 +21,8 @@ function ValuesList(parentEl) {
     // listBox.add("item", ZOOM_LIST_VALUES[i]);
   }
 
-  // var lastRow = this.addRow();
-  // lastRow.add(
-  //   "DropDownList { \
-  //     properties: { \
-  //       items: ['one', 'two', 'three'], \
-  //     }, \
-  //   }",
-  // );
-
-  this.setMaxSize([9999, 140]);
-  this.setMinSize([0, 140]);
+  this.setMaxSize([9999, 145]);
+  this.setMinSize([0, 145]);
 }
 
 ValuesList.prototype = create(List.prototype);

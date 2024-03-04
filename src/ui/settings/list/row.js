@@ -1,7 +1,7 @@
 function Row(parentEl) {
   this.columns = [];
   this.minSize = [0, 0];
-  this.columnMargins = [5, 2, 0, 2];
+  this.columnMargins = [5, 2, 0, 1];
   this.rowMargins = [0, 0, 0, 0];
   this.editing = false;
 
@@ -13,6 +13,7 @@ function Row(parentEl) {
     }",
   );
 
+  this.setBgColor([0.113, 0.113, 0.113, 1]);
   this.element.margins = this.rowMargins;
 }
 

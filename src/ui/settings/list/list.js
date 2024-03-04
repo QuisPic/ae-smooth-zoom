@@ -3,7 +3,6 @@ import { binarySearch, positionRelativeToParent } from "../../../utils";
 import indexOf from "../../../../extern/array-indexOf";
 import Row from "./row";
 import { AE_OS, BLUE_COLOR, OS } from "../../../constants";
-import Line from "../../line";
 
 function List(parentEl) {
   this.RowClass = Row;
@@ -12,7 +11,7 @@ function List(parentEl) {
   this.rows = [];
   this.selectedRows = [];
   this.colorSelected = [0.27, 0.27, 0.27, 1];
-  this.colorDeselected = [0, 0, 0, 0];
+  this.colorDeselected = [0.113, 0.113, 0.113, 1];
 
   // required for range selection with the Shift key
   this.lastClickedRowInd = undefined;
@@ -58,7 +57,7 @@ function List(parentEl) {
           orientation: 'column', \
           alignment: ['fill', 'top'], \
           alignChildren: ['fill', 'top'], \
-          spacing: 0, \
+          spacing: 1, \
         }, \
       }, \
     }",
@@ -152,7 +151,7 @@ function List(parentEl) {
 
   this.element.graphics.backgroundColor = this.element.graphics.newBrush(
     this.element.graphics.BrushType.SOLID_COLOR,
-    [0.113, 0.113, 0.113, 1],
+    [0.164, 0.164, 0.164, 1],
   );
 
   this.updateButtons();
@@ -283,7 +282,16 @@ List.prototype.deleteSelectedRows = function () {
     this.lastClickedRowInd = 0;
   }
 
+  var newSelectInd;
+  if (this.selectedRows.length === 1) {
+    newSelectInd = this.selectedRows[0];
+  }
+
   this.selectedRows.length = 0;
+
+  if (newSelectInd !== undefined) {
+    this.selectRow(newSelectInd);
+  }
 
   this.element.layout.layout(true);
   this.updateScrollBar();
@@ -364,7 +372,10 @@ List.prototype.updateButtons = function () {
 };
 
 List.prototype.selectRow = function (rowIndex) {
-  if (indexOf(this.selectedRows, rowIndex) === -1) {
+  if (
+    rowIndex < this.rows.length &&
+    indexOf(this.selectedRows, rowIndex) === -1
+  ) {
     var row = this.rows[rowIndex];
     row.setBgColor(this.colorSelected);
 
