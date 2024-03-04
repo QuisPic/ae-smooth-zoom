@@ -3,6 +3,7 @@ import { binarySearch, positionRelativeToParent } from "../../../utils";
 import indexOf from "../../../../extern/array-indexOf";
 import Row from "./row";
 import { AE_OS, BLUE_COLOR, OS } from "../../../constants";
+import Line from "../../line";
 
 function List(parentEl) {
   this.RowClass = Row;
@@ -21,7 +22,7 @@ function List(parentEl) {
 
   this.parentGroup = parentEl.add(
     "Group { \
-      orientation: 'column', \
+      orientation: 'row', \
       alignment: ['fill', 'fill'], \
       alignChildren: ['fill', 'top'], \
       gr: Group { \
@@ -34,9 +35,11 @@ function List(parentEl) {
         }, \
       }, \
       grButtons: Group { \
-        btnNew: IconButton { title: 'New', preferredSize: [100, 22] }, \
-        btnEdit: IconButton { title: 'Edit', preferredSize: [100, 22] }, \
-        btnDelete: IconButton { title: 'Delete', preferredSize: [100, 22] }, \
+        alignment: ['right', 'top'], \
+        orientation: 'column', \
+        btnNew: IconButton { title: 'New', preferredSize: [90, 22] }, \
+        btnEdit: IconButton { title: 'Edit', preferredSize: [90, 22] }, \
+        btnDelete: IconButton { title: 'Delete', preferredSize: [90, 22] }, \
       }, \
     }",
   );
@@ -61,7 +64,7 @@ function List(parentEl) {
     }",
   );
 
-  this.grRows = this.element.grList.grRows;
+  this.setButtonsPosition(List.BUTTONS_POSITION.RIGHT);
 
   this.parentGroup.gr.grBorder.visible = this.active;
   this.parentGroup.gr.grBorder.onDraw = function () {
@@ -152,6 +155,24 @@ function List(parentEl) {
     [0.113, 0.113, 0.113, 1],
   );
 }
+
+List.BUTTONS_POSITION = {
+  LEFT: 0,
+  RIGHT: 1,
+  BOTTOM: 2,
+};
+
+List.prototype.setButtonsPosition = function (pos) {
+  if (pos === List.BUTTONS_POSITION.RIGHT) {
+    this.parentGroup.orientation = "row";
+    this.parentGroup.grButtons.orientation = "column";
+    this.parentGroup.grButtons.alignment = ["right", "top"];
+  } else if (pos === List.BUTTONS_POSITION.BOTTOM) {
+    this.parentGroup.orientation = "column";
+    this.parentGroup.grButtons.orientation = "row";
+    this.parentGroup.grButtons.alignment = ["left", "bottom"];
+  }
+};
 
 List.prototype.activate = function () {
   if (!this.active) {
