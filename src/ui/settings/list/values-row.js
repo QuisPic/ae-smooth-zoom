@@ -16,12 +16,18 @@ ValuesRow.prototype.fillHandler = function (value) {
     this.add("StaticText { text: '" + value + "%' }");
     this.filled = true;
   } else {
-    var strSize = this.element.graphics.measureString("1");
+    if (!this.element.parent.size) {
+      this.element.window.layout.layout(true);
+    }
 
-    this.setMinSize([
-      0,
-      strSize[1] + this.columnMargins[1] + this.columnMargins[3],
-    ]);
+    if (this.element.parent.size) {
+      var strSize = this.element.graphics.measureString("1");
+
+      this.setMinSize([
+        this.element.parent.size[0],
+        strSize[1] + this.columnMargins[1] + this.columnMargins[3],
+      ]);
+    }
   }
 };
 

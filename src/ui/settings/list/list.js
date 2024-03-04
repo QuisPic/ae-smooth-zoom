@@ -61,6 +61,8 @@ function List(parentEl) {
     }",
   );
 
+  this.grRows = this.element.grList.grRows;
+
   this.parentGroup.gr.grBorder.visible = this.active;
   this.parentGroup.gr.grBorder.onDraw = function () {
     var r = 3; // round corner radius
