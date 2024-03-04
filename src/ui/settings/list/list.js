@@ -3,6 +3,12 @@ import { binarySearch, positionRelativeToParent } from "../../../utils";
 import indexOf from "../../../../extern/array-indexOf";
 import Row from "./row";
 import { AE_OS, BLUE_COLOR, OS } from "../../../constants";
+import {
+  arrowDownDarkIcon,
+  arrowDownIcon,
+  arrowUpDarkIcon,
+  arrowUpIcon,
+} from "./icons-bin";
 
 function List(parentEl) {
   this.RowClass = Row;
@@ -34,11 +40,20 @@ function List(parentEl) {
         }, \
       }, \
       grButtons: Group { \
-        alignment: ['right', 'top'], \
+        alignment: ['right', 'fill'], \
         orientation: 'column', \
+        spacing: 5, \
         btnNew: IconButton { title: 'New', preferredSize: [90, 22] }, \
         btnEdit: IconButton { title: 'Edit', preferredSize: [90, 22] }, \
         btnDelete: IconButton { title: 'Delete', preferredSize: [90, 22] }, \
+        btnMoveUp: IconButton { \
+          preferredSize: [90, 22], \
+          alignment: ['right', 'bottom'], \
+        }, \
+        btnMoveDown: IconButton { \
+          preferredSize: [90, 22], \
+          alignment: ['right', 'bottom'], \
+        }, \
       }, \
     }",
   );
@@ -165,6 +180,9 @@ function List(parentEl) {
       [0.164, 0.164, 0.164, 1],
     );
 
+  this.parentGroup.grButtons.btnMoveUp.icon = arrowUpIcon;
+  this.parentGroup.grButtons.btnMoveDown.icon = arrowDownIcon;
+
   this.updateButtons();
 }
 
@@ -178,7 +196,7 @@ List.prototype.setButtonsPosition = function (pos) {
   if (pos === List.BUTTONS_POSITION.RIGHT) {
     this.parentGroup.orientation = "row";
     this.parentGroup.grButtons.orientation = "column";
-    this.parentGroup.grButtons.alignment = ["right", "top"];
+    this.parentGroup.grButtons.alignment = ["right", "fill"];
   } else if (pos === List.BUTTONS_POSITION.BOTTOM) {
     this.parentGroup.orientation = "column";
     this.parentGroup.grButtons.orientation = "row";
@@ -376,9 +394,13 @@ List.prototype.updateButtons = function () {
   if (this.selectedRows.length === 0) {
     this.parentGroup.grButtons.btnEdit.enabled = false;
     this.parentGroup.grButtons.btnDelete.enabled = false;
+    this.parentGroup.grButtons.btnMoveUp.enabled = false;
+    this.parentGroup.grButtons.btnMoveDown.enabled = false;
   } else {
     this.parentGroup.grButtons.btnEdit.enabled = true;
     this.parentGroup.grButtons.btnDelete.enabled = true;
+    this.parentGroup.grButtons.btnMoveUp.enabled = true;
+    this.parentGroup.grButtons.btnMoveDown.enabled = true;
   }
 };
 
