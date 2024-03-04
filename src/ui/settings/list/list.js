@@ -154,6 +154,8 @@ function List(parentEl) {
     this.element.graphics.BrushType.SOLID_COLOR,
     [0.113, 0.113, 0.113, 1],
   );
+
+  this.updateButtons();
 }
 
 List.BUTTONS_POSITION = {
@@ -261,6 +263,7 @@ List.prototype.deleteRow = function (row) {
 
   this.element.layout.layout(true);
   this.updateScrollBar();
+  this.updateButtons();
 };
 
 List.prototype.deleteSelectedRows = function () {
@@ -284,6 +287,7 @@ List.prototype.deleteSelectedRows = function () {
 
   this.element.layout.layout(true);
   this.updateScrollBar();
+  this.updateButtons();
 };
 
 List.prototype.getCursorPosFromEvent = function (event) {
@@ -349,12 +353,23 @@ List.prototype.onClick = function (event) {
   }
 };
 
+List.prototype.updateButtons = function () {
+  if (this.selectedRows.length === 0) {
+    this.parentGroup.grButtons.btnEdit.enabled = false;
+    this.parentGroup.grButtons.btnDelete.enabled = false;
+  } else {
+    this.parentGroup.grButtons.btnEdit.enabled = true;
+    this.parentGroup.grButtons.btnDelete.enabled = true;
+  }
+};
+
 List.prototype.selectRow = function (rowIndex) {
   if (indexOf(this.selectedRows, rowIndex) === -1) {
     var row = this.rows[rowIndex];
-    this.selectedRows.push(rowIndex);
-
     row.setBgColor(this.colorSelected);
+
+    this.selectedRows.push(rowIndex);
+    this.updateButtons();
   }
 };
 
@@ -374,9 +389,10 @@ List.prototype.deselectRow = function (rowIndex) {
   var ind = indexOf(this.selectedRows, rowIndex);
   if (ind !== -1) {
     var row = this.rows[rowIndex];
-    this.selectedRows.splice(ind, 1);
-
     row.setBgColor(this.colorDeselected);
+
+    this.selectedRows.splice(ind, 1);
+    this.updateButtons();
   }
 };
 
@@ -386,6 +402,7 @@ List.prototype.deselectAllRows = function () {
   }
 
   this.selectedRows.length = 0;
+  this.updateButtons();
 };
 
 List.prototype.inverseRowSelection = function (rowIndex) {
