@@ -112,8 +112,12 @@ function List(parentEl) {
   this.element.window.addEventListener(
     "mousedown",
     bind(function (event) {
-      if (event.timeStamp.getTime() !== this.lastClickEventTime) {
+      if (
+        event.timeStamp.getTime() !== this.lastClickEventTime &&
+        indexOf(this.parentGroup.grButtons.children, event.target) === -1
+      ) {
         this.deactivate();
+        this.deselectAllRows();
       }
     }, this),
   );
