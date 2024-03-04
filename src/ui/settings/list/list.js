@@ -3,18 +3,14 @@ import { binarySearch, positionRelativeToParent } from "../../../utils";
 import indexOf from "../../../../extern/array-indexOf";
 import Row from "./row";
 import { AE_OS, BLUE_COLOR, OS } from "../../../constants";
-import {
-  arrowDownDarkIcon,
-  arrowDownIcon,
-  arrowUpDarkIcon,
-  arrowUpIcon,
-} from "./icons-bin";
+import { arrowDownIcon, arrowUpIcon } from "./icons-bin";
 
 function List(parentEl) {
   this.RowClass = Row;
   this.active = false;
   this.lastClickEventTime = undefined;
   this.rows = [];
+  this.contents = [];
   this.selectedRows = [];
   this.colorSelected = [0.27, 0.27, 0.27, 1];
   this.colorDeselected = [0.113, 0.113, 0.113, 1];
@@ -183,6 +179,13 @@ function List(parentEl) {
   this.parentGroup.grButtons.btnMoveUp.icon = arrowUpIcon;
   this.parentGroup.grButtons.btnMoveDown.icon = arrowDownIcon;
 
+  this.parentGroup.grButtons.btnMoveUp.onClick = bind(function () {
+    this.moveSelectedRows(List.MOVE_ROW_DIRECTION.UP);
+  }, this);
+  this.parentGroup.grButtons.btnMoveDown.onClick = bind(function () {
+    this.moveSelectedRows(List.MOVE_ROW_DIRECTION.DOWN);
+  }, this);
+
   this.updateButtons();
 }
 
@@ -190,6 +193,11 @@ List.BUTTONS_POSITION = {
   LEFT: 0,
   RIGHT: 1,
   BOTTOM: 2,
+};
+
+List.MOVE_ROW_DIRECTION = {
+  UP: 0,
+  DOWN: 1,
 };
 
 List.prototype.setButtonsPosition = function (pos) {
@@ -257,8 +265,68 @@ List.prototype.addRow = function (content) {
     row.fillHandler(content);
   }
 
+  this.contents.push(content);
   this.rows.push(row);
   return row;
+};
+
+List.prototype.rebuild = function (fromIndex) {
+  fromIndex = fromIndex === undefined ? 0 : fromIndex;
+  var grRows = this.element.grList.grRows;
+  var rebuildContents = this.contents.slice(fromIndex);
+
+  for (var i = grRows.children.length - 1; i >= fromIndex; i--) {
+    grRows.remove(i);
+  }
+
+  this.rows = this.rows.slice(0, fromIndex);
+  this.contents = this.contents.slice(0, fromIndex);
+
+  for (i = fromIndex; i < rebuildContents.length; i++) {
+    this.addRow(rebuildContents[i]);
+  }
+};
+
+List.prototype.moveSelectedRows = function (direction) {
+  this.selectedRows.sort(function (a, b) {
+    return a - b;
+  });
+
+  var placePos;
+  if (direction === List.MOVE_ROW_DIRECTION.UP) {
+    placePos = this.selectedRows[0] - 1;
+    placePos = placePos < 0 ? 0 : placePos;
+  } else if (direction === List.MOVE_ROW_DIRECTION.DOWN) {
+    var numRows = this.selectedRows.length;
+    placePos = this.selectedRows[this.selectedRows.length - 1] + 1 - numRows;
+    placePos =
+      placePos > this.rows.length - 1 ? this.rows.length - 1 : placePos;
+  }
+
+  var removedContent = [];
+  var numRemove = 0;
+  for (var i = this.selectedRows.length - 1; i >= 0; i -= 1) {
+    numRemove = 1;
+
+    /** while prev selected row is exactly one row behind */
+    while (
+      i - 1 >= 0 &&
+      this.selectedRows[i] - this.selectedRows[i - 1] === 1
+    ) {
+      numRemove++;
+      i--;
+    }
+
+    removedContent = removedContent.concat(this.contents.splice(i, numRemove));
+  }
+
+  Array.prototype.splice.apply(
+    this.contents,
+    [placePos, 0].concat(removedContent),
+  );
+
+  this.rebuild(placePos);
+  this.element.layout.layout(true);
 };
 
 List.prototype.editSelectedRow = function () {
