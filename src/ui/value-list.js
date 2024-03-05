@@ -1,7 +1,9 @@
+import preferences from "../preferences";
+import JSON from "../../extern/json2";
 import { STICK_TO } from "../constants";
 import MenuWindow from "./menu-window";
 
-function ValueList(parentEl, valuesArr, onChangeFn, targetEl, stickTo) {
+function ValueList(parentEl, onChangeFn, targetEl, stickTo) {
   var thisValueList = this;
   this.targetEl = targetEl;
   stickTo = stickTo || STICK_TO.LEFT;
@@ -37,18 +39,26 @@ function ValueList(parentEl, valuesArr, onChangeFn, targetEl, stickTo) {
 
   this.element.addEventListener("click", function (event) {
     function createOnClickFn(val) {
-      return function () {
-        if (typeof onChangeFn === "function") {
+      if (typeof onChangeFn === "function") {
+        return function () {
           onChangeFn(val);
-        }
-      };
+        };
+      }
     }
 
     if (event.eventPhase === "target") {
       var listWindow = new MenuWindow();
 
+      var valuesArr =
+        typeof preferences.presetValues === "string"
+          ? JSON.parse(preferences.presetValues)
+          : preferences.presetValues;
+
       for (var i = 0; i < valuesArr.length; i++) {
-        listWindow.addMenuItem(valuesArr[i], createOnClickFn(valuesArr[i]));
+        listWindow.addMenuItem(
+          valuesArr[i] + "%",
+          createOnClickFn(valuesArr[i]),
+        );
       }
 
       listWindow.element.opacity = 0;

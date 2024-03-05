@@ -2,12 +2,13 @@ import Settings from "./ui/settings";
 import NumberValue from "./ui/number-value";
 import Slider from "./ui/slider";
 import ValueList from "./ui/value-list";
-import { ZOOM_LIST_VALUES, STICK_TO } from "./constants";
+import { STICK_TO } from "./constants";
 import preferences from "./preferences";
+import bind from "../extern/function-bind";
 
 function Zoom(thisObj) {
   var currentZoom = Zoom.getViewZoom();
-  var zoomSetToFn = this.produceSetTo();
+  // var zoomSetToFn = this.produceSetTo();
 
   this.w =
     thisObj instanceof Panel
@@ -46,10 +47,10 @@ function Zoom(thisObj) {
 
   this.zoomValueList = new ValueList(
     this.w,
-    ZOOM_LIST_VALUES,
-    function (val) {
-      zoomSetToFn(parseFloat(val));
-    },
+    bind(function (val) {
+      this.setTo(val);
+      this.setUiTo(val);
+    }, this),
     this.zoomNumberValue.element,
     STICK_TO.LEFT,
   );
