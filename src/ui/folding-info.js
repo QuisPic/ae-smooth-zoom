@@ -95,18 +95,6 @@ FoldingInfo.prototype.unfoldInfo = function () {
 
   Line(grInfo.grLine);
 
-  // switch (zoomPlugin.status()) {
-  //   case ZOOM_PLUGIN_STATUS.INITIALIZED:
-  //   case ZOOM_PLUGIN_STATUS.NOT_FOUND:
-  //     this.fillInstallInfo(grInfo);
-  //     break;
-  //   case ZOOM_PLUGIN_STATUS.FOUND_NOT_INITIALIZED:
-  //   case ZOOM_PLUGIN_STATUS.FINISHED:
-  //   case ZOOM_PLUGIN_STATUS.INITIALIZATION_ERROR:
-  //     this.fillErrorInfo(grInfo);
-  //     break;
-  // }
-
   if (typeof this.unfoldEl === "string") {
     grInfo.add(this.unfoldEl);
   } else if (typeof this.unfoldEl === "function") {
@@ -114,7 +102,6 @@ FoldingInfo.prototype.unfoldInfo = function () {
   }
 
   this.element.grInfo = grInfo;
-  // this.updateScrollBar();
   this.isUnfoldInfo = true;
 };
 
@@ -129,8 +116,6 @@ FoldingInfo.prototype.foldInfo = function () {
     grInfo.parent.remove(grInfo);
   }
 
-  // this.updateScrollBar();
-  // this.element.window.layout.layout(true);
   this.isUnfoldInfo = false;
 };
 

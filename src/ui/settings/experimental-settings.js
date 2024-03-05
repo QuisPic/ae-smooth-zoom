@@ -117,11 +117,6 @@ function ExperimentalSettings(parentEl) {
   this.element.gr.warning = new ExperimentalSettingsWarning(this.element.gr);
 }
 
-// ExperimentalSettings.prototype.updateScrollBar = function () {
-//   updateScrollBar(this.element.gr, this.element);
-//   this.element.layout.layout(true);
-// };
-
 ExperimentalSettings.prototype.saveAll = function () {
   preferences.save(
     "experimental",
