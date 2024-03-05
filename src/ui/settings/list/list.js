@@ -153,7 +153,7 @@ function List(parentEl) {
   this.element.window.addEventListener(
     "show",
     bind(function () {
-      this.updateScrollBar();
+      this.refresh();
     }, this),
   );
 
@@ -190,8 +190,6 @@ function List(parentEl) {
   this.parentGroup.grButtons.btnMoveDown.onClick = bind(function () {
     this.moveSelectedRows(List.MOVE_ROW_DIRECTION.DOWN);
   }, this);
-
-  this.updateButtons();
 }
 
 List.BUTTONS_POSITION = {
@@ -253,8 +251,7 @@ List.prototype.new = function () {
   this.contents.push(undefined);
   var newRow = this.addRow(this.contents.length - 1);
 
-  this.element.layout.layout(true);
-  this.updateScrollBar();
+  this.refresh();
   this.scrollToBottom();
   this.deselectAllRows();
   this.selectRow(this.rows.length - 1);
@@ -277,7 +274,6 @@ List.prototype.addRow = function (index) {
 
 List.prototype.build = function (fromIndex) {
   fromIndex = fromIndex === undefined ? 0 : fromIndex;
-  // var grRows = this.element.grList.grRows;
 
   for (var i = fromIndex; i < this.contents.length; i++) {
     this.addRow(i);
@@ -285,6 +281,11 @@ List.prototype.build = function (fromIndex) {
 };
 
 List.prototype.moveSelectedRows = function (direction) {
+  /** if there is less than 2 rows there's nowhere to move */
+  if (this.rows.length < 2) {
+    return;
+  }
+
   if (this.selectedRows.length === 0) {
     return;
   }
@@ -304,7 +305,7 @@ List.prototype.moveSelectedRows = function (direction) {
     placePos = this.selectedRows[0] + 1;
     placePos =
       placePos > this.rows.length - 1 ? this.rows.length - 1 : placePos;
-    updateFromInd = placePos - 1;
+    updateFromInd = placePos > 0 ? placePos - 1 : 0;
   }
 
   var removedContent = [];
@@ -363,14 +364,26 @@ List.prototype.editSelectedRow = function () {
 };
 
 List.prototype.refresh = function () {
+  if (this.rows.length === 0) {
+    this.grRows.hide();
+  } else if (!this.grRows.visible) {
+    this.grRows.show();
+  }
+
   this.element.layout.layout(true);
   this.updateScrollBar();
+  this.element.layout.resize();
   this.updateButtons();
 };
 
 List.prototype.deleteRow = function (row) {
   row = typeof row === "number" ? this.rows[row] : row;
   var rowIndex = row === "number" ? row : indexOf(this.rows, row);
+
+  if (!row || rowIndex === -1) {
+    return;
+  }
+
   var indInSelectedRows = indexOf(this.selectedRows, rowIndex);
 
   if (row.element && isValid(row.element)) {
@@ -629,7 +642,7 @@ List.prototype.updateScrollBar = function () {
     }
 
     this.element.layout.layout(true);
-    this.element.layout.resize();
+    // this.element.layout.resize();
 
     scrollBar.minvalue = 0;
     scrollBar.maxvalue = sizeDiff;
@@ -645,7 +658,7 @@ List.prototype.updateScrollBar = function () {
     }
 
     this.element.layout.layout(true);
-    this.element.layout.resize();
+    // this.element.layout.resize();
   }
 };
 
