@@ -1,11 +1,13 @@
-function Row(parentEl) {
+import indexOf from "../../../../extern/array-indexOf";
+
+function Row(list) {
+  this.list = list;
   this.columns = [];
   this.minSize = [0, 0];
   this.columnMargins = [5, 2, 0, 1];
-  this.rowMargins = [0, 0, 0, 0];
   this.editing = false;
 
-  this.element = parentEl.add(
+  this.element = list.grRows.add(
     "Group { \
       alignment: ['fill', 'top'], \
       alignChildren: ['fill', 'top'], \
@@ -14,7 +16,6 @@ function Row(parentEl) {
   );
 
   this.setBgColor([0.113, 0.113, 0.113, 1]);
-  this.element.margins = this.rowMargins;
 }
 
 Row.prototype.onClickHandler = undefined;
@@ -61,8 +62,12 @@ Row.prototype.add = function (element) {
   return columnGroup;
 };
 
-/** takes in the same arguments as fillHandler */
 Row.prototype.edit = function (content) {
+  var indInList = indexOf(this.list.rows, this);
+  if (indInList !== -1) {
+    this.list.contents[indInList] = content;
+  }
+
   this.clear();
 
   if (typeof this.fillHandler === "function") {

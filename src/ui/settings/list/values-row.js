@@ -31,7 +31,7 @@ ValuesRow.prototype.fillHandler = function (value) {
   }
 };
 
-ValuesRow.prototype.editHandler = function (list) {
+ValuesRow.prototype.editHandler = function () {
   this.editing = true;
 
   var valueEl = this.columns.length > 0 ? this.columns[0].element : undefined;
@@ -48,8 +48,9 @@ ValuesRow.prototype.editHandler = function (list) {
 
   this.floatText.setOnBlurFn(
     bind(function () {
-      if (!this.filled && list) {
-        list.deleteRow(this);
+      if (!this.filled && this.list) {
+        this.list.deleteRow(this);
+        this.list.refresh();
       }
 
       this.floatText.removeSelf();

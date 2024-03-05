@@ -45,10 +45,12 @@ function List(parentEl) {
         btnMoveUp: IconButton { \
           preferredSize: [90, 22], \
           alignment: ['right', 'bottom'], \
+          helpTip: 'Move Up', \
         }, \
         btnMoveDown: IconButton { \
           preferredSize: [90, 22], \
           alignment: ['right', 'bottom'], \
+          helpTip: 'Move Down', \
         }, \
       }, \
     }",
@@ -75,6 +77,7 @@ function List(parentEl) {
     }",
   );
 
+  this.grRows = this.element.grList.grRows;
   this.setButtonsPosition(List.BUTTONS_POSITION.RIGHT);
 
   this.parentGroup.gr.grBorder.visible = this.active;
@@ -139,6 +142,7 @@ function List(parentEl) {
       if (this.active && event.eventPhase === "target") {
         if (event.keyName === "Delete") {
           this.deleteSelectedRows();
+          this.refresh();
         } else if (event.keyName === "Enter") {
           this.editSelectedRow();
         }
@@ -163,6 +167,7 @@ function List(parentEl) {
 
   this.parentGroup.grButtons.btnDelete.onClick = bind(function () {
     this.deleteSelectedRows();
+    this.refresh();
   }, this);
 
   this.element.graphics.backgroundColor = this.element.graphics.newBrush(
@@ -245,7 +250,8 @@ List.prototype.new = function () {
     }
   }
 
-  var newRow = this.addRow();
+  this.contents.push(undefined);
+  var newRow = this.addRow(this.contents.length - 1);
 
   this.element.layout.layout(true);
   this.updateScrollBar();
@@ -258,57 +264,58 @@ List.prototype.new = function () {
   }
 };
 
-List.prototype.addRow = function (content) {
-  var row = new this.RowClass(this.element.grList.grRows);
+List.prototype.addRow = function (index) {
+  var row = new this.RowClass(this);
 
   if (typeof row.fillHandler === "function") {
-    row.fillHandler(content);
+    row.fillHandler(this.contents[index]);
   }
 
-  this.contents.push(content);
   this.rows.push(row);
   return row;
 };
 
-List.prototype.rebuild = function (fromIndex) {
+List.prototype.build = function (fromIndex) {
   fromIndex = fromIndex === undefined ? 0 : fromIndex;
-  var grRows = this.element.grList.grRows;
-  var rebuildContents = this.contents.slice(fromIndex);
+  // var grRows = this.element.grList.grRows;
 
-  for (var i = grRows.children.length - 1; i >= fromIndex; i--) {
-    grRows.remove(i);
-  }
-
-  this.rows = this.rows.slice(0, fromIndex);
-  this.contents = this.contents.slice(0, fromIndex);
-
-  for (i = fromIndex; i < rebuildContents.length; i++) {
-    this.addRow(rebuildContents[i]);
+  for (var i = fromIndex; i < this.contents.length; i++) {
+    this.addRow(i);
   }
 };
 
 List.prototype.moveSelectedRows = function (direction) {
+  if (this.selectedRows.length === 0) {
+    return;
+  }
+
   this.selectedRows.sort(function (a, b) {
     return a - b;
   });
 
-  var placePos;
+  var numRows = this.selectedRows.length;
+  var placePos = 0;
+  var updateFromInd = 0;
   if (direction === List.MOVE_ROW_DIRECTION.UP) {
     placePos = this.selectedRows[0] - 1;
     placePos = placePos < 0 ? 0 : placePos;
+    updateFromInd = placePos;
   } else if (direction === List.MOVE_ROW_DIRECTION.DOWN) {
-    var numRows = this.selectedRows.length;
-    placePos = this.selectedRows[this.selectedRows.length - 1] + 1 - numRows;
+    placePos = this.selectedRows[0] + 1;
     placePos =
       placePos > this.rows.length - 1 ? this.rows.length - 1 : placePos;
+    updateFromInd = placePos - 1;
   }
 
   var removedContent = [];
-  var numRemove = 0;
-  for (var i = this.selectedRows.length - 1; i >= 0; i -= 1) {
-    numRemove = 1;
+  for (i = 0; i < this.selectedRows.length; i++) {
+    removedContent.push(this.contents[this.selectedRows[i]]);
+  }
 
-    /** while prev selected row is exactly one row behind */
+  for (var i = this.selectedRows.length - 1; i >= 0; i--) {
+    var numRemove = 1;
+
+    /** while prev selected row is exactly one row above */
     while (
       i - 1 >= 0 &&
       this.selectedRows[i] - this.selectedRows[i - 1] === 1
@@ -317,16 +324,31 @@ List.prototype.moveSelectedRows = function (direction) {
       i--;
     }
 
-    removedContent = removedContent.concat(this.contents.splice(i, numRemove));
+    this.contents.splice(this.selectedRows[i], numRemove);
   }
+
+  if (direction === List.MOVE_ROW_DIRECTION.UP) {
+    removedContent = removedContent.concat(this.contents.slice(updateFromInd));
+  } else if (direction === List.MOVE_ROW_DIRECTION.DOWN) {
+    var newRemovedContent = this.contents.slice(updateFromInd);
+    Array.prototype.splice.apply(
+      newRemovedContent,
+      [1, 0].concat(removedContent),
+    );
+
+    removedContent = newRemovedContent;
+  }
+
+  this.deleteRowRange(updateFromInd);
 
   Array.prototype.splice.apply(
     this.contents,
     [placePos, 0].concat(removedContent),
   );
 
-  this.rebuild(placePos);
-  this.element.layout.layout(true);
+  this.build(updateFromInd);
+  this.selectRowRange(placePos, placePos + numRows - 1);
+  this.refresh();
 };
 
 List.prototype.editSelectedRow = function () {
@@ -340,6 +362,12 @@ List.prototype.editSelectedRow = function () {
   }
 };
 
+List.prototype.refresh = function () {
+  this.element.layout.layout(true);
+  this.updateScrollBar();
+  this.updateButtons();
+};
+
 List.prototype.deleteRow = function (row) {
   row = typeof row === "number" ? this.rows[row] : row;
   var rowIndex = row === "number" ? row : indexOf(this.rows, row);
@@ -351,15 +379,16 @@ List.prototype.deleteRow = function (row) {
 
   if (rowIndex !== -1) {
     this.rows.splice(rowIndex, 1);
+    this.contents.splice(rowIndex, 1);
   }
 
   if (indInSelectedRows !== -1) {
     this.selectedRows.splice(indInSelectedRows, 1);
   }
 
-  this.element.layout.layout(true);
-  this.updateScrollBar();
-  this.updateButtons();
+  if (rowIndex === this.lastClickedRowInd) {
+    this.lastClickedRowInd = 0;
+  }
 };
 
 List.prototype.deleteSelectedRows = function () {
@@ -367,32 +396,38 @@ List.prototype.deleteSelectedRows = function () {
     return a - b;
   });
 
-  for (var i = this.selectedRows.length - 1; i >= 0; i--) {
-    this.element.grList.grRows.remove(this.rows[this.selectedRows[i]].element);
-    this.rows.splice(this.selectedRows[i], 1);
-  }
-
-  if (
-    this.lastClickedRowInd !== undefined &&
-    indexOf(this.selectedRows, this.lastClickedRowInd) !== -1
-  ) {
-    this.lastClickedRowInd = 0;
-  }
-
   var newSelectInd;
   if (this.selectedRows.length === 1) {
     newSelectInd = this.selectedRows[0];
   }
 
-  this.selectedRows.length = 0;
-
-  if (newSelectInd !== undefined) {
-    this.selectRow(newSelectInd);
+  for (var i = this.selectedRows.length - 1; i >= 0; i--) {
+    this.deleteRow(this.selectedRows[i]);
   }
 
-  this.element.layout.layout(true);
-  this.updateScrollBar();
-  this.updateButtons();
+  if (this.rows.length > 0 && newSelectInd !== undefined) {
+    if (newSelectInd > this.rows.length - 1) {
+      newSelectInd = this.rows.length - 1;
+    }
+
+    this.selectRow(newSelectInd);
+    this.lastClickedRowInd = newSelectInd;
+  }
+};
+
+List.prototype.deleteRowRange = function (fromInd, toInd) {
+  fromInd = fromInd === undefined ? 0 : fromInd;
+  toInd = toInd === undefined ? this.rows.length - 1 : toInd;
+
+  if (fromInd > toInd) {
+    var tmp = fromInd;
+    fromInd = toInd;
+    toInd = tmp;
+  }
+
+  for (var i = toInd; i >= fromInd; i--) {
+    this.deleteRow(i);
+  }
 };
 
 List.prototype.getCursorPosFromEvent = function (event) {
@@ -445,7 +480,7 @@ List.prototype.onClick = function (event) {
     }
 
     if (selectRange) {
-      this.selectRowRange(selectRange);
+      this.selectRowRange(selectRange.start, selectRange.end);
     } else if (ctrlKey) {
       this.inverseRowSelection(rowIndUnderCursor);
     } else {
@@ -474,6 +509,7 @@ List.prototype.updateButtons = function () {
 
 List.prototype.selectRow = function (rowIndex) {
   if (
+    rowIndex >= 0 &&
     rowIndex < this.rows.length &&
     indexOf(this.selectedRows, rowIndex) === -1
   ) {
@@ -485,14 +521,13 @@ List.prototype.selectRow = function (rowIndex) {
   }
 };
 
-List.prototype.selectRowRange = function (range) {
-  var iDiff = range.start < range.end ? 1 : -1;
+List.prototype.selectRowRange = function (fromInd, toInd) {
+  fromInd = fromInd === undefined ? 0 : fromInd;
+  toInd = toInd === undefined ? this.rows.length - 1 : toInd;
 
-  for (
-    var i = range.start;
-    iDiff > 0 ? i <= range.end : i >= range.end;
-    i += iDiff
-  ) {
+  var iDiff = fromInd < toInd ? 1 : -1;
+
+  for (var i = fromInd; iDiff > 0 ? i <= toInd : i >= toInd; i += iDiff) {
     this.selectRow(i);
   }
 };

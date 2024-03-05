@@ -16,11 +16,13 @@ function ValuesList(parentEl) {
   //   }",
   // );
 
-  for (var i = 0; i < ZOOM_LIST_VALUES.length; i++) {
-    this.addRow(ZOOM_LIST_VALUES[i]);
+  // for (var i = 0; i < ZOOM_LIST_VALUES.length; i++) {
+  //   this.addRow(ZOOM_LIST_VALUES[i]);
     // listBox.add("item", ZOOM_LIST_VALUES[i]);
-  }
+  // }
 
+  this.contents = ZOOM_LIST_VALUES.slice();
+  this.build();
   this.setMaxSize([9999, 145]);
   this.setMinSize([0, 145]);
 }
