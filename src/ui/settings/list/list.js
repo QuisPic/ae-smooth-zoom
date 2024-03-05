@@ -302,10 +302,13 @@ List.prototype.moveSelectedRows = function (direction) {
     placePos = placePos < 0 ? 0 : placePos;
     updateFromInd = placePos;
   } else if (direction === List.MOVE_ROW_DIRECTION.DOWN) {
-    placePos = this.selectedRows[0] + 1;
     placePos =
-      placePos > this.rows.length - 1 ? this.rows.length - 1 : placePos;
-    updateFromInd = placePos > 0 ? placePos - 1 : 0;
+      this.selectedRows[this.selectedRows.length - 1] + 1 - (numRows - 1);
+    placePos =
+      placePos > this.rows.length - numRows
+        ? this.rows.length - numRows
+        : placePos;
+    updateFromInd = this.selectedRows[0];
   }
 
   var removedContent = [];
@@ -334,7 +337,7 @@ List.prototype.moveSelectedRows = function (direction) {
     var newRemovedContent = this.contents.slice(updateFromInd);
     Array.prototype.splice.apply(
       newRemovedContent,
-      [1, 0].concat(removedContent),
+      [placePos - updateFromInd, 0].concat(removedContent),
     );
 
     removedContent = newRemovedContent;
@@ -349,6 +352,7 @@ List.prototype.moveSelectedRows = function (direction) {
 
   this.build(updateFromInd);
   this.selectRowRange(placePos, placePos + numRows - 1);
+  this.lastClickedRowInd = placePos;
   this.refresh();
 };
 
@@ -642,7 +646,7 @@ List.prototype.updateScrollBar = function () {
     }
 
     this.element.layout.layout(true);
-    // this.element.layout.resize();
+    this.element.layout.resize();
 
     scrollBar.minvalue = 0;
     scrollBar.maxvalue = sizeDiff;
