@@ -203,6 +203,8 @@ List.MOVE_ROW_DIRECTION = {
   DOWN: 1,
 };
 
+List.prototype.onChangeHandler = undefined;
+
 List.prototype.setButtonsPosition = function (pos) {
   if (pos === List.BUTTONS_POSITION.RIGHT) {
     this.parentGroup.orientation = "row";
@@ -255,6 +257,10 @@ List.prototype.new = function () {
   this.scrollToBottom();
   this.deselectAllRows();
   this.selectRow(this.rows.length - 1);
+
+  if (this.onChangeHandler) {
+    this.onChangeHandler();
+  }
 
   if (newRow.editHandler) {
     newRow.editHandler(this);
@@ -354,6 +360,10 @@ List.prototype.moveSelectedRows = function (direction) {
   this.selectRowRange(placePos, placePos + numRows - 1);
   this.lastClickedRowInd = placePos;
   this.refresh();
+
+  if (this.onChangeHandler) {
+    this.onChangeHandler();
+  }
 };
 
 List.prototype.editSelectedRow = function () {
@@ -405,6 +415,10 @@ List.prototype.deleteRow = function (row) {
 
   if (rowIndex === this.lastClickedRowInd) {
     this.lastClickedRowInd = 0;
+  }
+
+  if (this.onChangeHandler) {
+    this.onChangeHandler();
   }
 };
 

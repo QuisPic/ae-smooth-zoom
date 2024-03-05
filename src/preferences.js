@@ -18,6 +18,9 @@ function Preferences() {
   if (!app.preferences.havePref(SETTINGS_SECTION_NAME, "sliderMax")) {
     this.save("sliderMax", DEFAULT_SETTINGS.sliderMax);
   }
+  if (!app.preferences.havePref(SETTINGS_SECTION_NAME, "presetValues")) {
+    this.save("presetValues", DEFAULT_SETTINGS.presetValues);
+  }
   if (!app.preferences.havePref(SETTINGS_SECTION_NAME, "experimental")) {
     this.save("experimental", DEFAULT_SETTINGS.experimental);
   }
@@ -45,6 +48,11 @@ function Preferences() {
   this.sliderMax = app.preferences.getPrefAsFloat(
     SETTINGS_SECTION_NAME,
     "sliderMax",
+  );
+
+  this.presetValues = app.preferences.getPrefAsString(
+    SETTINGS_SECTION_NAME,
+    "presetValues",
   );
 
   this.experimental = app.preferences.getPrefAsString(

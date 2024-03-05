@@ -66,6 +66,10 @@ Row.prototype.edit = function (content) {
   var indInList = indexOf(this.list.rows, this);
   if (indInList !== -1) {
     this.list.contents[indInList] = content;
+
+    if (this.list.onChangeHandler) {
+      this.list.onChangeHandler();
+    }
   }
 
   this.clear();

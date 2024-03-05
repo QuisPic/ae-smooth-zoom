@@ -50,6 +50,7 @@ function GeneralSettings(parentEl, zoom) {
     showSlider: preferences.showSlider,
     sliderMin: preferences.sliderMin,
     sliderMax: preferences.sliderMax,
+    presetValues: preferences.presetValues,
   };
 
   var pnlSync = this.element.gr.pnlSync;
@@ -123,6 +124,7 @@ GeneralSettings.prototype.cancel = function () {
   this.zoom.showHideSlider(this.settingsOnStart.showSlider);
   pnlSlider.grMinValue.numValue.onChangeFn(this.settingsOnStart.sliderMin);
   pnlSlider.grMaxValue.numValue.onChangeFn(this.settingsOnStart.sliderMax);
+  preferences.save("presetValues", this.settingsOnStart.presetValues);
 };
 
 export default GeneralSettings;

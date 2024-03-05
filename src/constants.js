@@ -46,6 +46,7 @@ export var DEFAULT_SETTINGS = {
   showSlider: true,
   sliderMin: 1,
   sliderMax: 400,
+  presetValues: ZOOM_LIST_VALUES,
   experimental: {
     detectCursorInsideView: false,
     fixViewportPosition: {
