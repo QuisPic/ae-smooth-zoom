@@ -9,6 +9,7 @@ import KeyCapture from "./key-capture";
 import zoomPlugin from "../../../zoomPlugin";
 import { ZOOM_PLUGIN_STATUS } from "../../../constants";
 import PluginStatusWithButton from "../../status/plugin-status-with-button";
+import KeyBindingsList from "../list/key-bindings-list";
 
 function KeyBindingsSettings(parentEl) {
   this.keyBindingsArr = [];
@@ -28,6 +29,36 @@ function KeyBindingsSettings(parentEl) {
 }
 
 KeyBindingsSettings.prototype.draw = function () {
+  if (!this.drawn) {
+    this.element.gr = this.element.add(
+      "Group { \
+        alignment: ['fill', 'fill'], \
+        alignChildren: ['fill', 'top'], \
+        orientation: 'column', \
+        grPluginStatus: Group { \
+          alignChildren: ['fill', 'top'], \
+        }, \
+      }",
+    );
+
+    this.element.maximumSize.width = 600;
+
+    /** Show plug-in status if plug-in is not found */
+    if (zoomPlugin.status() !== ZOOM_PLUGIN_STATUS.INITIALIZED) {
+      var grPluginStatus = this.element.gr.grPluginStatus;
+      grPluginStatus.pluginStatusPanel = new PluginStatusWithButton(
+        grPluginStatus,
+      );
+    }
+
+    this.element.gr.keyBindingsList = new KeyBindingsList(this.element.gr);
+
+    this.element.window.layout.layout(true);
+    this.drawn = true;
+  }
+};
+
+KeyBindingsSettings.prototype.oldDraw = function () {
   if (!this.drawn) {
     this.element.gr = this.element.add(
       "Group { \
