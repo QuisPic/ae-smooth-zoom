@@ -88,7 +88,8 @@ KeyCombination.prototype.updateKeys = function (keyNames) {
       }
 
       this.addCombination(keyNames);
-      this.element.window.layout.layout(true);
+
+      // this.element.layout.layout(true);
       this.updating = false;
     }
   } catch (error) {

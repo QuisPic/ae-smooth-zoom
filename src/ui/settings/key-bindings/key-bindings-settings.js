@@ -53,7 +53,8 @@ KeyBindingsSettings.prototype.draw = function () {
 
     this.element.gr.keyBindingsList = new KeyBindingsList(this.element.gr);
 
-    this.element.window.layout.layout(true);
+    this.element.layout.layout(true);
+    this.element.layout.resize();
     this.drawn = true;
   }
 };

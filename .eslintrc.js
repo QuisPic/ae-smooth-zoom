@@ -8,7 +8,7 @@ module.exports = {
     sourceType: "module",
   },
   globals: {
-    thisObj: "readonly",
+    __zoomThisObj: "readonly",
     ScriptUi: "readonly",
   },
   rules: {},

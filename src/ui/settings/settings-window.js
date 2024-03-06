@@ -73,7 +73,7 @@ function SettingsWindow(zoom) {
     }
   }, this);
 
-  this.element.layout.layout(true);
+  // this.element.layout.layout(true);
   this.element.show();
 }
 
