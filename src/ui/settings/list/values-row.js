@@ -6,6 +6,7 @@ import Row from "./row";
 
 function ValuesRow(parentEl) {
   Row.call(this, parentEl);
+  this.columnMargins = [5, 2, 0, 1];
   this.filled = false;
 }
 
@@ -13,7 +14,8 @@ ValuesRow.prototype = create(Row.prototype);
 
 ValuesRow.prototype.fillHandler = function (value) {
   if (value !== undefined) {
-    this.add("StaticText { text: '" + value + "%' }");
+    var valueColumn = this.add("StaticText { text: '" + value + "%' }");
+    valueColumn.margins = this.columnMargins;
     this.filled = true;
   } else {
     if (!this.element.parent.size) {

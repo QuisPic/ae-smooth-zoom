@@ -7,7 +7,9 @@ import { arrowDownIcon, arrowUpIcon } from "./icons-bin";
 
 function List(parentEl) {
   this.RowClass = Row;
+  this.ColumnNamesClass = undefined;
   this.active = false;
+  this.columnNames = undefined;
   this.lastClickEventTime = undefined;
   this.rows = [];
   this.contents = [];
@@ -24,7 +26,6 @@ function List(parentEl) {
   this.parentGroup = parentEl.add(
     "Group { \
       orientation: 'row', \
-      alignment: ['fill', 'fill'], \
       alignChildren: ['fill', 'top'], \
       gr: Group { \
         orientation: 'stack', \
@@ -237,10 +238,12 @@ List.prototype.setSize = function (size) {
 
 List.prototype.setMaxSize = function (maxSize) {
   this.element.grList.maximumSize = maxSize;
+  // this.parentGroup.maximumSize = maxSize;
 };
 
 List.prototype.setMinSize = function (minSize) {
   this.element.grList.minimumSize = minSize;
+  // this.parentGroup.minimumSize = minSize;
 };
 
 List.prototype.new = function () {
@@ -386,6 +389,7 @@ List.prototype.refresh = function () {
 
   this.element.layout.layout(true);
   this.updateScrollBar();
+  this.resizeColumns();
   this.element.layout.resize();
   this.updateButtons();
 };
@@ -686,6 +690,45 @@ List.prototype.scrollToBottom = function () {
   if (scrollBar) {
     scrollBar.value = scrollBar.maxvalue;
     scrollBar.notify();
+  }
+};
+
+List.prototype.resizeColumns = function () {
+  var maxWidths = [];
+  var fillMaxWidths = function (row) {
+    for (var k = 0; k < row.columns.length; k++) {
+      if (!maxWidths[k] || row.columns[k].size.width > maxWidths[k]) {
+        maxWidths[k] = row.columns[k].size.width;
+      }
+    }
+  };
+  var setColumnSizes = function (row) {
+    for (var k = 0; k < row.columns.length; k++) {
+      row.columns[k].minimumSize = [maxWidths[k], 0];
+    }
+  };
+
+  if (this.columnNames) {
+    fillMaxWidths(this.columnNames);
+  }
+
+  for (var i = 0; i < this.rows.length; i++) {
+    fillMaxWidths(this.rows[i]);
+  }
+
+  if (this.columnNames) {
+    setColumnSizes(this.columnNames);
+  }
+
+  for (i = 0; i < this.rows.length; i++) {
+    setColumnSizes(this.rows[i]);
+  }
+};
+
+List.prototype.addColumnNames = function (names) {
+  if (this.ColumnNamesClass) {
+    this.columnNames = new this.ColumnNamesClass(this);
+    this.columnNames.fillHandler(names);
   }
 };
 

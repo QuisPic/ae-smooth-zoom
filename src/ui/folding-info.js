@@ -77,7 +77,8 @@ FoldingInfo.prototype.toggleInfo = function () {
     this.unfoldInfo();
   }
 
-  this.element.window.layout.layout(true);
+  this.element.parent.layout.layout(true);
+  this.element.parent.layout.resize();
 };
 
 FoldingInfo.prototype.unfoldInfo = function () {

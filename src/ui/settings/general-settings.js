@@ -40,6 +40,7 @@ function GeneralSettings(parentEl, zoom) {
         }, \
         pnlPresetList: Panel { \
           text: 'Preset Values', \
+          alignChildren: ['fill', 'top'], \
         }, \
       }, \
     }",

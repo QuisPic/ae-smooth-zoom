@@ -4,13 +4,14 @@ function Row(list) {
   this.list = list;
   this.columns = [];
   this.minSize = [0, 0];
-  this.columnMargins = [5, 2, 0, 1];
+  this.columnMargins = undefined;
+  this.columnAlignments = undefined;
   this.editing = false;
 
   this.element = list.grRows.add(
     "Group { \
       alignment: ['fill', 'top'], \
-      alignChildren: ['fill', 'top'], \
+      alignChildren: ['left', 'fill'], \
       spacing: 0, \
     }",
   );
@@ -44,12 +45,11 @@ Row.prototype.setColumnMargins = function (columnMargins) {
 Row.prototype.add = function (element) {
   var columnGroup = this.element.add(
     "Group { \
-      alignChildren: ['fill', 'top'], \
+      alignChildren: ['fill', 'fill'], \
     }",
   );
 
   columnGroup.minimumSize = this.minSize;
-  columnGroup.margins = this.columnMargins;
 
   if (typeof element === "string") {
     columnGroup.element = columnGroup.add(element);
