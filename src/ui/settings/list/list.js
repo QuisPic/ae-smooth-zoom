@@ -82,6 +82,11 @@ function List(parentEl) {
   this.grRows = this.element.grList.grRows;
   this.setButtonsPosition(List.BUTTONS_POSITION.RIGHT);
 
+  if (!this.element.window.__listsArray) {
+    this.element.window.__listsArray = [];
+  }
+  this.element.window.__listsArray.push(this);
+
   this.parentGroup.gr.grBorder.visible = this.active;
   this.parentGroup.gr.grBorder.onDraw = function () {
     var r = 3; // round corner radius
@@ -125,18 +130,18 @@ function List(parentEl) {
     // true,
   );
 
-  this.element.window.addEventListener(
-    "mousedown",
-    bind(function (event) {
+  this.element.window.addEventListener("mousedown", function (event) {
+    for (var i = 0; i < this.__listsArray.length; i++) {
+      var list = this.__listsArray[i];
       if (
-        event.timeStamp.getTime() !== this.lastClickEventTime &&
-        indexOf(this.parentGroup.grButtons.children, event.target) === -1
+        event.timeStamp.getTime() !== list.lastClickEventTime &&
+        indexOf(list.parentGroup.grButtons.children, event.target) === -1
       ) {
-        this.deactivate();
-        this.deselectAllRows();
+        list.deactivate();
+        list.deselectAllRows();
       }
-    }, this),
-  );
+    }
+  });
 
   this.element.window.addEventListener(
     "keyup",

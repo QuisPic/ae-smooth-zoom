@@ -26,11 +26,6 @@ function Zoom(thisObj) {
 
   this.w.onResizing = this.w.onResize;
 
-  this.w.shortcutKey = "T";
-  this.w.onShortcutKey = function () {
-    alert("SHorrrrtrtt");
-  };
-
   this.zoomNumberValue = new NumberValue(
     this.w,
     "%",
