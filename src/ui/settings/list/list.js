@@ -9,7 +9,8 @@ function List(parentEl) {
   this.RowClass = Row;
   this.ColumnNamesClass = undefined;
   this.active = false;
-  this.columnNames = undefined;
+  this.columnNamesRow = undefined;
+  this.columnWidths = [];
   this.lastClickEventTime = undefined;
   this.rows = [];
   this.contents = [];
@@ -275,6 +276,10 @@ List.prototype.addRow = function (index) {
 
   if (typeof row.fillHandler === "function") {
     row.fillHandler(this.contents[index]);
+  }
+
+  if (this.columnWidths.length > 0) {
+    row.setColumnWidths(this.columnWidths);
   }
 
   this.rows.push(row);
@@ -694,41 +699,38 @@ List.prototype.scrollToBottom = function () {
 };
 
 List.prototype.resizeColumns = function () {
-  var maxWidths = [];
-  var fillMaxWidths = function (row) {
+  var fillMaxWidths = bind(function (row) {
     for (var k = 0; k < row.columns.length; k++) {
-      if (!maxWidths[k] || row.columns[k].size.width > maxWidths[k]) {
-        maxWidths[k] = row.columns[k].size.width;
+      if (
+        !this.columnWidths[k] ||
+        row.columns[k].size.width > this.columnWidths[k]
+      ) {
+        this.columnWidths[k] = row.columns[k].size.width;
       }
     }
-  };
-  var setColumnSizes = function (row) {
-    for (var k = 0; k < row.columns.length; k++) {
-      row.columns[k].minimumSize = [maxWidths[k], 0];
-    }
-  };
+  }, this);
 
-  if (this.columnNames) {
-    fillMaxWidths(this.columnNames);
+  if (this.columnNamesRow) {
+    fillMaxWidths(this.columnNamesRow);
   }
 
   for (var i = 0; i < this.rows.length; i++) {
     fillMaxWidths(this.rows[i]);
   }
 
-  if (this.columnNames) {
-    setColumnSizes(this.columnNames);
+  if (this.columnNamesRow) {
+    this.columnNamesRow.setColumnWidths(this.columnWidths);
   }
 
   for (i = 0; i < this.rows.length; i++) {
-    setColumnSizes(this.rows[i]);
+    this.rows[i].setColumnWidths(this.columnWidths);
   }
 };
 
 List.prototype.addColumnNames = function (names) {
   if (this.ColumnNamesClass) {
-    this.columnNames = new this.ColumnNamesClass(this);
-    this.columnNames.fillHandler(names);
+    this.columnNamesRow = new this.ColumnNamesClass(this);
+    this.columnNamesRow.fillHandler(names);
   }
 };
 

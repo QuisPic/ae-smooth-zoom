@@ -31,6 +31,14 @@ Row.prototype.setOnAllColumns = function (key, value) {
   }
 };
 
+Row.prototype.setColumnWidths = function (widths) {
+  for (var i = 0; i < this.columns.length; i++) {
+    if (widths[i] !== undefined) {
+      this.columns[i].minimumSize = [widths[i], 0];
+    }
+  }
+};
+
 Row.prototype.setMinSize = function (minSize) {
   this.minSize = minSize;
   this.element.minimumSize = minSize;

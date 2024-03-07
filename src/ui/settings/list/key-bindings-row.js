@@ -11,31 +11,31 @@ function KeyBindingsRow(parentEl) {
 KeyBindingsRow.prototype = create(KeyBindingsColumnNamesRow.prototype);
 KeyBindingsRow.ACTION_NAMES = ["[+] Add", "[-] Subtract", "[=] Set To"];
 
-KeyBindingsRow.prototype.fillHandler = function (value) {
-  if (value !== undefined) {
-    this.clmnCheck = this.add("Checkbox { value: " + value.enabled + " }");
+KeyBindingsRow.prototype.fillHandler = function (values) {
+  if (values !== undefined) {
+    this.clmnCheck = this.add("Checkbox { value: " + values.enabled + " }");
     this.clmnCheck.alignment = this.columnAlignments[0];
     this.clmnCheck.margins = this.columnMargins[0];
     this.clmnCheck.element.maximumSize = [9999, 15];
 
-    // this.clmnKeys = this.add(function (columnGr) {
-    //   var keyCombination = new KeyCombination(columnGr, []);
-    //   keyCombination.updateKeysWithCodes(value.keyCodes);
-    //   return keyCombination;
-    // });
-    this.clmnKeys = this.add("StaticText { text: 'kek' }");
+    this.clmnKeys = this.add(function (columnGr) {
+      var keyCombination = new KeyCombination(columnGr, []);
+      keyCombination.updateKeysWithCodes(values.keyCodes);
+      return keyCombination;
+    });
+    // this.clmnKeys = this.add("StaticText { text: 'kek' }");
     this.clmnKeys.alignment = this.columnAlignments[1];
     this.clmnKeys.margins = this.columnMargins[1];
 
     this.clmnAction = this.add("StaticText {}");
     this.clmnAction.alignment = this.columnAlignments[2];
     this.clmnAction.margins = this.columnMargins[2];
-    this.clmnAction.element.text = KeyBindingsRow.ACTION_NAMES[value.action];
+    this.clmnAction.element.text = KeyBindingsRow.ACTION_NAMES[values.action];
 
     this.clmnAmount = this.add("StaticText {}");
     this.clmnAmount.alignment = this.columnAlignments[3];
     this.clmnAmount.margins = this.columnMargins[3];
-    this.clmnAmount.element.text = value.amount + "%";
+    this.clmnAmount.element.text = values.amount + "%";
 
     this.filled = true;
   }

@@ -20,7 +20,7 @@ function KeyBindingsList(parentEl) {
     this.contents = listValues;
   }
 
-  // this.addColumnNames(["Enable", "Key Combination", "Action", "Amount"]);
+  this.addColumnNames(["Enable", "Key Combination", "Action", "Amount"]);
   this.build();
   this.setMaxSize([9999, 200]);
   this.setMinSize([0, 200]);
