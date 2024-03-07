@@ -62,6 +62,10 @@ KeyBindingsSettings.prototype.draw = function () {
 
     this.element.gr.keyBindingsList = new KeyBindingsList(this.element.gr);
 
+    if (zoomPlugin.status() !== ZOOM_PLUGIN_STATUS.INITIALIZED) {
+      this.element.gr.keyBindingsList.parentGroup.enabled = false;
+    }
+
     this.element.layout.layout(true);
     this.element.layout.resize();
     this.drawn = true;

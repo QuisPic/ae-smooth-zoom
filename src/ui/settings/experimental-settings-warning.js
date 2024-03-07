@@ -18,7 +18,7 @@ function ExperimentalSettingsWarning(parentEl) {
 
   this.element.txt0.text =
     "Please note that these settings may not work as described " +
-    "or may cause After Effects to crash.";
+    "or may even cause After Effects to crash.";
   this.element.txt1.text =
     "If you experience such issues, please report to the author.";
 

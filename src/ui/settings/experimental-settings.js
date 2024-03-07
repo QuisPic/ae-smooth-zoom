@@ -99,6 +99,9 @@ function ExperimentalSettings(parentEl) {
 
     grText.children[0].text = "Experimental settings aren't available:";
     grText.add("StaticText { text: '" + statusText + "' }");
+
+    pnlDetectCursorInsideView.enabled = false;
+    pnlFixViewportPosition.enabled = false;
   } else {
     this.element.gr.remove(this.element.gr.grPluginStatus);
   }
