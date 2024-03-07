@@ -497,7 +497,16 @@ List.prototype.getRowIndexUnderCursor = function (cursorPos) {
   );
 
   if (rowIndUnderCursor >= 0 && rowIndUnderCursor < this.rows.length) {
-    return rowIndUnderCursor;
+    /** make sure cursor is on the row */
+    if (
+      cursorPos[1] >
+      positionRelativeToParent(
+        this.element,
+        this.rows[rowIndUnderCursor].element,
+      )[1]
+    ) {
+      return rowIndUnderCursor;
+    }
   }
 };
 
