@@ -116,10 +116,12 @@ Row.prototype.setColumnsBgColor = function (color) {
 };
 
 Row.prototype.onClick = function (event) {
+  if (this.onClickHandler) {
+    this.onClickHandler(event);
+  }
+
   if (event.detail === 2 && event.button === 0 && this.onDoubleClickHandler) {
-    this.onDoubleClickHandler(this);
-  } else if (this.onClickHandler) {
-    this.onClickHandler(this);
+    this.onDoubleClickHandler(event);
   }
 };
 

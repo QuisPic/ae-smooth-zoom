@@ -290,10 +290,13 @@ export function posToScreen(element) {
 /** returns point relative to the parent supplied, parentEl must be a parent of childEl */
 export function positionRelativeToParent(parentEl, childEl, position) {
   if (!position) {
-    position = childEl.location;
+    position = [0, 0];
   }
 
-  var result = [position[0], position[1]];
+  var result = [
+    position[0] + childEl.location[0],
+    position[1] + childEl.location[1],
+  ];
   var directParentEl = childEl.parent;
 
   while (directParentEl && parentEl !== directParentEl) {

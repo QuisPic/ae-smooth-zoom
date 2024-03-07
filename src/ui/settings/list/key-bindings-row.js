@@ -1,4 +1,5 @@
 import create from "../../../../extern/object-create";
+import { positionRelativeToParent } from "../../../utils";
 import KeyCombination from "../key-bindings/key-combination";
 import Row from "./row";
 
@@ -63,6 +64,29 @@ KeyBindingsRow.prototype.editHandler = function () {
 
 KeyBindingsRow.prototype.onDoubleClickHandler = function () {
   this.editHandler();
+};
+
+KeyBindingsRow.prototype.onClickHandler = function (event) {
+  // var check = this.clmnCheck.element;
+  // var cursorPos = positionRelativeToParent(this.element, event.target, [
+  //   event.clientX,
+  //   event.clientY,
+  // ]);
+  // var checkPos = positionRelativeToParent(this.element, check);
+  //
+  // if (
+  //   cursorPos[0] >= checkPos[0] &&
+  //   cursorPos[0] <= checkPos[0] + check.size[0] &&
+  //   cursorPos[1] >= checkPos[1] &&
+  //   cursorPos[1] <= checkPos[1] + check.size[1]
+  // ) {
+  //   // this.clmnCheck.element.value = !this.clmnCheck.element.value;
+  //   this.clmnCheck.element.notify();
+  // }
+
+  if (event.target === this.clmnCheck.element) {
+    this.clmnCheck.element.notify();
+  }
 };
 
 export default KeyBindingsRow;
