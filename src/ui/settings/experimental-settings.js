@@ -20,9 +20,6 @@ function ExperimentalSettings(parentEl) {
         orientation: 'column', \
         alignment: ['fill', 'fill'], \
         alignChildren: 'fill', \
-        txt0: StaticText { \
-          text: 'Options that make using Zoom more convenient. Zoom Plug-in is required.', \
-        }, \
         grPluginStatus: Group { \
           alignChildren: ['fill', 'top'], \
         }, \
@@ -96,6 +93,12 @@ function ExperimentalSettings(parentEl) {
     grPluginStatus.pluginStatusPanel = new PluginStatusWithButton(
       grPluginStatus,
     );
+
+    var grText = grPluginStatus.pluginStatusPanel.element.grStatus.gr.grText;
+    var statusText = grText.children[0].text;
+
+    grText.children[0].text = "Experimental settings aren't available:";
+    grText.add("StaticText { text: '" + statusText + "' }");
   } else {
     this.element.gr.remove(this.element.gr.grPluginStatus);
   }

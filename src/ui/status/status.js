@@ -7,18 +7,33 @@ function Status(parentEl) {
     "Panel { \
       alignChildren: 'fill', \
       grStatus: Group { \
-        spacing: 6, \
-        statusIcon: Group { preferredSize: [8, 8] }, \
-        txt: StaticText {}, \
+        alignChildren: ['fill', 'center'], \
+        gr: Group { \
+          spacing: 6, \
+          statusIcon: Group { \
+            margins: [0, 4, 0, 0], \
+            alignment: ['left', 'fill'], \
+            icon: Group { \
+              preferredSize: [8, 8], \
+              alignment: ['left', 'top'], \
+            }, \
+          }, \
+          grText: Group { \
+            alignment: ['fill', 'top'], \
+            alignChildren: ['left', 'top'], \
+            orientation: 'column', \
+            spacing: 0, \
+          }, \
+        }, \
       }, \
     }",
   );
 
   var grStatus = this.element.grStatus;
-  var statusIcon = grStatus.statusIcon;
+  var statusIcon = grStatus.gr.statusIcon.icon;
 
   statusIcon.onDraw = bind(function () {
-    var g = grStatus.statusIcon.graphics;
+    var g = statusIcon.graphics;
     var c = this.status === UI_STATUS.OK ? [0.1, 0.85, 0.1, 1] : [1, 0, 0, 1];
     var p = g.newPen(g.PenType.SOLID_COLOR, c, 2);
 

@@ -9,7 +9,7 @@ function ExperimentalSettingsWarning(parentEl) {
       txt0: StaticText {}, \
       txt1: StaticText {}, \
       btnContacts: IconButton { \
-        title: 'Show Contacts', \
+        title: 'Contacts', \
         alignment: 'right', \
         preferredSize: [-1, 22], \
       }, \

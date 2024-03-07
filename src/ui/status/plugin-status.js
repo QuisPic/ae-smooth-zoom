@@ -13,28 +13,12 @@ function PluginStatus(parentEl) {
   this.setPluginStatus();
 
   var grStatus = this.element.grStatus;
-  switch (this.pluginStatus) {
-    case ZOOM_PLUGIN_STATUS.NOT_FOUND:
-      grStatus.txt.text = "Zoom plug-in is not installed";
-      break;
-    case ZOOM_PLUGIN_STATUS.FOUND_NOT_INITIALIZED:
-      grStatus.txt.text = "Zoom plug-in is found but isn't initialized";
-      break;
-    case ZOOM_PLUGIN_STATUS.FINISHED:
-      grStatus.txt.text = "Zoom plug-in stopped working";
-      break;
-    case ZOOM_PLUGIN_STATUS.INITIALIZATION_ERROR:
-      grStatus.txt.text = "Error initializing Zoom plugin";
-      break;
-    case ZOOM_PLUGIN_STATUS.INITIALIZED:
-      grStatus.txt.text = "Zoom plug-in is installed";
-      break;
-    default:
-      grStatus.txt.text = "Unknown status";
-      break;
+  var txt = grStatus.gr.grText.add("StaticText {}");
+  if (this.pluginStatus in this.statusMessage) {
+    txt.text = this.statusMessage[this.pluginStatus];
+  } else {
+    txt.text = "Unknown plug-in status";
   }
-
-  grStatus.txt.size = grStatus.txt.graphics.measureString(grStatus.txt.text);
 
   if (
     this.pluginStatus !== ZOOM_PLUGIN_STATUS.INITIALIZED &&
@@ -45,6 +29,18 @@ function PluginStatus(parentEl) {
 }
 
 PluginStatus.prototype = create(Status.prototype);
+
+PluginStatus.prototype.statusMessage = {};
+PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.NOT_FOUND] =
+  "Zoom plug-in is not installed";
+PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.FOUND_NOT_INITIALIZED] =
+  "Zoom plug-in is found but isn't initialized";
+PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.FINISHED] =
+  "Zoom plug-in stopped working";
+PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.INITIALIZATION_ERROR] =
+  "Error initializing Zoom plugin";
+PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.INITIALIZED] =
+  "Zoom plug-in is installed";
 
 PluginStatus.prototype.setPluginStatus = function () {
   this.pluginFound = zoomPlugin.isAvailable();
