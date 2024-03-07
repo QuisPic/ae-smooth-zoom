@@ -1,3 +1,4 @@
+import indexOf from "../../../../extern/array-indexOf";
 import create from "../../../../extern/object-create";
 import { positionRelativeToParent } from "../../../utils";
 import KeyCombination from "../key-bindings/key-combination";
@@ -6,6 +7,7 @@ import Row from "./row";
 function KeyBindingsRow(parentEl) {
   Row.call(this, parentEl);
 
+  this.colorSelectedDisabled = [0.2, 0.2, 0.2, 1];
   this.element.spacing = 2;
   this.columnMargins = [5, 2, 5, 2];
   this.columnAlignments = [
@@ -48,6 +50,10 @@ KeyBindingsRow.prototype.fillHandler = function (values) {
     this.clmnAmount.margins = this.columnMargins;
     this.clmnAmount.element.text = values.amount + "%";
 
+    if (!values.enabled) {
+      this.disable();
+    }
+
     this.filled = true;
   }
 };
@@ -86,6 +92,40 @@ KeyBindingsRow.prototype.onClickHandler = function (event) {
 
   if (event.target === this.clmnCheck.element) {
     this.clmnCheck.element.notify();
+
+    if (this.clmnCheck.element.value) {
+      this.enable();
+    } else {
+      this.disable();
+    }
+
+    /** if this row is selected then set the right bg color */
+    for (var i = 0; i < this.list.selectedRows.length; i++) {
+      if (this.list.rows[this.list.selectedRows[i]] === this) {
+        this.setBgColor(this.getColorSelected());
+        break;
+      }
+    }
+  }
+};
+
+KeyBindingsRow.prototype.enable = function () {
+  for (var i = 1; i < this.columns.length; i++) {
+    this.columns[i].enabled = true;
+  }
+};
+
+KeyBindingsRow.prototype.disable = function () {
+  for (var i = 1; i < this.columns.length; i++) {
+    this.columns[i].enabled = false;
+  }
+};
+
+KeyBindingsRow.prototype.getColorSelected = function () {
+  if (this.clmnCheck.element.value) {
+    return this.colorSelected;
+  } else {
+    return this.colorSelectedDisabled;
   }
 };
 

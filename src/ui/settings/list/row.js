@@ -6,6 +6,8 @@ function Row(list) {
   this.minSize = [0, 0];
   this.columnMargins = undefined;
   this.columnAlignments = undefined;
+  this.colorSelected = [0.27, 0.27, 0.27, 1];
+  this.colorDeselected = [0.113, 0.113, 0.113, 1];
   this.editing = false;
 
   this.element = list.grRows.add(
@@ -129,6 +131,16 @@ Row.prototype.removeSelf = function () {
   if (this.element && isValid(this.element)) {
     this.element.parent.remove(this.element);
   }
+};
+
+/** override this function if you need custom colors */
+Row.prototype.getColorSelected = function () {
+  return this.colorSelected;
+};
+
+/** override this function if you need custom colors */
+Row.prototype.getColorDeselected = function () {
+  return this.colorDeselected;
 };
 
 export default Row;

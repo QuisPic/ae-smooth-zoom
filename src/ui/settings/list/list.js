@@ -15,8 +15,6 @@ function List(parentEl) {
   this.rows = [];
   this.contents = [];
   this.selectedRows = [];
-  this.colorSelected = [0.27, 0.27, 0.27, 1];
-  this.colorDeselected = [0.113, 0.113, 0.113, 1];
 
   // required for range selection with the Shift key
   this.lastClickedRowInd = undefined;
@@ -568,7 +566,7 @@ List.prototype.selectRow = function (rowIndex) {
     indexOf(this.selectedRows, rowIndex) === -1
   ) {
     var row = this.rows[rowIndex];
-    row.setBgColor(this.colorSelected);
+    row.setBgColor(row.getColorSelected());
 
     this.selectedRows.push(rowIndex);
     this.updateButtons();
@@ -590,7 +588,7 @@ List.prototype.deselectRow = function (rowIndex) {
   var ind = indexOf(this.selectedRows, rowIndex);
   if (ind !== -1) {
     var row = this.rows[rowIndex];
-    row.setBgColor(this.colorDeselected);
+    row.setBgColor(row.getColorDeselected());
 
     this.selectedRows.splice(ind, 1);
     this.updateButtons();
@@ -599,7 +597,8 @@ List.prototype.deselectRow = function (rowIndex) {
 
 List.prototype.deselectAllRows = function () {
   for (var i = 0; i < this.selectedRows.length; i++) {
-    this.rows[this.selectedRows[i]].setBgColor(this.colorDeselected);
+    var row = this.rows[this.selectedRows[i]];
+    row.setBgColor(row.getColorDeselected());
   }
 
   this.selectedRows.length = 0;
