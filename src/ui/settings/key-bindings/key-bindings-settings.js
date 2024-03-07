@@ -35,9 +35,6 @@ KeyBindingsSettings.prototype.draw = function () {
         alignment: ['fill', 'fill'], \
         alignChildren: ['fill', 'top'], \
         orientation: 'column', \
-        grPluginStatus: Group { \
-          alignChildren: ['fill', 'top'], \
-        }, \
       }",
     );
 
@@ -45,6 +42,12 @@ KeyBindingsSettings.prototype.draw = function () {
 
     /** Show plug-in status if plug-in is not found */
     if (zoomPlugin.status() !== ZOOM_PLUGIN_STATUS.INITIALIZED) {
+      this.element.gr.grPluginStatus = this.element.gr.add(
+        "Group { \
+          alignChildren: ['fill', 'top'], \
+        }",
+      );
+
       var grPluginStatus = this.element.gr.grPluginStatus;
       grPluginStatus.pluginStatusPanel = new PluginStatusWithButton(
         grPluginStatus,

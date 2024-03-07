@@ -96,6 +96,8 @@ function ExperimentalSettings(parentEl) {
     grPluginStatus.pluginStatusPanel = new PluginStatusWithButton(
       grPluginStatus,
     );
+  } else {
+    this.element.gr.remove(this.element.gr.grPluginStatus);
   }
 
   pnlDetectCursorInsideView.grCheck.setOnClick(bind(this.saveAll, this));
