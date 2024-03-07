@@ -106,6 +106,15 @@ Row.prototype.setBgColor = function (color) {
   );
 };
 
+Row.prototype.setColumnsBgColor = function (color) {
+  for (var i = 0; i < this.columns.length; i++) {
+    this.columns[i].graphics.backgroundColor = this.element.graphics.newBrush(
+      this.element.graphics.BrushType.SOLID_COLOR,
+      color,
+    );
+  }
+};
+
 Row.prototype.onClick = function (event) {
   if (event.detail === 2 && event.button === 0 && this.onDoubleClickHandler) {
     this.onDoubleClickHandler(this);

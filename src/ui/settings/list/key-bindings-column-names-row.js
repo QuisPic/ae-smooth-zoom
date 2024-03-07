@@ -1,21 +1,13 @@
 import create from "../../../../extern/object-create";
 import Row from "./row";
+import KeyBindingsRow from "./key-bindings-row";
 
 function KeyBindingsColumnNamesRow(parentEl) {
-  Row.call(this, parentEl);
-
-  this.columnMargins = [
-    [10, 2, 0, 1],
-    [8, 2, 0, 1],
-    [5, 2, 15, 1],
-    [5, 2, 20, 1],
-  ];
-  this.columnAlignments = [
-    ["left", "fill"],
-    ["fill", "fill"],
-    ["right", "fill"],
-    ["right", "fill"],
-  ];
+  KeyBindingsRow.call(this, parentEl);
+  this.element.margins = [0, 0, 0, 1];
+  this.columnMargins[1] = 0;
+  this.columnMargins[3] = 0;
+  this.setBgColor([0.113, 0.113, 0.113, 1]);
 }
 
 KeyBindingsColumnNamesRow.prototype = create(Row.prototype);
@@ -24,14 +16,16 @@ KeyBindingsColumnNamesRow.prototype.fillHandler = function (names) {
   for (var i = 0; i < names.length; i++) {
     var col = this.add("StaticText { text: '" + names[i] + "' }");
 
-    if (this.columnMargins[i]) {
-      col.margins = this.columnMargins[i];
+    if (this.columnMargins) {
+      col.margins = this.columnMargins;
     }
 
     if (this.columnAlignments[i]) {
       col.alignment = this.columnAlignments[i];
     }
   }
+
+  this.setColumnsBgColor([0.149, 0.149, 0.149, 1]);
 };
 
 export default KeyBindingsColumnNamesRow;
