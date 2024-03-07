@@ -16,10 +16,7 @@ function FloatEditText(parentEl, initTextValue) {
   }
 
   this.element.onChange = bind(function () {
-    if (
-      typeof this.onChangeFn === "function" &&
-      ScriptUI.environment.keyboardState.keyName === "Enter"
-    ) {
+    if (typeof this.onChangeFn === "function") {
       this.onChangeFn(this.element.text);
     }
   }, this);
