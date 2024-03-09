@@ -1,6 +1,9 @@
 import indexOf from "../../../../extern/array-indexOf";
+import bind from "../../../../extern/function-bind";
 import create from "../../../../extern/object-create";
-import { positionRelativeToParent } from "../../../utils";
+import windows from "../../../windows";
+import KeyBindingEditWindow from "../key-binding-edit-window";
+import KeyCapture from "../key-bindings/key-capture";
 import KeyCombination from "../key-bindings/key-combination";
 import Row from "./row";
 
@@ -60,6 +63,14 @@ KeyBindingsRow.prototype.fillHandler = function (values) {
 
 KeyBindingsRow.prototype.editHandler = function () {
   this.editing = true;
+  // windows.new(new KeyCapture(bind(function (keyNames, keyCodes) {}, this)));
+
+  var rowInd = indexOf(this.list.rows, this);
+  if (rowInd !== -1) {
+    var values = this.list.contents[rowInd];
+
+    windows.new(new KeyBindingEditWindow(values));
+  }
 };
 
 // ValuesRow.prototype.abortEditHandler = function () {
