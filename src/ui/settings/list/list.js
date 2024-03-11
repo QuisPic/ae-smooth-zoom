@@ -1,19 +1,20 @@
 import bind from "../../../../extern/function-bind";
-import { binarySearch, positionRelativeToParent } from "../../../utils";
+import {
+  binarySearch,
+  drawRoundRect,
+  positionRelativeToParent,
+} from "../../../utils";
 import indexOf from "../../../../extern/array-indexOf";
-import Row from "./row";
 import { AE_OS, BLUE_COLOR, OS } from "../../../constants";
 import { arrowDownIcon, arrowUpIcon } from "./icons-bin";
+import BasicList from "./basic-list";
+import create from "../../../../extern/object-create";
 
 function List(parentEl) {
-  this.RowClass = Row;
-  this.ColumnNamesClass = undefined;
+  BasicList.call(this, parentEl);
+
   this.active = false;
-  this.columnNamesRow = undefined;
-  this.columnWidths = [];
   this.lastClickEventTime = undefined;
-  this.rows = [];
-  this.contents = [];
   this.selectedRows = [];
 
   // required for range selection with the Shift key
@@ -22,62 +23,27 @@ function List(parentEl) {
   // fn to call when adding a new row
   this.addRowHandler = undefined;
 
-  this.parentGroup = parentEl.add(
+  this.parentGroup.grButtons = this.parentGroup.add(
     "Group { \
-      orientation: 'row', \
-      alignChildren: ['fill', 'top'], \
-      gr: Group { \
-        orientation: 'stack', \
-        alignment: ['fill', 'fill'], \
-        alignChildren: 'fill', \
-        grBorder: Group {}, \
-        grElement: Group { \
-          margins: 1, \
-        }, \
+      alignment: ['right', 'fill'], \
+      orientation: 'column', \
+      spacing: 5, \
+      btnNew: IconButton { title: 'New', preferredSize: [90, 22] }, \
+      btnEdit: IconButton { title: 'Edit', preferredSize: [90, 22] }, \
+      btnDelete: IconButton { title: 'Delete', preferredSize: [90, 22] }, \
+      btnMoveUp: IconButton { \
+        preferredSize: [90, 22], \
+        alignment: ['right', 'bottom'], \
+        helpTip: 'Move Up', \
       }, \
-      grButtons: Group { \
-        alignment: ['right', 'fill'], \
-        orientation: 'column', \
-        spacing: 5, \
-        btnNew: IconButton { title: 'New', preferredSize: [90, 22] }, \
-        btnEdit: IconButton { title: 'Edit', preferredSize: [90, 22] }, \
-        btnDelete: IconButton { title: 'Delete', preferredSize: [90, 22] }, \
-        btnMoveUp: IconButton { \
-          preferredSize: [90, 22], \
-          alignment: ['right', 'bottom'], \
-          helpTip: 'Move Up', \
-        }, \
-        btnMoveDown: IconButton { \
-          preferredSize: [90, 22], \
-          alignment: ['right', 'bottom'], \
-          helpTip: 'Move Down', \
-        }, \
+      btnMoveDown: IconButton { \
+        preferredSize: [90, 22], \
+        alignment: ['right', 'bottom'], \
+        helpTip: 'Move Down', \
       }, \
     }",
   );
 
-  this.element = this.parentGroup.gr.grElement.add(
-    "Panel { \
-      margins: 0, \
-      spacing: 0, \
-      alignment: ['fill', 'fill'], \
-      orientation: 'row', \
-      grList: Group { \
-        orientation: 'stack', \
-        alignment: ['fill', 'fill'], \
-        alignChildren: 'fill', \
-        grRows: Group { \
-          orientation: 'column', \
-          margins: [0, 0, 0, 1], \
-          alignment: ['fill', 'top'], \
-          alignChildren: ['fill', 'top'], \
-          spacing: 1, \
-        }, \
-      }, \
-    }",
-  );
-
-  this.grRows = this.element.grList.grRows;
   this.setButtonsPosition(List.BUTTONS_POSITION.RIGHT);
 
   if (!this.element.window.__listsArray) {
@@ -88,31 +54,33 @@ function List(parentEl) {
   this.parentGroup.gr.grBorder.visible = this.active;
   this.parentGroup.gr.grBorder.onDraw = function () {
     var r = 3; // round corner radius
-    var d = 2 * r; // round corner diameter
+    // var d = 2 * r; // round corner diameter
     var g = this.graphics;
     var b = g.newBrush(g.BrushType.SOLID_COLOR, BLUE_COLOR);
     var s = this.size;
-    var drawCircle = function (left, top) {
-      g.ellipsePath(left, top, d, d);
-      g.fillPath(b);
-    };
 
-    drawCircle(0, 0);
-    drawCircle(s[0] - d, 0);
-    drawCircle(s[0] - d, s[1] - d);
-    drawCircle(0, s[1] - d);
-
-    g.newPath();
-    g.moveTo(r, 0);
-    g.lineTo(s[0] - r, 0);
-    g.lineTo(s[0], r);
-    g.lineTo(s[0], s[1] - r);
-    g.lineTo(s[0] - r, s[1]);
-    g.lineTo(r, s[1]);
-    g.lineTo(0, s[1] - r);
-    g.lineTo(0, r);
-
-    g.fillPath(b);
+    drawRoundRect(r, g, b, undefined, s);
+    // var drawCircle = function (left, top) {
+    //   g.ellipsePath(left, top, d, d);
+    //   g.fillPath(b);
+    // };
+    //
+    // drawCircle(0, 0);
+    // drawCircle(s[0] - d, 0);
+    // drawCircle(s[0] - d, s[1] - d);
+    // drawCircle(0, s[1] - d);
+    //
+    // g.newPath();
+    // g.moveTo(r, 0);
+    // g.lineTo(s[0] - r, 0);
+    // g.lineTo(s[0], r);
+    // g.lineTo(s[0], s[1] - r);
+    // g.lineTo(s[0] - r, s[1]);
+    // g.lineTo(r, s[1]);
+    // g.lineTo(0, s[1] - r);
+    // g.lineTo(0, r);
+    //
+    // g.fillPath(b);
   };
 
   /** pass click events to our custom handler */
@@ -155,13 +123,6 @@ function List(parentEl) {
     }, this),
   );
 
-  this.element.window.addEventListener(
-    "show",
-    bind(function () {
-      this.refresh();
-    }, this),
-  );
-
   this.parentGroup.grButtons.btnNew.onClick = bind(function () {
     this.new();
   }, this);
@@ -174,17 +135,6 @@ function List(parentEl) {
     this.deleteSelectedRows();
     this.refresh();
   }, this);
-
-  this.element.graphics.backgroundColor = this.element.graphics.newBrush(
-    this.element.graphics.BrushType.SOLID_COLOR,
-    [0.113, 0.113, 0.113, 1],
-  );
-
-  this.element.grList.grRows.graphics.backgroundColor =
-    this.element.graphics.newBrush(
-      this.element.graphics.BrushType.SOLID_COLOR,
-      [0.164, 0.164, 0.164, 1],
-    );
 
   this.parentGroup.grButtons.btnMoveUp.icon = arrowUpIcon;
   this.parentGroup.grButtons.btnMoveDown.icon = arrowDownIcon;
@@ -208,6 +158,7 @@ List.MOVE_ROW_DIRECTION = {
   DOWN: 1,
 };
 
+List.prototype = create(BasicList.prototype);
 List.prototype.onChangeHandler = undefined;
 
 List.prototype.setButtonsPosition = function (pos) {
@@ -242,12 +193,10 @@ List.prototype.setSize = function (size) {
 
 List.prototype.setMaxSize = function (maxSize) {
   this.element.grList.maximumSize = maxSize;
-  // this.parentGroup.maximumSize = maxSize;
 };
 
 List.prototype.setMinSize = function (minSize) {
   this.element.grList.minimumSize = minSize;
-  // this.parentGroup.minimumSize = minSize;
 };
 
 List.prototype.new = function () {
@@ -271,29 +220,6 @@ List.prototype.new = function () {
 
   if (newRow.editHandler) {
     newRow.editHandler(this);
-  }
-};
-
-List.prototype.addRow = function (index) {
-  var row = new this.RowClass(this);
-
-  if (typeof row.fillHandler === "function") {
-    row.fillHandler(this.contents[index]);
-  }
-
-  if (this.columnWidths.length > 0) {
-    row.setColumnWidths(this.columnWidths);
-  }
-
-  this.rows.push(row);
-  return row;
-};
-
-List.prototype.build = function (fromIndex) {
-  fromIndex = fromIndex === undefined ? 0 : fromIndex;
-
-  for (var i = fromIndex; i < this.contents.length; i++) {
-    this.addRow(i);
   }
 };
 
@@ -379,10 +305,12 @@ List.prototype.moveSelectedRows = function (direction) {
 
 List.prototype.editSelectedRow = function () {
   if (this.selectedRows.length > 0) {
-    var lastSelectedRow =
-      this.rows[this.selectedRows[this.selectedRows.length - 1]];
+    var lastSelectedRowInd = this.selectedRows[this.selectedRows.length - 1];
+    var lastSelectedRow = this.rows[lastSelectedRowInd];
 
-    if (lastSelectedRow.editHandler) {
+    if (this.editHandler) {
+      this.editHandler(lastSelectedRowInd);
+    } else if (lastSelectedRow.editHandler) {
       lastSelectedRow.editHandler();
     }
   }
@@ -708,42 +636,6 @@ List.prototype.scrollToBottom = function () {
   if (scrollBar) {
     scrollBar.value = scrollBar.maxvalue;
     scrollBar.notify();
-  }
-};
-
-List.prototype.resizeColumns = function () {
-  var fillMaxWidths = bind(function (row) {
-    for (var k = 0; k < row.columns.length; k++) {
-      if (
-        !this.columnWidths[k] ||
-        row.columns[k].size.width > this.columnWidths[k]
-      ) {
-        this.columnWidths[k] = row.columns[k].size.width;
-      }
-    }
-  }, this);
-
-  if (this.columnNamesRow) {
-    fillMaxWidths(this.columnNamesRow);
-  }
-
-  for (var i = 0; i < this.rows.length; i++) {
-    fillMaxWidths(this.rows[i]);
-  }
-
-  if (this.columnNamesRow) {
-    this.columnNamesRow.setColumnWidths(this.columnWidths);
-  }
-
-  for (i = 0; i < this.rows.length; i++) {
-    this.rows[i].setColumnWidths(this.columnWidths);
-  }
-};
-
-List.prototype.addColumnNames = function (names) {
-  if (this.ColumnNamesClass) {
-    this.columnNamesRow = new this.ColumnNamesClass(this);
-    this.columnNamesRow.fillHandler(names);
   }
 };
 

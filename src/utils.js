@@ -317,3 +317,42 @@ export function strToNumStr(str) {
     return numStr[0];
   }
 }
+
+export function drawRoundRect(r, g, b, p, s) {
+  var d = 2 * r; // round corner diameter
+
+  var drawCircle = function (left, top) {
+    g.ellipsePath(left, top, d, d);
+
+    if (b) {
+      g.fillPath(b);
+    }
+    if (p) {
+      g.strokePath(p);
+    }
+  };
+
+  if (d) {
+    drawCircle(0, 0);
+    drawCircle(s[0] - d, 0);
+    drawCircle(s[0] - d, s[1] - d);
+    drawCircle(0, s[1] - d);
+  }
+
+  g.newPath();
+  g.moveTo(r, 0);
+  g.lineTo(s[0] - r, 0);
+  g.lineTo(s[0], r);
+  g.lineTo(s[0], s[1] - r);
+  g.lineTo(s[0] - r, s[1]);
+  g.lineTo(r, s[1]);
+  g.lineTo(0, s[1] - r);
+  g.lineTo(0, r);
+
+  if (b) {
+    g.fillPath(b);
+  }
+  if (p) {
+    g.strokePath(p);
+  }
+}

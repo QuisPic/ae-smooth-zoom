@@ -1,23 +1,24 @@
-import indexOf from "../../../../extern/array-indexOf";
-import bind from "../../../../extern/function-bind";
 import create from "../../../../extern/object-create";
-import windows from "../../../windows";
-import KeyBindingEditWindow from "../key-binding-edit-window";
-import KeyCapture from "../key-bindings/key-capture";
-import KeyCombination from "../key-bindings/key-combination";
 import Row from "./row";
+import KeyCombination from "../key-bindings/key-combination";
+import { positionRelativeToParent } from "../../../utils";
 
-function KeyBindingsRow(parentEl) {
-  Row.call(this, parentEl);
+function KeyBindingsRow(list) {
+  Row.call(this, list);
 
   this.colorSelectedDisabled = [0.2, 0.2, 0.2, 1];
   this.element.spacing = 2;
-  this.columnMargins = [5, 2, 5, 2];
+  this.columnMargins = [
+    [5, 2, 5, 2],
+    [5, 2, 5, 2],
+    [5, 2, 5, 2],
+    [5, 2, 5, 2],
+  ];
   this.columnAlignments = [
     ["left", "fill"],
     ["fill", "fill"],
     ["right", "fill"],
-    ["right", "fill"],
+    ["right", "center"],
   ];
 
   this.filled = false;
@@ -26,12 +27,17 @@ function KeyBindingsRow(parentEl) {
 KeyBindingsRow.prototype = create(Row.prototype);
 KeyBindingsRow.ACTION_NAMES = ["[+] Add", "[-] Subtract", "[=] Set To"];
 
+KeyBindingsRow.prototype.alignColumns = function () {
+  for (var i = 0; i < this.columns.length; i++) {
+    this.columns[i].alignment = this.columnAlignments[i];
+    this.columns[i].margins = this.columnMargins[i];
+  }
+};
+
 KeyBindingsRow.prototype.fillHandler = function (values) {
   if (values !== undefined) {
     this.clmnCheck = this.add("Checkbox { alignment: ['center', 'fill'] }");
     this.clmnCheck.element.value = values.enabled;
-    this.clmnCheck.alignment = this.columnAlignments[0];
-    this.clmnCheck.margins = this.columnMargins;
     this.clmnCheck.element.maximumSize = [9999, 15];
 
     this.clmnKeys = this.add(function (columnGr) {
@@ -39,19 +45,14 @@ KeyBindingsRow.prototype.fillHandler = function (values) {
       keyCombination.updateKeysWithCodes(values.keyCodes);
       return keyCombination;
     });
-    // this.clmnKeys = this.add("StaticText { text: 'kek' }");
-    this.clmnKeys.alignment = this.columnAlignments[1];
-    this.clmnKeys.margins = this.columnMargins;
 
     this.clmnAction = this.add("StaticText {}");
-    this.clmnAction.alignment = this.columnAlignments[2];
-    this.clmnAction.margins = this.columnMargins;
     this.clmnAction.element.text = KeyBindingsRow.ACTION_NAMES[values.action];
 
     this.clmnAmount = this.add("StaticText {}");
-    this.clmnAmount.alignment = this.columnAlignments[3];
-    this.clmnAmount.margins = this.columnMargins;
     this.clmnAmount.element.text = values.amount + "%";
+
+    this.alignColumns();
 
     if (!values.enabled) {
       this.disable();
@@ -61,17 +62,16 @@ KeyBindingsRow.prototype.fillHandler = function (values) {
   }
 };
 
-KeyBindingsRow.prototype.editHandler = function () {
-  this.editing = true;
-  // windows.new(new KeyCapture(bind(function (keyNames, keyCodes) {}, this)));
-
-  var rowInd = indexOf(this.list.rows, this);
-  if (rowInd !== -1) {
-    var values = this.list.contents[rowInd];
-
-    windows.new(new KeyBindingEditWindow(values));
-  }
-};
+// KeyBindingsRow.prototype.editHandler = function () {
+//   this.editing = true;
+//
+//   var rowInd = indexOf(this.list.rows, this);
+//   if (rowInd !== -1) {
+//     var values = this.list.contents[rowInd];
+//
+//     windows.new(new KeyBindingEditWindow(values));
+//   }
+// };
 
 // ValuesRow.prototype.abortEditHandler = function () {
 //   if (this.floatText && this.floatText.onBlurFn) {
@@ -79,29 +79,21 @@ KeyBindingsRow.prototype.editHandler = function () {
 //   }
 // };
 
-KeyBindingsRow.prototype.onDoubleClickHandler = function () {
-  this.editHandler();
-};
-
 KeyBindingsRow.prototype.onClickHandler = function (event) {
-  // var check = this.clmnCheck.element;
-  // var cursorPos = positionRelativeToParent(this.element, event.target, [
-  //   event.clientX,
-  //   event.clientY,
-  // ]);
-  // var checkPos = positionRelativeToParent(this.element, check);
-  //
-  // if (
-  //   cursorPos[0] >= checkPos[0] &&
-  //   cursorPos[0] <= checkPos[0] + check.size[0] &&
-  //   cursorPos[1] >= checkPos[1] &&
-  //   cursorPos[1] <= checkPos[1] + check.size[1]
-  // ) {
-  //   // this.clmnCheck.element.value = !this.clmnCheck.element.value;
-  //   this.clmnCheck.element.notify();
-  // }
+  var check = this.clmnCheck.element;
+  var cursorPos = positionRelativeToParent(this.element, event.target, [
+    event.clientX,
+    event.clientY,
+  ]);
+  var checkPos = positionRelativeToParent(this.element, check);
 
-  if (event.target === this.clmnCheck.element) {
+  if (
+    cursorPos[0] >= checkPos[0] &&
+    cursorPos[0] <= checkPos[0] + check.size[0] &&
+    cursorPos[1] >= checkPos[1] &&
+    cursorPos[1] <= checkPos[1] + check.size[1]
+  ) {
+    // this.clmnCheck.element.value = !this.clmnCheck.element.value;
     this.clmnCheck.element.notify();
 
     if (this.clmnCheck.element.value) {
@@ -118,6 +110,11 @@ KeyBindingsRow.prototype.onClickHandler = function (event) {
       }
     }
   }
+
+  // if (event.target === this.clmnCheck.element) {
+  //   this.clmnCheck.element.notify();
+  //
+  // }
 };
 
 KeyBindingsRow.prototype.enable = function () {
