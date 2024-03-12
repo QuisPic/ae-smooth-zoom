@@ -23,8 +23,8 @@ export var UI_STATUS = {
 export var DEFAULT_SETTINGS = {
   keyBindings:
     AE_OS === OS.WIN
-      ? '[{"enabled":true,"keyCodes":{"type":11,"mask":34,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":34,"keycode":2},"action":1,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":34,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":34,"keycode":45},"action":1,"amount":1}]'
-      : '[{"enabled":true,"keyCodes":{"type":11,"mask":68,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":68,"keycode":2},"action":1,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":68,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":68,"keycode":45},"action":1,"amount":1}]',
+      ? '[{"enabled":true,"keyCodes":{"type":11,"mask":34,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":34,"keycode":2},"action":0,"amount":-1},{"enabled":false,"keyCodes":{"type":4,"mask":34,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":34,"keycode":45},"action":0,"amount":-1}]'
+      : '[{"enabled":true,"keyCodes":{"type":11,"mask":68,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":68,"keycode":2},"action":0,"amount":-1},{"enabled":false,"keyCodes":{"type":4,"mask":68,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":68,"keycode":45},"action":0,"amount":-1}]',
   syncWithView: true,
   showSlider: true,
   sliderMin: 1,

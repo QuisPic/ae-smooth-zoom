@@ -25,7 +25,7 @@ function KeyBindingsRow(list) {
 }
 
 KeyBindingsRow.prototype = create(Row.prototype);
-KeyBindingsRow.ACTION_NAMES = ["[+] Add", "[-] Subtract", "[=] Set To"];
+KeyBindingsRow.ACTION_NAMES = ["Change:", "Set to:"];
 
 KeyBindingsRow.prototype.alignColumns = function () {
   for (var i = 0; i < this.columns.length; i++) {
@@ -61,17 +61,6 @@ KeyBindingsRow.prototype.fillHandler = function (values) {
     this.filled = true;
   }
 };
-
-// KeyBindingsRow.prototype.editHandler = function () {
-//   this.editing = true;
-//
-//   var rowInd = indexOf(this.list.rows, this);
-//   if (rowInd !== -1) {
-//     var values = this.list.contents[rowInd];
-//
-//     windows.new(new KeyBindingEditWindow(values));
-//   }
-// };
 
 // ValuesRow.prototype.abortEditHandler = function () {
 //   if (this.floatText && this.floatText.onBlurFn) {
