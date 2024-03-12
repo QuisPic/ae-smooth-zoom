@@ -2,6 +2,8 @@ import create from "../../../../extern/object-create";
 import Row from "./row";
 import KeyCombination from "../key-bindings/key-combination";
 import { positionRelativeToParent } from "../../../utils";
+import bind from "../../../../extern/function-bind";
+import indexOf from "../../../../extern/array-indexOf";
 
 function KeyBindingsRow(list) {
   Row.call(this, list);
@@ -40,6 +42,13 @@ KeyBindingsRow.prototype.fillHandler = function (values) {
     this.clmnCheck.element.value = values.enabled;
     this.clmnCheck.element.maximumSize = [9999, 15];
 
+    /** save key bindings when Check is clicked */
+    this.clmnCheck.element.onClick = bind(function () {
+      values.enabled = this.clmnCheck.element.value;
+      this.checkClick(this.clmnCheck.element.value);
+      this.list.onChangeHandler();
+    }, this);
+
     this.clmnKeys = this.add(function (columnGr) {
       var keyCombination = new KeyCombination(columnGr, []);
       keyCombination.updateKeysWithCodes(values.keyCodes);
@@ -53,10 +62,7 @@ KeyBindingsRow.prototype.fillHandler = function (values) {
     this.clmnAmount.element.text = values.amount + "%";
 
     this.alignColumns();
-
-    if (!values.enabled) {
-      this.disable();
-    }
+    this.checkClick(values.enabled);
 
     this.filled = true;
   }
@@ -82,28 +88,31 @@ KeyBindingsRow.prototype.onClickHandler = function (event) {
     cursorPos[1] >= checkPos[1] &&
     cursorPos[1] <= checkPos[1] + check.size[1]
   ) {
-    // this.clmnCheck.element.value = !this.clmnCheck.element.value;
     this.clmnCheck.element.notify();
+    return false; // tell row to not call the double click handler
+  }
+};
 
-    if (this.clmnCheck.element.value) {
-      this.enable();
-    } else {
-      this.disable();
-    }
+KeyBindingsRow.prototype.onDoubleClickHandler = function () {
+  var rowInd = indexOf(this.list.rows, this);
 
-    /** if this row is selected then set the right bg color */
-    for (var i = 0; i < this.list.selectedRows.length; i++) {
-      if (this.list.rows[this.list.selectedRows[i]] === this) {
-        this.setBgColor(this.getColorSelected());
-        break;
-      }
-    }
+  if (rowInd !== -1) {
+    this.list.editHandler(rowInd);
+  }
+};
+
+KeyBindingsRow.prototype.checkClick = function (value) {
+  for (var i = 1; i < this.columns.length; i++) {
+    this.columns[i].enabled = value;
   }
 
-  // if (event.target === this.clmnCheck.element) {
-  //   this.clmnCheck.element.notify();
-  //
-  // }
+  /** if this row is selected then set the right bg color */
+  for (i = 0; i < this.list.selectedRows.length; i++) {
+    if (this.list.rows[this.list.selectedRows[i]] === this) {
+      this.setBgColor(this.getColorSelected());
+      break;
+    }
+  }
 };
 
 KeyBindingsRow.prototype.enable = function () {

@@ -5,8 +5,9 @@ import KeyBindingsEditRow from "./list/key-bindings-edit-row";
 import KeyCombination from "./key-bindings/key-combination";
 import { BLUE_COLOR } from "../../constants";
 import { drawRoundRect } from "../../utils";
+import bind from "../../../extern/function-bind";
 
-function KeyBindingEditWindow(values) {
+function KeyBindingEditWindow(values, row) {
   if (!zoomPlugin.isAvailable()) {
     alert(
       "Zoom plug-in is not found.\nPlease install Zoom plug-in to use key bindings.",
@@ -50,6 +51,18 @@ function KeyBindingEditWindow(values) {
       btnCancel: IconButton { title: 'Cancel', preferredSize: [100, 22] }, \
     }",
   );
+
+  this.element.grButtons.btnSave.onClick = bind(function () {
+    var newValues = editList.rows[0].getValues();
+    this.element.close();
+    row.edit(newValues);
+    row.checkClick(newValues.enabled);
+    row.list.refresh();
+  }, this);
+
+  this.element.grButtons.btnCancel.onClick = bind(function () {
+    this.element.close();
+  }, this);
 
   this.element.layout.layout(true);
   this.element.show();

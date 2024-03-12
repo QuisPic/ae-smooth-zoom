@@ -32,9 +32,10 @@ function KeyBindingsList(parentEl) {
 KeyBindingsList.prototype = create(List.prototype);
 
 KeyBindingsList.prototype.editHandler = function (rowInd) {
+  var row = this.rows[rowInd];
   var values = this.contents[rowInd];
 
-  windows.new(new KeyBindingEditWindow(values));
+  windows.new(new KeyBindingEditWindow(values, row));
 };
 
 KeyBindingsList.prototype.onChangeHandler = function () {

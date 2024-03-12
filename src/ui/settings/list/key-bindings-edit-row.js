@@ -27,6 +27,15 @@ function KeyBindingsEditRow(list) {
 
 KeyBindingsEditRow.prototype = create(KeyBindingsRow.prototype);
 
+KeyBindingsEditRow.prototype.getValues = function () {
+  return {
+    enabled: this.clmnCheck.element.value,
+    keyCodes: this.keyCodes,
+    action: this.clmnAction.element.selection.index,
+    amount: this.clmnAmount.element.getValue(),
+  };
+};
+
 KeyBindingsEditRow.prototype.fillHandler = function (values) {
   this.keyCodes = values.keyCodes;
 
@@ -114,7 +123,7 @@ KeyBindingsEditRow.prototype.fillHandler = function (values) {
   this.clmnAction.element.selection = values.action;
 
   this.clmnAmount = this.add(function (columnGr) {
-    new NumberValue(
+    return new NumberValue(
       columnGr,
       "%",
       values.amount,
