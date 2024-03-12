@@ -139,12 +139,9 @@ KeyBindingsEditRow.prototype.startKeyCapture = function () {
       this.clmnKeys.element.grStroke.notify("onDraw");
 
       this.keyCombination.updateKeys([]);
+      this.list.editWindow.addCaptureInfo();
 
       zoomPlugin.startKeyCapture();
-      // this.element.pnlKeyCapture.txt0.text =
-      //   "Press desired key combination. You can use keyboard and mouse.";
-      // this.element.pnlKeyCapture.grBottomText.show();
-      // this.element.layout.layout(true);
     } catch (error) {
       alert("Error at line " + $.line + ":\n" + error.message);
     }
@@ -152,23 +149,29 @@ KeyBindingsEditRow.prototype.startKeyCapture = function () {
 };
 
 KeyBindingsEditRow.prototype.endKeyCapture = function () {
-  if (zoomPlugin.isAvailable()) {
-    try {
-      zoomPlugin.endKeyCapture();
-      // this.element.pnlKeyCapture.txt0.text =
-      //   "Click on element below to change key combination.";
-      // this.element.pnlKeyCapture.grBottomText.hide();
-      // this.element.layout.layout(true);
-    } catch (error) {
-      alert("Error at line " + error.line + ":\n" + error.message);
-    }
-  }
-
+  this.list.editWindow.deleteCaptureInfo();
   this.isKeyCapturing = false;
   this.clmnKeys.element.grStroke.notify("onDraw");
   this.clmnKeys.element.grStroke.visible = false;
   this.clmnKeys.element.btn.visible = true;
+
+  if (zoomPlugin.isAvailable()) {
+    try {
+      zoomPlugin.endKeyCapture();
+    } catch (error) {
+      alert("Error at line " + error.line + ":\n" + error.message);
+    }
+  }
 };
+
+var keyCaptureHandleEsc = function () {
+  var captureEl = $.global.__zoom_key_capture_object__;
+  if (captureEl) {
+    captureEl.endKeyCapture();
+    captureEl.keyCombination.updateKeysWithCodes(captureEl.keyCodes);
+    captureEl.element.layout.layout(true);
+  }
+}.toString();
 
 /**
  * This function is called from the zoom plugin.
@@ -183,28 +186,16 @@ KeyBindingsEditRow.prototype.passFn = function (type, mask, keycode) {
     type === EVENT_KEY_PRESSED &&
     (keycode === VC_ENTER || keycode === VC_EX_ENTER)
   ) {
-    //   if (
-    //     this.keyCombination.keyNames.length > 0 &&
-    //     typeof this.onEnterKeyFn === "function"
-    //   ) {
-    //     try {
-    //       this.onEnterKeyFn(
-    //         this.keyCombination.keyNames,
-    //         this.keyCombination.keyCodes,
-    //       );
-    //     } catch (error) {
-    //       alert("Error at line " + error.line + ":\n" + error.message);
-    //     }
-    //   }
+    if (this.keyCombination.keyNames.length > 0) {
+      this.keyCodes = this.keyCombination.keyCodes;
+    } else {
+      this.keyCombination.updateKeysWithCodes(this.keyCodes);
+    }
 
     this.endKeyCapture();
-    this.keyCodes = this.keyCombination.keyCodes;
   } else if (type === EVENT_KEY_PRESSED && keycode === VC_ESCAPE) {
-    // this.element.close();
-
-    this.endKeyCapture();
     this.keyCombination.updateKeysWithCodes(this.keyCodes);
-    this.element.layout.layout(true);
+    this.endKeyCapture();
   } else {
     this.keyCombination.updateKeysWithCodes({
       type: type,
