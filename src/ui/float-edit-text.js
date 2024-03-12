@@ -8,12 +8,11 @@ function FloatEditText(parentEl, initTextValue) {
     "EditText { \
       active: true, \
       alignment: 'left', \
+      text: " +
+      (initTextValue || "") +
+      " \
     }",
   );
-
-  if (initTextValue) {
-    this.setValue(initTextValue);
-  }
 
   this.element.onChange = bind(function () {
     if (typeof this.onChangeFn === "function") {

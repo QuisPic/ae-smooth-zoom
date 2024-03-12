@@ -31,11 +31,11 @@ function GeneralSettings(parentEl, zoom) {
           grCheck: Group {}, \
           grMinValue: Group { \
             spacing: 0, \
-            txt: StaticText { text: 'Slider Min Value: ' }, \
+            txt: StaticText { text: 'Slider Min: ' }, \
           }, \
           grMaxValue: Group { \
             spacing: 0, \
-            txt: StaticText { text: 'Slider Max Value: ' }, \
+            txt: StaticText { text: 'Slider Max: ' }, \
           }, \
         }, \
         pnlPresetList: Panel { \
