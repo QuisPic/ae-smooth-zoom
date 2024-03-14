@@ -87,6 +87,7 @@ function KeyBindingEditWindow(values, row) {
       row.list.deleteRow(row);
     }
 
+    row.list.editing = false;
     editList.rows[0].endKeyCapture();
   };
 

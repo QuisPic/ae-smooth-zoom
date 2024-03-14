@@ -15,6 +15,7 @@ function List(parentEl) {
   BasicList.call(this, parentEl);
 
   this.active = false;
+  this.editing = false;
   this.lastClickEventTime = undefined;
   this.selectedRows = [];
 
@@ -140,6 +141,7 @@ List.MOVE_ROW_DIRECTION = {
 List.prototype = create(BasicList.prototype);
 List.prototype.onChangeHandler = undefined;
 List.prototype.editHandler = undefined;
+List.prototype.abortEditHandler = undefined;
 
 List.prototype.setButtonsPosition = function (pos) {
   if (pos === List.BUTTONS_POSITION.RIGHT) {
@@ -180,6 +182,10 @@ List.prototype.setMinSize = function (minSize) {
 };
 
 List.prototype.new = function () {
+  if (this.editing && this.abortEditHandler) {
+    this.abortEditHandler();
+  }
+  
   for (var i = 0; i < this.rows.length; i++) {
     if (this.rows[i].editing && this.rows[i].abortEditHandler) {
       this.rows[i].abortEditHandler();
