@@ -6,7 +6,7 @@ ZoomWindows.prototype.close = function (uiObj) {
   if (typeof uiObj === "object" && uiObj.element && isValid(uiObj.element)) {
     uiObj.element.close();
   }
-}
+};
 
 ZoomWindows.prototype.new = function (win) {
   var winObj;
@@ -15,10 +15,10 @@ ZoomWindows.prototype.new = function (win) {
   } else if (typeof win === "object") {
     winObj = win;
   } else {
-    alert("Zoom error:\nCannot create new window of type " + (typeof win));
+    alert("Zoom error:\nCannot create new window of type " + typeof win);
     return;
   }
-  
+
   /** close all windows of the same type */
   for (var i = 0; i < this.windows.length; i++) {
     if (this.windows[i].__proto__ === winObj.__proto__) {
@@ -27,7 +27,9 @@ ZoomWindows.prototype.new = function (win) {
   }
 
   this.windows.push(winObj);
-}
+
+  return winObj;
+};
 
 var windows = new ZoomWindows();
 

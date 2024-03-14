@@ -8,9 +8,9 @@ function FloatEditText(parentEl, initTextValue) {
     "EditText { \
       active: true, \
       alignment: 'left', \
-      text: " +
+      text: '" +
       (initTextValue || "") +
-      " \
+      "' \
     }",
   );
 

@@ -3,6 +3,7 @@ import create from "../../../../extern/object-create";
 import {
   BLUE_COLOR,
   EVENT_KEY_PRESSED,
+  EVENT_MOUSE_PRESSED,
   VC_ENTER,
   VC_ESCAPE,
   VC_EX_ENTER,
@@ -16,6 +17,7 @@ import KeyBindingsRow from "./key-bindings-row";
 function KeyBindingsEditRow(list) {
   KeyBindingsRow.call(this, list);
 
+  this.isMouseOverSaveBtn = false;
   this.isKeyCapturing = false;
   this.columnMargins = [
     [5, 2, 5, 2],
@@ -37,6 +39,13 @@ KeyBindingsEditRow.prototype.getValues = function () {
 };
 
 KeyBindingsEditRow.prototype.fillHandler = function (values) {
+  values = values || {
+    enabled: true,
+    keyCodes: undefined,
+    action: 0,
+    amount: 1,
+  };
+
   this.keyCodes = values.keyCodes;
 
   this.clmnCheck = this.add("Checkbox { alignment: ['center', 'fill'] }");
@@ -47,16 +56,20 @@ KeyBindingsEditRow.prototype.fillHandler = function (values) {
     bind(function (columnGr) {
       var grKeys = columnGr.add(
         "Group { \
-        orientation: 'stack', \
-        alignChildren: 'fill', \
-        grStroke: Custom { \
-          visible: false, \
-        }, \
-      }",
+          orientation: 'stack', \
+          alignChildren: 'fill', \
+          grStroke: Custom { \
+            visible: false, \
+          }, \
+        }",
       );
 
       this.keyCombination = new KeyCombination(grKeys, []);
-      this.keyCombination.updateKeysWithCodes(values.keyCodes);
+
+      if (values.keyCodes) {
+        this.keyCombination.updateKeysWithCodes(values.keyCodes);
+      }
+
       this.keyCombination.element.margins = [5, 2, 5, 2];
       this.keyCombination.element.graphics.backgroundColor =
         grKeys.graphics.newBrush(
@@ -105,10 +118,6 @@ KeyBindingsEditRow.prototype.fillHandler = function (values) {
       /** Put a link to this object in global scope so we can access it from the plug-in */
       $.global.__zoom_key_capture_object__ = this;
 
-      this.element.window.onClose = bind(function () {
-        this.endKeyCapture();
-      }, this);
-
       return grKeys;
     }, this),
   );
@@ -140,16 +149,16 @@ KeyBindingsEditRow.prototype.fillHandler = function (values) {
 
 KeyBindingsEditRow.prototype.startKeyCapture = function () {
   if (zoomPlugin.isAvailable()) {
+    this.isKeyCapturing = true;
+    this.clmnKeys.element.btn.active = false;
+    this.clmnKeys.element.btn.visible = false;
+    this.clmnKeys.element.grStroke.visible = true;
+    this.clmnKeys.element.grStroke.notify("onDraw");
+
+    this.keyCombination.updateKeys([]);
+    this.list.editWindow.addCaptureInfo();
+
     try {
-      this.isKeyCapturing = true;
-      this.clmnKeys.element.btn.active = false;
-      this.clmnKeys.element.btn.visible = false;
-      this.clmnKeys.element.grStroke.visible = true;
-      this.clmnKeys.element.grStroke.notify("onDraw");
-
-      this.keyCombination.updateKeys([]);
-      this.list.editWindow.addCaptureInfo();
-
       zoomPlugin.startKeyCapture();
     } catch (error) {
       alert("Error at line " + $.line + ":\n" + error.message);
@@ -173,15 +182,6 @@ KeyBindingsEditRow.prototype.endKeyCapture = function () {
   }
 };
 
-var keyCaptureHandleEsc = function () {
-  var captureEl = $.global.__zoom_key_capture_object__;
-  if (captureEl) {
-    captureEl.endKeyCapture();
-    captureEl.keyCombination.updateKeysWithCodes(captureEl.keyCodes);
-    captureEl.element.layout.layout(true);
-  }
-}.toString();
-
 /**
  * This function is called from the zoom plugin.
  * It receives currently pressed keyboard and mouse keys in the plugin format
@@ -197,15 +197,22 @@ KeyBindingsEditRow.prototype.passFn = function (type, mask, keycode) {
   ) {
     if (this.keyCombination.keyNames.length > 0) {
       this.keyCodes = this.keyCombination.keyCodes;
-    } else {
+    } else if (this.keyCodes) {
       this.keyCombination.updateKeysWithCodes(this.keyCodes);
+    } else {
+      this.element.window.close();
     }
 
     this.endKeyCapture();
   } else if (type === EVENT_KEY_PRESSED && keycode === VC_ESCAPE) {
-    this.keyCombination.updateKeysWithCodes(this.keyCodes);
+    if (this.keyCodes) {
+      this.keyCombination.updateKeysWithCodes(this.keyCodes);
+    } else {
+      this.element.window.close();
+    }
+
     this.endKeyCapture();
-  } else {
+  } else if (!(type === EVENT_MOUSE_PRESSED && this.isMouseOverSaveBtn)) {
     this.keyCombination.updateKeysWithCodes({
       type: type,
       mask: mask,

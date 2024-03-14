@@ -10,6 +10,7 @@ import { arrowDownIcon, arrowUpIcon } from "./icons-bin";
 import BasicList from "./basic-list";
 import create from "../../../../extern/object-create";
 
+/** Extends BasicList */
 function List(parentEl) {
   BasicList.call(this, parentEl);
 
@@ -54,33 +55,11 @@ function List(parentEl) {
   this.parentGroup.gr.grBorder.visible = this.active;
   this.parentGroup.gr.grBorder.onDraw = function () {
     var r = 3; // round corner radius
-    // var d = 2 * r; // round corner diameter
     var g = this.graphics;
     var b = g.newBrush(g.BrushType.SOLID_COLOR, BLUE_COLOR);
     var s = this.size;
 
     drawRoundRect(r, g, b, undefined, s);
-    // var drawCircle = function (left, top) {
-    //   g.ellipsePath(left, top, d, d);
-    //   g.fillPath(b);
-    // };
-    //
-    // drawCircle(0, 0);
-    // drawCircle(s[0] - d, 0);
-    // drawCircle(s[0] - d, s[1] - d);
-    // drawCircle(0, s[1] - d);
-    //
-    // g.newPath();
-    // g.moveTo(r, 0);
-    // g.lineTo(s[0] - r, 0);
-    // g.lineTo(s[0], r);
-    // g.lineTo(s[0], s[1] - r);
-    // g.lineTo(s[0] - r, s[1]);
-    // g.lineTo(r, s[1]);
-    // g.lineTo(0, s[1] - r);
-    // g.lineTo(0, r);
-    //
-    // g.fillPath(b);
   };
 
   /** pass click events to our custom handler */
@@ -160,6 +139,7 @@ List.MOVE_ROW_DIRECTION = {
 
 List.prototype = create(BasicList.prototype);
 List.prototype.onChangeHandler = undefined;
+List.prototype.editHandler = undefined;
 
 List.prototype.setButtonsPosition = function (pos) {
   if (pos === List.BUTTONS_POSITION.RIGHT) {
@@ -209,16 +189,20 @@ List.prototype.new = function () {
   this.contents.push(undefined);
   var newRow = this.addRow(this.contents.length - 1);
 
-  this.refresh();
-  this.scrollToBottom();
-  this.deselectAllRows();
-  this.selectRow(this.rows.length - 1);
+  // if (this.onChangeHandler) {
+  //   this.onChangeHandler();
+  // }
 
-  if (this.onChangeHandler) {
-    this.onChangeHandler();
+  if (this.editHandler) {
+    this.editHandler(this.rows.length - 1);
   }
 
   if (newRow.editHandler) {
+    this.refresh();
+    this.scrollToBottom();
+    this.deselectAllRows();
+    this.selectRow(this.rows.length - 1);
+
     newRow.editHandler(this);
   }
 };

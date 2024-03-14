@@ -3,7 +3,7 @@ import BasicList from "./list/basic-list";
 import KeyBindingsColumnNamesRow from "./list/key-bindings-column-names-row";
 import KeyBindingsEditRow from "./list/key-bindings-edit-row";
 import KeyCombination from "./key-bindings/key-combination";
-import { BLUE_COLOR } from "../../constants";
+import { BLUE_COLOR, EVENT_KEY_PRESSED, VC_ENTER } from "../../constants";
 import { drawRoundRect } from "../../utils";
 import bind from "../../../extern/function-bind";
 
@@ -52,17 +52,48 @@ function KeyBindingEditWindow(values, row) {
     }",
   );
 
+  this.element.grButtons.btnSave.addEventListener("mouseover", function () {
+    editList.rows[0].isMouseOverSaveBtn = true;
+  });
+
+  this.element.grButtons.btnSave.addEventListener("mouseout", function () {
+    editList.rows[0].isMouseOverSaveBtn = false;
+  });
+
   this.element.grButtons.btnSave.onClick = bind(function () {
-    var newValues = editList.rows[0].getValues();
-    this.element.close();
-    row.edit(newValues);
-    row.checkClick(newValues.enabled);
-    row.list.refresh();
+    /** if key capturing, save the currently pressed keys */
+    if (editList.rows[0].isKeyCapturing) {
+      editList.rows[0].passFn(EVENT_KEY_PRESSED, undefined, VC_ENTER);
+    }
+
+    if (isValid(this.element)) {
+      var newValues = editList.rows[0].getValues();
+      this.element.close();
+
+      row.edit(newValues);
+      row.checkClick(newValues.enabled);
+      row.list.refresh();
+    }
   }, this);
 
   this.element.grButtons.btnCancel.onClick = bind(function () {
     this.element.close();
   }, this);
+
+  /** End key capture if the window is closed */
+  this.element.onClose = function () {
+    editList.rows[0].endKeyCapture();
+
+    /** If new key bind doesn't have any key codes delete it */
+    if (!editList.rows[0].keyCodes) {
+      row.list.deleteRow(row);
+    }
+  };
+
+  /** If this is new key bind */
+  if (!values) {
+    editList.rows[0].startKeyCapture();
+  }
 
   this.element.layout.layout(true);
   this.element.show();

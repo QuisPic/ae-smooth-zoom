@@ -128,10 +128,12 @@ KeyBindingsRow.prototype.disable = function () {
 };
 
 KeyBindingsRow.prototype.getColorSelected = function () {
-  if (this.clmnCheck.element.value) {
-    return this.colorSelected;
-  } else {
-    return this.colorSelectedDisabled;
+  if (this.clmnCheck) {
+    if (this.clmnCheck.element.value) {
+      return this.colorSelected;
+    } else {
+      return this.colorSelectedDisabled;
+    }
   }
 };
 

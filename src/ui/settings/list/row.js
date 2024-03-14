@@ -106,18 +106,22 @@ Row.prototype.clear = function () {
 };
 
 Row.prototype.setBgColor = function (color) {
-  this.element.graphics.backgroundColor = this.element.graphics.newBrush(
-    this.element.graphics.BrushType.SOLID_COLOR,
-    color,
-  );
-};
-
-Row.prototype.setColumnsBgColor = function (color) {
-  for (var i = 0; i < this.columns.length; i++) {
-    this.columns[i].graphics.backgroundColor = this.element.graphics.newBrush(
+  if (color) {
+    this.element.graphics.backgroundColor = this.element.graphics.newBrush(
       this.element.graphics.BrushType.SOLID_COLOR,
       color,
     );
+  }
+};
+
+Row.prototype.setColumnsBgColor = function (color) {
+  if (color) {
+    for (var i = 0; i < this.columns.length; i++) {
+      this.columns[i].graphics.backgroundColor = this.element.graphics.newBrush(
+        this.element.graphics.BrushType.SOLID_COLOR,
+        color,
+      );
+    }
   }
 };
 
