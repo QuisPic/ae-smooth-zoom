@@ -7,7 +7,7 @@ import { BLUE_COLOR, EVENT_KEY_PRESSED, VC_ENTER } from "../../constants";
 import { drawRoundRect } from "../../utils";
 import bind from "../../../extern/function-bind";
 
-function KeyBindingEditWindow(values, row) {
+function KeyBindingEditWindow(values, row, title) {
   if (!zoomPlugin.isAvailable()) {
     alert(
       "Zoom plug-in is not found.\nPlease install Zoom plug-in to use key bindings.",
@@ -23,7 +23,7 @@ function KeyBindingEditWindow(values, row) {
       minimumSize: [500, 0], \
       alignChildren: 'fill', \
     }",
-    "Edit Key Binding",
+    title || "Edit Key Binding",
   );
 
   var editList = new BasicList(this.element);

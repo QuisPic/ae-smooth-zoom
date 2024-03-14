@@ -36,7 +36,7 @@ KeyBindingsList.prototype.editHandler = function (rowInd) {
   var row = this.rows[rowInd];
   var values = this.contents[rowInd];
 
-  this.editWindow = new KeyBindingEditWindow(values, row);
+  this.editWindow = new KeyBindingEditWindow(values, row, values ? "Edit Key Binding" : "Create Key Binding");
   windows.new(this.editWindow);
 };
 
