@@ -197,21 +197,20 @@ KeyBindingsEditRow.prototype.passFn = function (type, mask, keycode) {
   ) {
     if (this.keyCombination.keyNames.length > 0) {
       this.keyCodes = this.keyCombination.keyCodes;
+      this.endKeyCapture();
     } else if (this.keyCodes) {
       this.keyCombination.updateKeysWithCodes(this.keyCodes);
+      this.endKeyCapture();
     } else {
       this.element.window.close();
     }
-
-    this.endKeyCapture();
   } else if (type === EVENT_KEY_PRESSED && keycode === VC_ESCAPE) {
-    if (this.keyCodes) {
-      this.keyCombination.updateKeysWithCodes(this.keyCodes);
-    } else {
+    if (!this.keyCodes) {
       this.element.window.close();
+    } else {
+      this.keyCombination.updateKeysWithCodes(this.keyCodes);
+      this.endKeyCapture();
     }
-
-    this.endKeyCapture();
   } else if (!(type === EVENT_MOUSE_PRESSED && this.isMouseOverSaveBtn)) {
     this.keyCombination.updateKeysWithCodes({
       type: type,

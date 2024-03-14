@@ -82,12 +82,12 @@ function KeyBindingEditWindow(values, row) {
 
   /** End key capture if the window is closed */
   this.element.onClose = function () {
-    editList.rows[0].endKeyCapture();
-
     /** If new key bind doesn't have any key codes delete it */
     if (!editList.rows[0].keyCodes) {
       row.list.deleteRow(row);
     }
+
+    editList.rows[0].endKeyCapture();
   };
 
   /** If this is new key bind */
