@@ -130,17 +130,24 @@ KeyBindingsEditRow.prototype.fillHandler = function (values) {
     }",
   );
   this.clmnAction.element.selection = values.action;
+  this.clmnAction.element.onChange = bind(function () {
+    if (this.clmnAction.element.selection.index === 0) {
+      this.clmnAmount.element.minValue = undefined;
+    } else if (this.clmnAction.element.selection.index === 1) {
+      this.clmnAmount.element.minValue = 0;
+
+      if (this.clmnAmount.element.getValue() < 0) {
+        this.clmnAmount.element.setValue(0);
+      }
+    }
+  }, this);
 
   this.clmnAmount = this.add(function (columnGr) {
     return new NumberValue(
       columnGr,
       "%",
       values.amount,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      // onChangeFn,
+      values.action === 1 ? 0 : undefined,
     );
   });
 
@@ -181,11 +188,11 @@ KeyBindingsEditRow.prototype.endKeyCapture = function () {
   this.clmnKeys.element.grStroke.notify("onDraw");
   this.clmnKeys.element.grStroke.visible = false;
   this.clmnKeys.element.btn.visible = true;
-  
-    /** enable all columns */
-    for (var i = 0; i < this.columns.length; i++) {
-      this.columns[i].enabled = true;
-    }
+
+  /** enable all columns */
+  for (var i = 0; i < this.columns.length; i++) {
+    this.columns[i].enabled = true;
+  }
 
   if (zoomPlugin.isAvailable()) {
     try {
