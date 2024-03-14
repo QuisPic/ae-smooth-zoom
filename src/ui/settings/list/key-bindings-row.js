@@ -76,11 +76,12 @@ KeyBindingsRow.prototype.fillHandler = function (values) {
 
 KeyBindingsRow.prototype.onClickHandler = function (event) {
   var check = this.clmnCheck.element;
-  var cursorPos = positionRelativeToParent(this.element, event.target, [
-    event.clientX,
-    event.clientY,
-  ]);
-  var checkPos = positionRelativeToParent(this.element, check);
+  var cursorPos = positionRelativeToParent(
+    this.list.element.grList,
+    event.target,
+    [event.clientX, event.clientY],
+  );
+  var checkPos = positionRelativeToParent(this.list.element.grList, check);
 
   if (
     cursorPos[0] >= checkPos[0] &&
@@ -89,7 +90,7 @@ KeyBindingsRow.prototype.onClickHandler = function (event) {
     cursorPos[1] <= checkPos[1] + check.size[1]
   ) {
     this.clmnCheck.element.notify();
-    return false; // tell row to not call the double click handler
+    return false; // tell the row to not call its double click handler
   }
 };
 
