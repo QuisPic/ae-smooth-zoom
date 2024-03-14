@@ -68,12 +68,6 @@ KeyBindingsRow.prototype.fillHandler = function (values) {
   }
 };
 
-// ValuesRow.prototype.abortEditHandler = function () {
-//   if (this.floatText && this.floatText.onBlurFn) {
-//     this.floatText.onBlurFn();
-//   }
-// };
-
 KeyBindingsRow.prototype.onClickHandler = function (event) {
   var check = this.clmnCheck.element;
   var cursorPos = positionRelativeToParent(

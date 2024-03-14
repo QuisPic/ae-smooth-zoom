@@ -186,12 +186,8 @@ List.prototype.new = function () {
     }
   }
 
-  this.contents.push(undefined);
-  var newRow = this.addRow(this.contents.length - 1);
-
-  // if (this.onChangeHandler) {
-  //   this.onChangeHandler();
-  // }
+  // this.contents.push(undefined);
+  var newRow = this.addRow();
 
   if (this.editHandler) {
     this.editHandler(this.rows.length - 1);

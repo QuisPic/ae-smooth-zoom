@@ -155,6 +155,15 @@ KeyBindingsEditRow.prototype.startKeyCapture = function () {
     this.clmnKeys.element.grStroke.visible = true;
     this.clmnKeys.element.grStroke.notify("onDraw");
 
+    /** disable all other columns */
+    for (var i = 0; i < this.columns.length; i++) {
+      if (this.columns[i] === this.clmnKeys) {
+        continue;
+      }
+
+      this.columns[i].enabled = false;
+    }
+
     this.keyCombination.updateKeys([]);
     this.list.editWindow.addCaptureInfo();
 
@@ -172,6 +181,11 @@ KeyBindingsEditRow.prototype.endKeyCapture = function () {
   this.clmnKeys.element.grStroke.notify("onDraw");
   this.clmnKeys.element.grStroke.visible = false;
   this.clmnKeys.element.btn.visible = true;
+  
+    /** enable all columns */
+    for (var i = 0; i < this.columns.length; i++) {
+      this.columns[i].enabled = true;
+    }
 
   if (zoomPlugin.isAvailable()) {
     try {
