@@ -36,7 +36,11 @@ KeyBindingsList.prototype.editHandler = function (rowInd) {
   var row = this.rows[rowInd];
   var values = this.contents[rowInd];
 
-  this.editWindow = new KeyBindingEditWindow(values, row, values ? "Edit Key Binding" : "Create Key Binding");
+  this.editWindow = new KeyBindingEditWindow(
+    values,
+    row,
+    values ? "Edit Key Binding" : "Create Key Binding",
+  );
   windows.new(this.editWindow);
 };
 
@@ -45,7 +49,7 @@ KeyBindingsList.prototype.abortEditHandler = function () {
   if (this.editWindow) {
     this.editWindow.element.close();
   }
-}
+};
 
 KeyBindingsList.prototype.onChangeHandler = function () {
   preferences.save("keyBindings", JSON.stringify(this.contents));
