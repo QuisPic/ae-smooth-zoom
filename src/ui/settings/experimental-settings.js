@@ -84,8 +84,11 @@ function ExperimentalSettings(parentEl) {
     experimentalPrefs.fixViewportPosition.enabled,
   );
 
-  this.element.gr.pnlFixViewportPosition.pnlZoomAround.grZoomAround.ddlistZoomPoint.selection =
+  pnlFixViewportPosition.pnlZoomAround.grZoomAround.ddlistZoomPoint.selection =
     experimentalPrefs.fixViewportPosition.zoomAround;
+  
+  pnlFixViewportPosition.pnlZoomAround.enabled =
+    experimentalPrefs.fixViewportPosition.enabled;
 
   /** Show plug-in status if plug-in is not found */
   if (zoomPlugin.status() !== ZOOM_PLUGIN_STATUS.INITIALIZED) {
