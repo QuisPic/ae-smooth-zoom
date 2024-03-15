@@ -37,10 +37,9 @@ function Preferences() {
     SETTINGS_SECTION_NAME,
     "syncWithView",
   );
-  
-  this.highDPI = app.preferences.getPrefAsString(
-    SETTINGS_SECTION_NAME,
-    "highDPI",
+
+  this.highDPI = JSON.parse(
+    app.preferences.getPrefAsString(SETTINGS_SECTION_NAME, "highDPI"),
   );
 
   this.showSlider = app.preferences.getPrefAsBool(

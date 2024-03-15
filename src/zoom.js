@@ -80,7 +80,12 @@ Zoom.prototype.addSlider = function () {
 };
 
 Zoom.getViewZoom = function () {
-  return parseFloat((app.activeViewer.views[0].options.zoom * 100).toFixed(2));
+  var zoomValue = app.activeViewer.views[0].options.zoom;
+  zoomValue *= preferences.highDPI.enabled
+    ? 100 * preferences.highDPI.scale
+    : 100;
+
+  return parseFloat(zoomValue.toFixed(2));
 };
 
 Zoom.prototype.setUiTo = function (zoomValue) {
@@ -93,7 +98,10 @@ Zoom.prototype.setUiTo = function (zoomValue) {
 
 Zoom.prototype.setTo = function (zoomValue) {
   zoomValue = zoomValue < 0.8 ? 0.8 : zoomValue;
-  app.activeViewer.views[0].options.zoom = zoomValue / 100;
+  zoomValue /= preferences.highDPI.enabled
+    ? 100 * preferences.highDPI.scale
+    : 100;
+  app.activeViewer.views[0].options.zoom = zoomValue;
 };
 
 Zoom.prototype.syncWithView = function () {

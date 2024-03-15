@@ -66,6 +66,7 @@ function GeneralSettings(parentEl, zoom) {
 
   this.settingsOnStart = {
     syncWithView: preferences.syncWithView,
+    highDPI: preferences.highDPI,
     showSlider: preferences.showSlider,
     sliderMin: preferences.sliderMin,
     sliderMax: preferences.sliderMax,
@@ -76,14 +77,13 @@ function GeneralSettings(parentEl, zoom) {
   var pnlHighDPI = this.element.gr.pnlHighDPI;
   var pnlSlider = this.element.gr.pnlSlider;
   var grMinMax = pnlSlider.grMinMax;
-  var highDpiPrefs = JSON.parse(preferences.highDPI);
 
   var saveHighDpiPrefs = function () {
-    preferences.save("highDPI", JSON.stringify({
+    preferences.save("highDPI", {
       enabled: pnlHighDPI.grCheck.element.check.value,
       scale: pnlHighDPI.grScale.numValue.getValue(),
-    }))
-  }
+    });
+  };
 
   pnlSync.grCheck = new Checkbox(
     pnlSync,
@@ -95,14 +95,14 @@ function GeneralSettings(parentEl, zoom) {
   pnlSync.grCheck.setOnClick(function () {
     preferences.save("syncWithView", this.value);
   });
-  
+
   pnlHighDPI.grCheck = new Checkbox(
     pnlHighDPI,
     "High DPI display support",
     pnlHighDPI.grCheck,
   );
-  
-  pnlHighDPI.grCheck.setValue(highDpiPrefs.enabled);
+
+  pnlHighDPI.grCheck.setValue(preferences.highDPI.enabled);
   pnlHighDPI.grCheck.setOnClick(function () {
     pnlHighDPI.grScale.enabled = this.value;
     saveHighDpiPrefs();
@@ -111,16 +111,16 @@ function GeneralSettings(parentEl, zoom) {
   pnlHighDPI.grScale.numValue = new NumberValue(
     pnlHighDPI.grScale,
     "x",
-    highDpiPrefs.scale,
+    preferences.highDPI.scale,
     0,
     undefined,
     undefined,
     undefined,
     saveHighDpiPrefs,
-    "Difference between UI and actual values"
+    "Difference between UI and actual values",
   );
-  pnlHighDPI.grScale.enabled = highDpiPrefs.enabled;
-  
+  pnlHighDPI.grScale.enabled = preferences.highDPI.enabled;
+
   pnlSlider.grCheck = new Checkbox(pnlSlider, "Show Slider", pnlSlider.grCheck);
   pnlSlider.grCheck.setValue(preferences.showSlider);
   pnlSlider.grCheck.setOnClick(function () {
@@ -175,9 +175,14 @@ GeneralSettings.prototype.cancel = function () {
   var pnlSlider = this.element.gr.pnlSlider;
 
   preferences.save("syncWithView", this.settingsOnStart.syncWithView);
+  preferences.save("highDPI", this.settingsOnStart.highDPI);
   this.zoom.showHideSlider(this.settingsOnStart.showSlider);
-  pnlSlider.grMinMax.grMinValue.numValue.onChangeFn(this.settingsOnStart.sliderMin);
-  pnlSlider.grMinMax.grMaxValue.numValue.onChangeFn(this.settingsOnStart.sliderMax);
+  pnlSlider.grMinMax.grMinValue.numValue.onChangeFn(
+    this.settingsOnStart.sliderMin,
+  );
+  pnlSlider.grMinMax.grMaxValue.numValue.onChangeFn(
+    this.settingsOnStart.sliderMax,
+  );
   preferences.save("presetValues", this.settingsOnStart.presetValues);
 };
 

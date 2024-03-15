@@ -115,7 +115,9 @@ export function openURL(url) {
     ) {
       alert(
         "Cannot open URL. Permission denied.\n" +
-          'Enable "Edit > Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network."',
+          'Enable "' +
+          (AE_OS === OS.WIN ? "Edit" : "After Effects") +
+          ' > Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network."',
       );
     } else {
       alert("Error at line " + error.line + ":\n" + error.message);
