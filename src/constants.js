@@ -26,8 +26,12 @@ export var DEFAULT_SETTINGS = {
       ? '[{"enabled":true,"keyCodes":{"type":11,"mask":34,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":34,"keycode":2},"action":0,"amount":-1},{"enabled":false,"keyCodes":{"type":4,"mask":34,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":34,"keycode":45},"action":0,"amount":-1}]'
       : '[{"enabled":true,"keyCodes":{"type":11,"mask":68,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":68,"keycode":2},"action":0,"amount":-1},{"enabled":false,"keyCodes":{"type":4,"mask":68,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":68,"keycode":45},"action":0,"amount":-1}]',
   syncWithView: true,
+  highDPI: {
+    enabled: false,
+    scale: 2,
+  },
   showSlider: true,
-  sliderMin: 1,
+  sliderMin: 0,
   sliderMax: 400,
   presetValues: [
     1.5, 3.1, 6.25, 12.5, 25, 33.3, 50, 100, 200, 400, 800, 1600, 3200, 6400,

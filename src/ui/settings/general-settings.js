@@ -3,6 +3,7 @@ import preferences from "../../preferences";
 import NumberValue from "../number-value";
 import Checkbox from "../checkbox";
 import ValuesList from "./list/values-list";
+import JSON from "../../../extern/json2";
 
 function GeneralSettings(parentEl, zoom) {
   this.zoom = zoom;
@@ -10,7 +11,7 @@ function GeneralSettings(parentEl, zoom) {
   this.element = parentEl.add(
     "tab { \
       text: 'General', \
-      alignChildren: ['left', 'top'], \
+      alignChildren: ['fill', 'top'], \
       orientation: 'row', \
       margins: [12, 10, 0, 10], \
       gr: Group { \
@@ -25,17 +26,34 @@ function GeneralSettings(parentEl, zoom) {
             properties: { multiline: true }, \
           },\
         }, \
+        pnlHighDPI: Panel { \
+          alignChildren: 'left', \
+          grCheck: Group {}, \
+          grScale: Group { \
+            spacing: 0, \
+            txt: StaticText { text: 'Scale Factor: ' }, \
+          }, \
+          txtDescription: StaticText { \
+            text: 'Enabling this option fixes the problem where the actual zoom change is more than what is set in the UI panel on high DPI displays.', \
+            characters: 55, \
+            properties: { multiline: true }, \
+          },\
+        }, \
         pnlSlider: Panel { \
           text: 'Slider', \
           alignChildren: 'left', \
           grCheck: Group {}, \
-          grMinValue: Group { \
-            spacing: 0, \
-            txt: StaticText { text: 'Slider Min: ' }, \
-          }, \
-          grMaxValue: Group { \
-            spacing: 0, \
-            txt: StaticText { text: 'Slider Max: ' }, \
+          grMinMax: Group { \
+            orientation: 'column', \
+            spacing: 2, \
+            grMinValue: Group { \
+              spacing: 0, \
+              txt: StaticText { text: 'Slider Min: ' }, \
+            }, \
+            grMaxValue: Group { \
+              spacing: 0, \
+              txt: StaticText { text: 'Slider Max: ' }, \
+            }, \
           }, \
         }, \
         pnlPresetList: Panel { \
@@ -55,7 +73,17 @@ function GeneralSettings(parentEl, zoom) {
   };
 
   var pnlSync = this.element.gr.pnlSync;
+  var pnlHighDPI = this.element.gr.pnlHighDPI;
   var pnlSlider = this.element.gr.pnlSlider;
+  var grMinMax = pnlSlider.grMinMax;
+  var highDpiPrefs = JSON.parse(preferences.highDPI);
+
+  var saveHighDpiPrefs = function () {
+    preferences.save("highDPI", JSON.stringify({
+      enabled: pnlHighDPI.grCheck.element.check.value,
+      scale: pnlHighDPI.grScale.numValue.getValue(),
+    }))
+  }
 
   pnlSync.grCheck = new Checkbox(
     pnlSync,
@@ -67,40 +95,65 @@ function GeneralSettings(parentEl, zoom) {
   pnlSync.grCheck.setOnClick(function () {
     preferences.save("syncWithView", this.value);
   });
+  
+  pnlHighDPI.grCheck = new Checkbox(
+    pnlHighDPI,
+    "High DPI display support",
+    pnlHighDPI.grCheck,
+  );
+  
+  pnlHighDPI.grCheck.setValue(highDpiPrefs.enabled);
+  pnlHighDPI.grCheck.setOnClick(function () {
+    pnlHighDPI.grScale.enabled = this.value;
+    saveHighDpiPrefs();
+  });
 
+  pnlHighDPI.grScale.numValue = new NumberValue(
+    pnlHighDPI.grScale,
+    "x",
+    highDpiPrefs.scale,
+    0,
+    undefined,
+    undefined,
+    undefined,
+    saveHighDpiPrefs,
+    "Difference between UI and actual values"
+  );
+  pnlHighDPI.grScale.enabled = highDpiPrefs.enabled;
+  
   pnlSlider.grCheck = new Checkbox(pnlSlider, "Show Slider", pnlSlider.grCheck);
   pnlSlider.grCheck.setValue(preferences.showSlider);
   pnlSlider.grCheck.setOnClick(function () {
     zoom.showHideSlider(this.value);
   });
 
-  pnlSlider.grMinValue.numValue = new NumberValue(
-    pnlSlider.grMinValue,
+  grMinMax.grMinValue.numValue = new NumberValue(
+    grMinMax.grMinValue,
     "%",
-    preferences.sliderMin || 1,
-    1,
+    preferences.sliderMin,
+    0,
     preferences.sliderMax,
   );
 
-  pnlSlider.grMaxValue.numValue = new NumberValue(
-    pnlSlider.grMaxValue,
+  grMinMax.grMaxValue.numValue = new NumberValue(
+    grMinMax.grMaxValue,
     "%",
     preferences.sliderMax,
-    preferences.sliderMin || 1,
+    preferences.sliderMin,
   );
 
-  pnlSlider.grMinValue.numValue.onChangeFn = bind(function (val) {
+  grMinMax.grMinValue.numValue.onChangeFn = bind(function (val) {
     preferences.save("sliderMin", val);
-    pnlSlider.grMaxValue.numValue.minValue = val;
+    grMinMax.grMaxValue.numValue.minValue = val;
 
     if (zoom.zoomSlider && isValid(zoom.zoomSlider.element)) {
       zoom.zoomSlider.setMin(val);
     }
   }, this);
 
-  pnlSlider.grMaxValue.numValue.onChangeFn = bind(function (val) {
+  grMinMax.grMaxValue.numValue.onChangeFn = bind(function (val) {
     preferences.save("sliderMax", val);
-    pnlSlider.grMinValue.numValue.maxValue = val;
+    grMinMax.grMinValue.numValue.maxValue = val;
 
     if (zoom.zoomSlider && isValid(zoom.zoomSlider.element)) {
       zoom.zoomSlider.setMax(val);
@@ -108,10 +161,10 @@ function GeneralSettings(parentEl, zoom) {
   }, this);
 
   var maxTextSize = pnlSlider.graphics.measureString(
-    pnlSlider.grMaxValue.txt.text,
+    grMinMax.grMaxValue.txt.text,
   );
-  pnlSlider.grMinValue.txt.preferredSize = maxTextSize;
-  pnlSlider.grMaxValue.txt.preferredSize = maxTextSize;
+  grMinMax.grMinValue.txt.preferredSize = maxTextSize;
+  grMinMax.grMaxValue.txt.preferredSize = maxTextSize;
 
   this.element.gr.pnlPresetList.list = new ValuesList(
     this.element.gr.pnlPresetList,
@@ -123,8 +176,8 @@ GeneralSettings.prototype.cancel = function () {
 
   preferences.save("syncWithView", this.settingsOnStart.syncWithView);
   this.zoom.showHideSlider(this.settingsOnStart.showSlider);
-  pnlSlider.grMinValue.numValue.onChangeFn(this.settingsOnStart.sliderMin);
-  pnlSlider.grMaxValue.numValue.onChangeFn(this.settingsOnStart.sliderMax);
+  pnlSlider.grMinMax.grMinValue.numValue.onChangeFn(this.settingsOnStart.sliderMin);
+  pnlSlider.grMinMax.grMaxValue.numValue.onChangeFn(this.settingsOnStart.sliderMax);
   preferences.save("presetValues", this.settingsOnStart.presetValues);
 };
 

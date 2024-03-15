@@ -24,8 +24,8 @@ function KeyBindingsList(parentEl) {
 
   this.addColumnNames();
   this.build();
-  this.setMaxSize([9999, 200]);
-  this.setMinSize([0, 200]);
+  this.setMaxSize([9999, 300]);
+  this.setMinSize([0, 300]);
   this.refresh();
 }
 

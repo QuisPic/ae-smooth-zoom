@@ -9,6 +9,9 @@ function Preferences() {
   if (!app.preferences.havePref(SETTINGS_SECTION_NAME, "syncWithView")) {
     this.save("syncWithView", DEFAULT_SETTINGS.syncWithView);
   }
+  if (!app.preferences.havePref(SETTINGS_SECTION_NAME, "highDPI")) {
+    this.save("highDPI", DEFAULT_SETTINGS.highDPI);
+  }
   if (!app.preferences.havePref(SETTINGS_SECTION_NAME, "showSlider")) {
     this.save("showSlider", DEFAULT_SETTINGS.showSlider);
   }
@@ -33,6 +36,11 @@ function Preferences() {
   this.syncWithView = app.preferences.getPrefAsBool(
     SETTINGS_SECTION_NAME,
     "syncWithView",
+  );
+  
+  this.highDPI = app.preferences.getPrefAsString(
+    SETTINGS_SECTION_NAME,
+    "highDPI",
   );
 
   this.showSlider = app.preferences.getPrefAsBool(

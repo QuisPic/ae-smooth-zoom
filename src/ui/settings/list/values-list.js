@@ -19,8 +19,8 @@ function ValuesList(parentEl) {
   }
 
   this.build();
-  this.setMaxSize([9999, 145]);
-  this.setMinSize([0, 145]);
+  this.setMaxSize([9999, 125]);
+  this.setMinSize([0, 125]);
 }
 
 ValuesList.prototype = create(List.prototype);
