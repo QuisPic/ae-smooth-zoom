@@ -8,7 +8,6 @@ import bind from "../extern/function-bind";
 
 function Zoom(thisObj) {
   var currentZoom = Zoom.getViewZoom();
-  // var zoomSetToFn = this.produceSetTo();
 
   this.w =
     thisObj instanceof Panel
@@ -178,6 +177,7 @@ Zoom.prototype.produceOnIncrement = function () {
     }
 
     thisZoom.setTo(zoomValue);
+    thisZoom.setUiTo(zoomValue);
   };
 };
 
