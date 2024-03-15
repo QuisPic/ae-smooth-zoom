@@ -78,12 +78,12 @@ function GeneralSettings(parentEl, zoom) {
   var pnlSlider = this.element.gr.pnlSlider;
   var grMinMax = pnlSlider.grMinMax;
 
-  var saveHighDpiPrefs = function () {
+  function saveHighDpiPrefs() {
     preferences.save("highDPI", {
       enabled: pnlHighDPI.grCheck.element.check.value,
       scale: pnlHighDPI.grScale.numValue.getValue(),
     });
-  };
+  }
 
   pnlSync.grCheck = new Checkbox(
     pnlSync,
@@ -98,7 +98,7 @@ function GeneralSettings(parentEl, zoom) {
 
   pnlHighDPI.grCheck = new Checkbox(
     pnlHighDPI,
-    "High DPI display support",
+    "High DPI display (Retina) support",
     pnlHighDPI.grCheck,
   );
 
@@ -112,7 +112,7 @@ function GeneralSettings(parentEl, zoom) {
     pnlHighDPI.grScale,
     "x",
     preferences.highDPI.scale,
-    0,
+    1,
     undefined,
     undefined,
     undefined,
@@ -131,7 +131,7 @@ function GeneralSettings(parentEl, zoom) {
     grMinMax.grMinValue,
     "%",
     preferences.sliderMin,
-    0,
+    1,
     preferences.sliderMax,
   );
 

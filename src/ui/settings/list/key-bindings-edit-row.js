@@ -147,7 +147,7 @@ KeyBindingsEditRow.prototype.fillHandler = function (values) {
       columnGr,
       "%",
       values.amount,
-      values.action === 1 ? 0 : undefined,
+      values.action === 1 ? 0.8 : undefined,
     );
   });
 

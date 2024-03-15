@@ -94,6 +94,9 @@ Preferences.prototype.save = function (key, value) {
       case "experimental":
         zoomPlugin.updateExperimentalOptions();
         break;
+      case "highDPI":
+        zoomPlugin.updateHighDpiOptions();
+        break;
       default:
         break;
     }

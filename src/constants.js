@@ -1,4 +1,4 @@
-export var VERSION = "1.0.0";
+export var VERSION = "0.3.0";
 export var OS = { WIN: 0, MAC: 1 };
 export var AE_OS = $.os.indexOf("Win") !== -1 ? OS.WIN : OS.MAC;
 export var PLUGIN_FILE_NAME = AE_OS === OS.WIN ? "Zoom.aex" : "Zoom.plugin";
@@ -31,7 +31,7 @@ export var DEFAULT_SETTINGS = {
     scale: 2,
   },
   showSlider: true,
-  sliderMin: 0,
+  sliderMin: 1,
   sliderMax: 400,
   presetValues: [
     1.5, 3.1, 6.25, 12.5, 25, 33.3, 50, 100, 200, 400, 800, 1600, 3200, 6400,

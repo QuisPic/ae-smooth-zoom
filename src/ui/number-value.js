@@ -104,6 +104,7 @@ function NumberValue(
             if (!isNaN(newValue)) {
               this.setValue(newValue);
               this.onChange();
+              onScrubEndFn();
             }
           }, this),
         );

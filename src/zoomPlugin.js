@@ -87,26 +87,45 @@ ZoomPlugin.prototype.isAvailable = function () {
 };
 
 ZoomPlugin.prototype.getError = function () {
-  return this.externalObject.getError();
+  if (this.externalObject.getError) {
+    return this.externalObject.getError();
+  }
 };
 
 ZoomPlugin.prototype.reload = function () {
-  this._status = this.externalObject.reload();
+  if (this.externalObject.reload) {
+    this._status = this.externalObject.reload();
+  }
 };
 
 ZoomPlugin.prototype.updateKeyBindings = function () {
-  this.externalObject.updateKeyBindings();
+  if (this.externalObject.updateKeyBindings) {
+    this.externalObject.updateKeyBindings();
+  }
 };
+
 ZoomPlugin.prototype.updateExperimentalOptions = function () {
-  this.externalObject.updateExperimentalOptions();
+  if (this.externalObject.updateExperimentalOptions) {
+    this.externalObject.updateExperimentalOptions();
+  }
+};
+
+ZoomPlugin.prototype.updateHighDpiOptions = function () {
+  if (this.externalObject.updateHighDpiOptions) {
+    this.externalObject.updateHighDpiOptions();
+  }
 };
 
 ZoomPlugin.prototype.startKeyCapture = function () {
-  this.externalObject.startKeyCapture();
+  if (this.externalObject.startKeyCapture) {
+    this.externalObject.startKeyCapture();
+  }
 };
 
 ZoomPlugin.prototype.endKeyCapture = function () {
-  this.externalObject.endKeyCapture();
+  if (this.externalObject.endKeyCapture) {
+    this.externalObject.endKeyCapture();
+  }
 };
 
 var zoomPlugin = new ZoomPlugin();
