@@ -29,7 +29,7 @@ function Zoom(thisObj) {
     this.w,
     "%",
     currentZoom,
-    0.8,
+    1,
     undefined,
     this.produceSetTo(),
   );

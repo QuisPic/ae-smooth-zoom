@@ -134,7 +134,7 @@ KeyBindingsEditRow.prototype.fillHandler = function (values) {
     if (this.clmnAction.element.selection.index === 0) {
       this.clmnAmount.element.minValue = undefined;
     } else if (this.clmnAction.element.selection.index === 1) {
-      this.clmnAmount.element.minValue = 0;
+      this.clmnAmount.element.minValue = 1;
 
       if (this.clmnAmount.element.getValue() < 0) {
         this.clmnAmount.element.setValue(0);
@@ -147,7 +147,7 @@ KeyBindingsEditRow.prototype.fillHandler = function (values) {
       columnGr,
       "%",
       values.amount,
-      values.action === 1 ? 0.8 : undefined,
+      values.action === 1 ? 1 : undefined,
     );
   });
 
