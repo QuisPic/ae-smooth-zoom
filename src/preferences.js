@@ -62,9 +62,8 @@ function Preferences() {
     "presetValues",
   );
 
-  this.experimental = app.preferences.getPrefAsString(
-    SETTINGS_SECTION_NAME,
-    "experimental",
+  this.experimental = JSON.parse(
+    app.preferences.getPrefAsString(SETTINGS_SECTION_NAME, "experimental"),
   );
 }
 

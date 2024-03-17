@@ -4,6 +4,7 @@ import {
   BLUE_COLOR,
   EVENT_KEY_PRESSED,
   EVENT_MOUSE_PRESSED,
+  KB_ACTION_NAMES,
   VC_ENTER,
   VC_ESCAPE,
   VC_EX_ENTER,
@@ -122,13 +123,9 @@ KeyBindingsEditRow.prototype.fillHandler = function (values) {
     }, this),
   );
 
-  this.clmnAction = this.add(
-    "DropDownList { \
-      properties: { \
-        items: ['Change:', 'Set to:'] \
-      }, \
-    }",
-  );
+  this.clmnAction = this.add(function (columnGr) {
+    return columnGr.add("dropdownlist", undefined, KB_ACTION_NAMES);
+  });
   this.clmnAction.element.selection = values.action;
   this.clmnAction.element.onChange = bind(function () {
     if (this.clmnAction.element.selection.index === 0) {

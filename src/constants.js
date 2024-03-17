@@ -20,6 +20,13 @@ export var UI_STATUS = {
   OK: 1,
 };
 
+export var KB_ACTION = {
+  CHANGE: 0,
+  SET_TO: 1,
+};
+
+export var KB_ACTION_NAMES = ["Change:", "Set to:"];
+
 export var DEFAULT_SETTINGS = {
   keyBindings:
     AE_OS === OS.WIN

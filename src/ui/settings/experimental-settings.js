@@ -60,7 +60,7 @@ function ExperimentalSettings(parentEl) {
     }",
   );
 
-  var experimentalPrefs = JSON.parse(preferences.experimental);
+  // var experimentalPrefs = JSON.parse(preferences.experimental);
   var pnlDetectCursorInsideView = this.element.gr.pnlDetectCursorInsideView;
   var pnlFixViewportPosition = this.element.gr.pnlFixViewportPosition;
 
@@ -77,18 +77,18 @@ function ExperimentalSettings(parentEl) {
   );
 
   pnlDetectCursorInsideView.grCheck.setValue(
-    experimentalPrefs.detectCursorInsideView,
+    preferences.experimental.detectCursorInsideView,
   );
 
   pnlFixViewportPosition.grCheck.setValue(
-    experimentalPrefs.fixViewportPosition.enabled,
+    preferences.experimental.fixViewportPosition.enabled,
   );
 
   pnlFixViewportPosition.pnlZoomAround.grZoomAround.ddlistZoomPoint.selection =
-    experimentalPrefs.fixViewportPosition.zoomAround;
-  
+    preferences.experimental.fixViewportPosition.zoomAround;
+
   pnlFixViewportPosition.pnlZoomAround.enabled =
-    experimentalPrefs.fixViewportPosition.enabled;
+    preferences.experimental.fixViewportPosition.enabled;
 
   /** Show plug-in status if plug-in is not found */
   if (zoomPlugin.status() !== ZOOM_PLUGIN_STATUS.INITIALIZED) {
@@ -129,20 +129,17 @@ function ExperimentalSettings(parentEl) {
 }
 
 ExperimentalSettings.prototype.saveAll = function () {
-  preferences.save(
-    "experimental",
-    JSON.stringify({
-      detectCursorInsideView:
-        this.element.gr.pnlDetectCursorInsideView.grCheck.element.check.value,
-      fixViewportPosition: {
-        enabled:
-          this.element.gr.pnlFixViewportPosition.grCheck.element.check.value,
-        zoomAround:
-          this.element.gr.pnlFixViewportPosition.pnlZoomAround.grZoomAround
-            .ddlistZoomPoint.selection.index,
-      },
-    }),
-  );
+  preferences.save("experimental", {
+    detectCursorInsideView:
+      this.element.gr.pnlDetectCursorInsideView.grCheck.element.check.value,
+    fixViewportPosition: {
+      enabled:
+        this.element.gr.pnlFixViewportPosition.grCheck.element.check.value,
+      zoomAround:
+        this.element.gr.pnlFixViewportPosition.pnlZoomAround.grZoomAround
+          .ddlistZoomPoint.selection.index,
+    },
+  });
 };
 
 ExperimentalSettings.prototype.cancel = function () {

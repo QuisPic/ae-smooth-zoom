@@ -128,6 +128,16 @@ ZoomPlugin.prototype.endKeyCapture = function () {
   }
 };
 
+ZoomPlugin.prototype.postZoomAction = function (actionType, amount) {
+  var isActionPosted = false;
+
+  if (this.externalObject.postZoomAction) {
+    isActionPosted = this.externalObject.postZoomAction(actionType, amount);
+  }
+
+  return isActionPosted;
+};
+
 var zoomPlugin = new ZoomPlugin();
 
 export default zoomPlugin;

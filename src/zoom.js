@@ -2,9 +2,10 @@ import Settings from "./ui/settings";
 import NumberValue from "./ui/number-value";
 import Slider from "./ui/slider";
 import ValueList from "./ui/value-list";
-import { STICK_TO } from "./constants";
+import { KB_ACTION, STICK_TO } from "./constants";
 import preferences from "./preferences";
 import bind from "../extern/function-bind";
+import zoomPlugin from "./zoomPlugin";
 
 function Zoom(thisObj) {
   var currentZoom = Zoom.getViewZoom();
@@ -98,10 +99,21 @@ Zoom.prototype.setUiTo = function (zoomValue) {
 
 Zoom.prototype.setTo = function (zoomValue) {
   zoomValue = zoomValue < 0.8 ? 0.8 : zoomValue;
-  zoomValue /= preferences.highDPI.enabled
-    ? 100 * preferences.highDPI.scale
-    : 100;
-  app.activeViewer.views[0].options.zoom = zoomValue;
+  var isActionPosted = false;
+
+  if (
+    preferences.experimental.fixViewportPosition.enabled &&
+    zoomPlugin.isAvailable()
+  ) {
+    isActionPosted = zoomPlugin.postZoomAction(KB_ACTION.SET_TO, zoomValue);
+  }
+
+  if (!isActionPosted) {
+    zoomValue /= preferences.highDPI.enabled
+      ? 100 * preferences.highDPI.scale
+      : 100;
+    app.activeViewer.views[0].options.zoom = zoomValue;
+  }
 };
 
 Zoom.prototype.syncWithView = function () {

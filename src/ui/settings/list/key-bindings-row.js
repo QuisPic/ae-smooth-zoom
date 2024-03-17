@@ -4,6 +4,7 @@ import KeyCombination from "../key-bindings/key-combination";
 import { positionRelativeToParent } from "../../../utils";
 import bind from "../../../../extern/function-bind";
 import indexOf from "../../../../extern/array-indexOf";
+import { KB_ACTION_NAMES } from "../../../constants";
 
 function KeyBindingsRow(list) {
   Row.call(this, list);
@@ -27,7 +28,6 @@ function KeyBindingsRow(list) {
 }
 
 KeyBindingsRow.prototype = create(Row.prototype);
-KeyBindingsRow.ACTION_NAMES = ["Change:", "Set to:"];
 
 KeyBindingsRow.prototype.alignColumns = function () {
   for (var i = 0; i < this.columns.length; i++) {
@@ -56,7 +56,7 @@ KeyBindingsRow.prototype.fillHandler = function (values) {
     });
 
     this.clmnAction = this.add("StaticText {}");
-    this.clmnAction.element.text = KeyBindingsRow.ACTION_NAMES[values.action];
+    this.clmnAction.element.text = KB_ACTION_NAMES[values.action];
 
     this.clmnAmount = this.add("StaticText {}");
     this.clmnAmount.element.text = values.amount + "%";
