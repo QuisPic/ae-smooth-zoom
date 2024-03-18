@@ -4,6 +4,7 @@ import {
   BLUE_COLOR,
   EVENT_KEY_PRESSED,
   EVENT_MOUSE_PRESSED,
+  KB_ACTION,
   KB_ACTION_NAMES,
   VC_ENTER,
   VC_ESCAPE,
@@ -30,11 +31,21 @@ function KeyBindingsEditRow(list) {
 
 KeyBindingsEditRow.prototype = create(KeyBindingsRow.prototype);
 
+/** Support for deprecated actions */
+KeyBindingsEditRow.actionToSelection = {};
+KeyBindingsEditRow.actionToSelection[KB_ACTION.CHANGE] = 0;
+KeyBindingsEditRow.actionToSelection[KB_ACTION.DECREMENT] = 0; // deprecated
+KeyBindingsEditRow.actionToSelection[KB_ACTION.SET_TO] = 1;
+KeyBindingsEditRow.selectionToAction = [KB_ACTION.CHANGE, KB_ACTION.SET_TO];
+
 KeyBindingsEditRow.prototype.getValues = function () {
   return {
     enabled: this.clmnCheck.element.value,
     keyCodes: this.keyCodes,
-    action: this.clmnAction.element.selection.index,
+    action:
+      KeyBindingsEditRow.selectionToAction[
+        this.clmnAction.element.selection.index
+      ],
     amount: this.clmnAmount.element.getValue(),
   };
 };
@@ -43,7 +54,7 @@ KeyBindingsEditRow.prototype.fillHandler = function (values) {
   values = values || {
     enabled: true,
     keyCodes: undefined,
-    action: 0,
+    action: KB_ACTION.CHANGE,
     amount: 1,
   };
 
@@ -124,9 +135,13 @@ KeyBindingsEditRow.prototype.fillHandler = function (values) {
   );
 
   this.clmnAction = this.add(function (columnGr) {
-    return columnGr.add("dropdownlist", undefined, KB_ACTION_NAMES);
+    return columnGr.add("dropdownlist", undefined, [
+      KB_ACTION_NAMES[KB_ACTION.CHANGE],
+      KB_ACTION_NAMES[KB_ACTION.SET_TO],
+    ]);
   });
-  this.clmnAction.element.selection = values.action;
+  this.clmnAction.element.selection =
+    KeyBindingsEditRow.actionToSelection[values.action];
   this.clmnAction.element.onChange = bind(function () {
     if (this.clmnAction.element.selection.index === 0) {
       this.clmnAmount.element.minValue = undefined;
@@ -143,8 +158,8 @@ KeyBindingsEditRow.prototype.fillHandler = function (values) {
     return new NumberValue(
       columnGr,
       "%",
-      values.amount,
-      values.action === 1 ? 1 : undefined,
+      values.action === KB_ACTION.DECREMENT ? -values.amount : values.amount,
+      values.action === KB_ACTION.SET_TO ? 1 : undefined,
     );
   });
 

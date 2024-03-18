@@ -4,7 +4,7 @@ import KeyCombination from "../key-bindings/key-combination";
 import { positionRelativeToParent } from "../../../utils";
 import bind from "../../../../extern/function-bind";
 import indexOf from "../../../../extern/array-indexOf";
-import { KB_ACTION_NAMES } from "../../../constants";
+import { KB_ACTION, KB_ACTION_NAMES } from "../../../constants";
 
 function KeyBindingsRow(list) {
   Row.call(this, list);
@@ -59,7 +59,9 @@ KeyBindingsRow.prototype.fillHandler = function (values) {
     this.clmnAction.element.text = KB_ACTION_NAMES[values.action];
 
     this.clmnAmount = this.add("StaticText {}");
-    this.clmnAmount.element.text = values.amount + "%";
+    this.clmnAmount.element.text =
+      (values.action === KB_ACTION.DECREMENT ? -values.amount : values.amount) +
+      "%";
 
     this.alignColumns();
     this.checkClick(values.enabled);

@@ -22,16 +22,73 @@ export var UI_STATUS = {
 
 export var KB_ACTION = {
   CHANGE: 0,
-  SET_TO: 1,
+  DECREMENT: 1, // deprecated
+  SET_TO: 2,
 };
 
-export var KB_ACTION_NAMES = ["Change:", "Set to:"];
+/** Change is written 2 times because old versions of this setting had 3 options
+ * and first two were Increment/Decrement */
+export var KB_ACTION_NAMES = {};
+KB_ACTION_NAMES[KB_ACTION.CHANGE] = "Change:";
+KB_ACTION_NAMES[KB_ACTION.DECREMENT] = "Change:";
+KB_ACTION_NAMES[KB_ACTION.SET_TO] = "Set to:";
 
 export var DEFAULT_SETTINGS = {
+  version: VERSION,
   keyBindings:
     AE_OS === OS.WIN
-      ? '[{"enabled":true,"keyCodes":{"type":11,"mask":34,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":34,"keycode":2},"action":0,"amount":-1},{"enabled":false,"keyCodes":{"type":4,"mask":34,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":34,"keycode":45},"action":0,"amount":-1}]'
-      : '[{"enabled":true,"keyCodes":{"type":11,"mask":68,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":68,"keycode":2},"action":0,"amount":-1},{"enabled":false,"keyCodes":{"type":4,"mask":68,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":68,"keycode":45},"action":0,"amount":-1}]',
+      ? [
+          {
+            enabled: true,
+            keyCodes: { type: 11, mask: 34, keycode: 1 },
+            action: KB_ACTION.CHANGE,
+            amount: 1,
+          },
+          {
+            enabled: true,
+            keyCodes: { type: 11, mask: 34, keycode: 2 },
+            action: KB_ACTION.CHANGE,
+            amount: -1,
+          },
+          {
+            enabled: false,
+            keyCodes: { type: 4, mask: 34, keycode: 61 },
+            action: KB_ACTION.CHANGE,
+            amount: 1,
+          },
+          {
+            enabled: false,
+            keyCodes: { type: 4, mask: 34, keycode: 45 },
+            action: KB_ACTION.CHANGE,
+            amount: -1,
+          },
+        ]
+      : [
+          {
+            enabled: true,
+            keyCodes: { type: 11, mask: 68, keycode: 1 },
+            action: KB_ACTION.CHANGE,
+            amount: 1,
+          },
+          {
+            enabled: true,
+            keyCodes: { type: 11, mask: 68, keycode: 2 },
+            action: KB_ACTION.CHANGE,
+            amount: -1,
+          },
+          {
+            enabled: false,
+            keyCodes: { type: 4, mask: 68, keycode: 61 },
+            action: KB_ACTION.CHANGE,
+            amount: 1,
+          },
+          {
+            enabled: false,
+            keyCodes: { type: 4, mask: 68, keycode: 45 },
+            action: KB_ACTION.CHANGE,
+            amount: -1,
+          },
+        ],
   syncWithView: true,
   highDPI: {
     enabled: false,
