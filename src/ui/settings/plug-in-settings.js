@@ -1,5 +1,10 @@
 import { getPluginsFolder } from "../../utils";
-import { AE_OS, OS, ZOOM_PLUGIN_STATUS } from "../../constants";
+import {
+  AE_OS,
+  OS,
+  PLUGIN_FILE_NAME,
+  ZOOM_PLUGIN_STATUS,
+} from "../../constants";
 import zoomPlugin from "../../zoomPlugin";
 import FoldingInfo from "../folding-info";
 import PluginStatus from "../status/plugin-status";
@@ -45,8 +50,6 @@ function PluginSettings(parentEl) {
 }
 
 PluginSettings.prototype.fillInstallInfo = function (parentGr) {
-  var pluginFileName =
-    AE_OS === OS.WIN ? "Zoom-plugin-win.aex" : "Zoom-plugin-mac.plugin";
   var grInstallInfo = parentGr.add(
     "Group { \
       orientation: 'column', \
@@ -67,11 +70,13 @@ PluginSettings.prototype.fillInstallInfo = function (parentGr) {
   );
 
   grInstallInfo.txt1.text =
-    '1. Find the file named "' +
-    pluginFileName +
+    '1. Find the plug-in file at "' +
+    (AE_OS == OS.WIN ? "Plug-in/Windows/" : "Plug-in/macOS/") +
+    PLUGIN_FILE_NAME +
     '" in the same archive as this script.';
 
-  grInstallInfo.txt2.text = "2. Copy the file (" + pluginFileName + ") to:";
+  grInstallInfo.txt2.text =
+    "2. Copy the plug-in file (" + PLUGIN_FILE_NAME + ") to:";
 
   parentGr.grInstallInfo = grInstallInfo;
   var pluginsFolder = getPluginsFolder();

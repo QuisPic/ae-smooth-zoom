@@ -1,4 +1,4 @@
-import { PLUGIN_FILE_NAME, ZOOM_PLUGIN_STATUS } from "./constants";
+import { AE_OS, OS, PLUGIN_FILE_NAME, ZOOM_PLUGIN_STATUS } from "./constants";
 import { getPluginsFolder } from "./utils";
 
 function ZoomPlugin() {
@@ -7,50 +7,129 @@ function ZoomPlugin() {
   this.externalObject = undefined;
 }
 
-ZoomPlugin.prototype.status = function () {
-  if (this._status === undefined) {
-    this._status = ZOOM_PLUGIN_STATUS.NOT_FOUND;
-    var libPath = "lib:" + PLUGIN_FILE_NAME;
+ZoomPlugin.isZoomPlugin = function (extObject) {
+  return extObject && extObject.quis_zoom_plugin;
+};
 
-    if (!this.foundEO) {
-      try {
-        this.foundEO = ExternalObject.search(libPath);
-      } catch (error) {
-        /* if the plugin isn't found in the standard search folders 
-        try to search explicitly in the plugins folder */
-        var pluginsFolder = getPluginsFolder();
+ZoomPlugin.loadExternalObject = function (libPath) {
+  try {
+    var foundExtObject = ExternalObject.search(libPath);
+  } catch (error) {
+    /**/
+  }
 
-        if (pluginsFolder) {
-          var pluginFile = File(
-            pluginsFolder.fullName + "/" + PLUGIN_FILE_NAME,
-          );
+  if (foundExtObject) {
+    try {
+      var extObject = new ExternalObject(libPath);
+    } catch (error) {
+      /**/
+    }
+  }
 
-          if (pluginFile.exists) {
-            libPath = "lib:" + pluginFile.fsName;
+  return extObject;
+};
 
-            try {
-              this.foundEO = ExternalObject.search(libPath);
-            } catch (error) {
-              /**/
-            }
-          }
+ZoomPlugin.searchForPlugin = function (folder) {
+  var result;
+  var files = folder.getFiles();
+
+  for (var i = 0; i < files.length; i++) {
+    var extObject = ZoomPlugin.loadExternalObject("lib:" + files[i].fsName);
+    if (ZoomPlugin.isZoomPlugin(extObject)) {
+      result = extObject;
+      break;
+    }
+  }
+
+  /** If plugin is not found is this folder search in sub-folders*/
+  if (!result) {
+    for (i = 0; i < files.length; i++) {
+      if (files[i] instanceof Folder) {
+        /** skip plug-ins on macos */
+        if (AE_OS === OS.MAC && files[i].name.indexOf(".plugin") !== -1) {
+          continue;
+        }
+
+        result = ZoomPlugin.searchForPlugin(files[i]);
+
+        if (result) {
+          break;
         }
       }
     }
+  }
 
-    if (this.foundEO && !this.externalObject) {
-      try {
-        this.externalObject = new ExternalObject(libPath);
-      } catch (error) {
-        alert(
-          "Error loading Zoom plug-in.\nError at line " +
-            $.line +
-            ":\n" +
-            error.message,
-        );
+  return result;
+};
 
-        this.foundEO = false;
-      }
+ZoomPlugin.prototype.findPlugin = function () {
+  var libPath = "lib:" + PLUGIN_FILE_NAME;
+  var extObject = ZoomPlugin.loadExternalObject(libPath);
+
+  /** if the plugin isn't found in the standard search folderstry
+   * try to search explicitly in the plugins folder */
+  if (!extObject) {
+    var pluginsFolder = getPluginsFolder();
+
+    if (pluginsFolder.exists) {
+      extObject = ZoomPlugin.searchForPlugin(pluginsFolder);
+    }
+  }
+
+  if (extObject) {
+    this.foundEO = true;
+    this.externalObject = extObject;
+  }
+};
+
+ZoomPlugin.prototype.status = function () {
+  if (this._status === undefined) {
+    this._status = ZOOM_PLUGIN_STATUS.NOT_FOUND;
+    // var libPath = "lib:" + PLUGIN_FILE_NAME;
+    //
+    // if (!this.foundEO) {
+    //   try {
+    //     this.foundEO = ExternalObject.search(libPath);
+    //   } catch (error) {
+    //     /* if the plugin isn't found in the standard search folders
+    //     try to search explicitly in the plugins folder */
+    //     var pluginsFolder = getPluginsFolder();
+    //
+    //     if (pluginsFolder) {
+    //       var pluginFile = File(
+    //         pluginsFolder.fullName + "/" + PLUGIN_FILE_NAME,
+    //       );
+    //
+    //       if (pluginFile.exists) {
+    //         libPath = "lib:" + pluginFile.fsName;
+    //
+    //         try {
+    //           this.foundEO = ExternalObject.search(libPath);
+    //         } catch (error) {
+    //           /**/
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+    //
+    // if (this.foundEO && !this.externalObject) {
+    //   try {
+    //     this.externalObject = new ExternalObject(libPath);
+    //   } catch (error) {
+    //     alert(
+    //       "Error loading Zoom plug-in.\nError at line " +
+    //         $.line +
+    //         ":\n" +
+    //         error.message,
+    //     );
+    //
+    //     this.foundEO = false;
+    //   }
+    // }
+
+    if (!this.externalObject) {
+      this.findPlugin();
     }
 
     if (this.externalObject) {
