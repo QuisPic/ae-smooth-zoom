@@ -34,7 +34,7 @@ PluginStatus.prototype.statusMessage = {};
 PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.NOT_FOUND] =
   "Zoom plug-in is not installed";
 PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.FOUND_NOT_INITIALIZED] =
-  "Zoom plug-in is found but isn't initialized";
+  "Zoom plug-in is found but is not loaded by After Effects";
 PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.FINISHED] =
   "Zoom plug-in stopped working";
 PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.INITIALIZATION_ERROR] =

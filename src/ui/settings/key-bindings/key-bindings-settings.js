@@ -56,7 +56,7 @@ KeyBindingsSettings.prototype.draw = function () {
       var grText = grPluginStatus.pluginStatusPanel.element.grStatus.gr.grText;
       var statusText = grText.children[0].text;
 
-      grText.children[0].text = "Key Bindings aren't available:";
+      grText.children[0].text = "Key Bindings are not available:";
       grText.add("StaticText { text: '" + statusText + "' }");
     }
 

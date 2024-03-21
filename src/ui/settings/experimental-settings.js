@@ -100,7 +100,7 @@ function ExperimentalSettings(parentEl) {
     var grText = grPluginStatus.pluginStatusPanel.element.grStatus.gr.grText;
     var statusText = grText.children[0].text;
 
-    grText.children[0].text = "Experimental settings aren't available:";
+    grText.children[0].text = "Experimental settings are not available:";
     grText.add("StaticText { text: '" + statusText + "' }");
 
     pnlDetectCursorInsideView.enabled = false;
