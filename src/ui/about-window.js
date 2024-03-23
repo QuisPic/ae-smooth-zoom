@@ -3,25 +3,16 @@ import TextLink from "./text-link";
 
 function AboutWindow() {
   this.element = new Window(
-    "palette { \
+    "dialog { \
       minimumSize: [300, 0], \
       alignChildren: ['fill', 'top'], \
       grTitle: Group { \
-        spacing: 0, \
+        spacing: 5, \
         orientation: 'column', \
         alignChildren: 'center', \
         txtVersion: StaticText {}, \
         txtDescription: StaticText { text: 'Improved zoom experience inside compositions.' }, \
-      }, \
-      pnlInfo: Panel { \
-        orientation: 'row', \
-        grName: Group { \
-          orientation: 'column', \
-          alignChildren: 'left', \
-          alignment: ['left', 'top'], \
-          spacing: 4, \
-          txtName: StaticText { text: 'Developed by Denis Mozgovoy' }, \
-        }, \
+        txtYear: StaticText { text: '2024' }, \
       }, \
       pnlReport: Panel { \
         spacing: 4, \
@@ -37,13 +28,29 @@ function AboutWindow() {
           }, \
         }, \
       }, \
-      txtYear: StaticText { \
-        text: '2024', \
+      pnlInfo: Panel { \
+        orientation: 'row', \
+        grName: Group { \
+          orientation: 'column', \
+          alignChildren: 'left', \
+          alignment: ['left', 'top'], \
+          spacing: 4, \
+          txtName: StaticText { text: 'Developed by Denis Mozgovoy' }, \
+        }, \
+      }, \
+      btnOK: IconButton { \
         alignment: 'right', \
+        title: 'OK', \
+        text: 'OK', \
+        preferredSize: [100, 22], \
       }, \
     }",
     "Zoom About",
   );
+
+  this.element.btnOK.onClick = function () {
+    this.window.close();
+  };
 
   this.element.grTitle.txtVersion.text = "Zoom " + VERSION;
   this.element.pnlInfo.grName.linkSite = new TextLink(
