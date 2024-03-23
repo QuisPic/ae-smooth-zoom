@@ -1,11 +1,11 @@
 import preferences from "../../preferences";
-import JSON from "../../../extern/json2";
 import zoomPlugin from "../../zoomPlugin";
 import PluginStatusWithButton from "../status/plugin-status-with-button";
-import { ZOOM_PLUGIN_STATUS } from "../../constants";
+import { DEFAULT_SETTINGS, ZOOM_PLUGIN_STATUS } from "../../constants";
 import bind from "../../../extern/function-bind";
 import Checkbox from "../checkbox";
-import ExperimentalSettingsWarning from "./experimental-settings-warning";
+import windows from "../../windows";
+import AboutWindow from "../about-window";
 
 function ExperimentalSettings(parentEl) {
   this.settingsOnStart = preferences.experimental;
@@ -56,12 +56,32 @@ function ExperimentalSettings(parentEl) {
             properties: { multiline: true }, \
           },\
         }, \
+        pnlWarning: Panel { \
+          alignChildren: 'left', \
+          spacing: 1, \
+          txt0: StaticText {}, \
+          txt1: StaticText {}, \
+          txt2: StaticText {}, \
+          grButtons: Group { \
+            margins: [0, 10, 0, 0], \
+            alignment: 'right', \
+            btnReset: IconButton { \
+              title: 'Reset Experimental Settings', \
+              preferredSize: [-1, 22], \
+            }, \
+            btnContacts: IconButton { \
+              title: 'Contacts', \
+              preferredSize: [-1, 22], \
+            }, \
+          }, \
+        }, \
       }, \
     }",
   );
 
   var pnlDetectCursorInsideView = this.element.gr.pnlDetectCursorInsideView;
   var pnlFixViewportPosition = this.element.gr.pnlFixViewportPosition;
+  var pnlWarning = this.element.gr.pnlWarning;
 
   pnlDetectCursorInsideView.grCheck = new Checkbox(
     pnlDetectCursorInsideView,
@@ -75,19 +95,7 @@ function ExperimentalSettings(parentEl) {
     pnlFixViewportPosition.grCheck,
   );
 
-  pnlDetectCursorInsideView.grCheck.setValue(
-    preferences.experimental.detectCursorInsideView,
-  );
-
-  pnlFixViewportPosition.grCheck.setValue(
-    preferences.experimental.fixViewportPosition.enabled,
-  );
-
-  pnlFixViewportPosition.pnlZoomAround.grZoomAround.ddlistZoomPoint.selection =
-    preferences.experimental.fixViewportPosition.zoomAround;
-
-  pnlFixViewportPosition.pnlZoomAround.enabled =
-    preferences.experimental.fixViewportPosition.enabled;
+  this.readSettingsFrom(preferences.experimental);
 
   /** Show plug-in status if plug-in is not found */
   if (zoomPlugin.status() !== ZOOM_PLUGIN_STATUS.INITIALIZED) {
@@ -112,8 +120,45 @@ function ExperimentalSettings(parentEl) {
   pnlFixViewportPosition.pnlZoomAround.grZoomAround.ddlistZoomPoint.onChange =
     bind(this.saveAll, this);
 
-  this.element.gr.warning = new ExperimentalSettingsWarning(this.element.gr);
+  pnlWarning.txt0.text = "Please note that these settings are experimental.";
+  pnlWarning.txt1.text =
+    "Experimental settings may not work as described or may even cause After Effects to crash.";
+  pnlWarning.txt2.text =
+    "If you experience such issues, please report to the author.";
+
+  pnlWarning.grButtons.btnContacts.onClick = function () {
+    windows.new(AboutWindow);
+  };
+
+  pnlWarning.grButtons.btnReset.onClick = bind(function () {
+    this.readSettingsFrom(DEFAULT_SETTINGS.experimental);
+    this.saveAll();
+  }, this);
+
+  pnlWarning.graphics.backgroundColor = this.element.graphics.newBrush(
+    this.element.graphics.BrushType.SOLID_COLOR,
+    [0.19, 0.19, 0, 1],
+  );
 }
+
+ExperimentalSettings.prototype.readSettingsFrom = function (settingsObj) {
+  var pnlDetectCursorInsideView = this.element.gr.pnlDetectCursorInsideView;
+  var pnlFixViewportPosition = this.element.gr.pnlFixViewportPosition;
+
+  pnlDetectCursorInsideView.grCheck.setValue(
+    settingsObj.detectCursorInsideView,
+  );
+
+  pnlFixViewportPosition.grCheck.setValue(
+    settingsObj.fixViewportPosition.enabled,
+  );
+
+  pnlFixViewportPosition.pnlZoomAround.grZoomAround.ddlistZoomPoint.selection =
+    settingsObj.fixViewportPosition.zoomAround;
+
+  pnlFixViewportPosition.pnlZoomAround.enabled =
+    settingsObj.fixViewportPosition.enabled;
+};
 
 ExperimentalSettings.prototype.addStatus = function () {
   var grPluginStatus = this.element.gr.grPluginStatus;
