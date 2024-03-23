@@ -85,7 +85,7 @@ PluginSettings.prototype.fillInstallInfo = function (parentGr) {
       orientation: 'column', \
       alignChildren: ['left', 'center'], \
       txt1: StaticText { \
-        characters: 53, \
+        characters: 50, \
         properties: { multiline: true } \
       }, \
       txt2: StaticText {}, \
@@ -103,11 +103,10 @@ PluginSettings.prototype.fillInstallInfo = function (parentGr) {
   );
 
   grInstallInfo.txt1.text =
-    "1. Locate the " +
-    PLUGIN_FILE_NAME +
-    " plug-in file in the " +
+    "1. Find the plug-in file in the same archive that contains this script. It can be found at '" +
     (AE_OS == OS.WIN ? "Plug-in/Windows/" : "Plug-in/macOS/") +
-    " directory inside the same archive as this script.";
+    PLUGIN_FILE_NAME +
+    "'.";
 
   grInstallInfo.txt2.text =
     "2. Copy the plug-in file (" + PLUGIN_FILE_NAME + ") to:";
