@@ -5,9 +5,10 @@ function ExperimentalSettingsWarning(parentEl) {
   this.element = parentEl.add(
     "Panel { \
       alignChildren: 'left', \
-      spacing: 3, \
+      spacing: 1, \
       txt0: StaticText {}, \
       txt1: StaticText {}, \
+      txt2: StaticText {}, \
       btnContacts: IconButton { \
         title: 'Contacts', \
         alignment: 'right', \
@@ -16,10 +17,10 @@ function ExperimentalSettingsWarning(parentEl) {
     }",
   );
 
-  this.element.txt0.text =
-    "Please note that these settings may not work as described " +
-    "or may even cause After Effects to crash.";
+  this.element.txt0.text = "Please note that these settings are experimental.";
   this.element.txt1.text =
+    "These settings may not work as described or may even cause After Effects to crash.";
+  this.element.txt2.text =
     "If you experience such issues, please report to the author.";
 
   this.element.btnContacts.onClick = function () {

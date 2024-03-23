@@ -2,30 +2,10 @@ import create from "../../../extern/object-create";
 import zoomPlugin from "../../zoomPlugin";
 import Status from "./status";
 import { ZOOM_PLUGIN_STATUS } from "../../constants";
-import bind from "../../../extern/function-bind";
 
 function PluginStatus(parentEl) {
   Status.call(this, parentEl);
-
-  this.pluginFound = false;
-  this.pluginStatus = ZOOM_PLUGIN_STATUS.NOT_FOUND;
-
   this.setPluginStatus();
-
-  var grStatus = this.element.grStatus;
-  var txt = grStatus.gr.grText.add("StaticText {}");
-  if (this.pluginStatus in this.statusMessage) {
-    txt.text = this.statusMessage[this.pluginStatus];
-  } else {
-    txt.text = "Unknown plug-in status";
-  }
-
-  if (
-    this.pluginStatus !== ZOOM_PLUGIN_STATUS.INITIALIZED &&
-    this.pluginStatus !== ZOOM_PLUGIN_STATUS.NOT_FOUND
-  ) {
-    this.fillErrorInfo();
-  }
 }
 
 PluginStatus.prototype = create(Status.prototype);
@@ -43,14 +23,50 @@ PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.INITIALIZED] =
   "Zoom plug-in is installed";
 
 PluginStatus.prototype.setPluginStatus = function () {
-  this.pluginFound = zoomPlugin.isAvailable();
-  this.pluginStatus = zoomPlugin.status();
+  var statusChanged = this.pluginStatus !== zoomPlugin.status();
 
-  if (this.pluginFound) {
-    this.setStatusOK();
-  } else {
-    this.setStatusError();
+  if (statusChanged) {
+    this.pluginStatus = zoomPlugin.status();
+    this.pluginFound = zoomPlugin.isAvailable();
+    var grStatus = this.element.grStatus;
+
+    if (this.pluginFound) {
+      this.setStatusOK();
+    } else {
+      this.setStatusError();
+    }
+
+    /** first, remove existing info */
+    if (grStatus.gr.grText.children.length > 0) {
+      var grText = grStatus.gr.grText;
+      for (var i = grText.children.length - 1; i >= 0; i--) {
+        grText.remove(i);
+      }
+    }
+
+    if (this.element.grErrorInfo) {
+      this.element.remove(this.element.grErrorInfo);
+      this.element.grErrorInfo = undefined;
+    }
+
+    /** add new info */
+    var txt = grStatus.gr.grText.add("StaticText {}");
+
+    if (this.pluginStatus in this.statusMessage) {
+      txt.text = this.statusMessage[this.pluginStatus];
+    } else {
+      txt.text = "Unknown plug-in status";
+    }
+
+    if (
+      this.pluginStatus !== ZOOM_PLUGIN_STATUS.INITIALIZED &&
+      this.pluginStatus !== ZOOM_PLUGIN_STATUS.NOT_FOUND
+    ) {
+      this.fillErrorInfo();
+    }
   }
+
+  return statusChanged;
 };
 
 PluginStatus.prototype.fillErrorInfo = function () {
@@ -64,7 +80,6 @@ PluginStatus.prototype.fillErrorInfo = function () {
           multiline: true, \
         }, \
       }, \
-      btnReload: Button { text: 'Reload' }, \
     }",
   );
 
@@ -85,15 +100,6 @@ PluginStatus.prototype.fillErrorInfo = function () {
   } else if (zoomPlugin.status() === ZOOM_PLUGIN_STATUS.FOUND_NOT_INITIALIZED) {
     grErrorInfo.txt.text = "Try restarting After Effects.";
   }
-
-  grErrorInfo.btnReload.onClick = bind(function () {
-    if (zoomPlugin.foundEO) {
-      zoomPlugin.reload();
-
-      this.setPluginStatus();
-      this.element.layout.layout(true);
-    }
-  }, this);
 };
 
 export default PluginStatus;

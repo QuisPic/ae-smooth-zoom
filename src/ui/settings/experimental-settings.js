@@ -60,7 +60,6 @@ function ExperimentalSettings(parentEl) {
     }",
   );
 
-  // var experimentalPrefs = JSON.parse(preferences.experimental);
   var pnlDetectCursorInsideView = this.element.gr.pnlDetectCursorInsideView;
   var pnlFixViewportPosition = this.element.gr.pnlFixViewportPosition;
 
@@ -92,21 +91,9 @@ function ExperimentalSettings(parentEl) {
 
   /** Show plug-in status if plug-in is not found */
   if (zoomPlugin.status() !== ZOOM_PLUGIN_STATUS.INITIALIZED) {
-    var grPluginStatus = this.element.gr.grPluginStatus;
-    grPluginStatus.pluginStatusPanel = new PluginStatusWithButton(
-      grPluginStatus,
-    );
-
-    var grText = grPluginStatus.pluginStatusPanel.element.grStatus.gr.grText;
-    var statusText = grText.children[0].text;
-
-    grText.children[0].text = "Experimental settings are not available:";
-    grText.add("StaticText { text: '" + statusText + "' }");
-
-    pnlDetectCursorInsideView.enabled = false;
-    pnlFixViewportPosition.enabled = false;
+    this.addStatus();
   } else {
-    this.element.gr.remove(this.element.gr.grPluginStatus);
+    this.deleteStatus();
   }
 
   pnlDetectCursorInsideView.grCheck.setOnClick(bind(this.saveAll, this));
@@ -127,6 +114,48 @@ function ExperimentalSettings(parentEl) {
 
   this.element.gr.warning = new ExperimentalSettingsWarning(this.element.gr);
 }
+
+ExperimentalSettings.prototype.addStatus = function () {
+  var grPluginStatus = this.element.gr.grPluginStatus;
+  grPluginStatus.pluginStatusPanel = new PluginStatusWithButton(grPluginStatus);
+
+  var grText = grPluginStatus.pluginStatusPanel.element.grStatus.gr.grText;
+  var statusText = grText.children[0].text;
+
+  grText.children[0].text = "Experimental settings are not available:";
+  grText.add("StaticText { text: '" + statusText + "' }");
+
+  this.element.gr.pnlDetectCursorInsideView.enabled = false;
+  this.element.gr.pnlFixViewportPosition.enabled = false;
+};
+
+ExperimentalSettings.prototype.deleteStatus = function () {
+  if (this.element.gr.grPluginStatus) {
+    this.element.gr.remove(this.element.gr.grPluginStatus);
+    this.element.gr.grPluginStatus = undefined;
+  }
+};
+
+ExperimentalSettings.prototype.reloadStatus = function () {
+  if (this.element.gr.grPluginStatus) {
+    var pluginStatusPanel = this.element.gr.grPluginStatus.pluginStatusPanel;
+
+    if (pluginStatusPanel) {
+      var statusChanged = pluginStatusPanel.setPluginStatus();
+
+      if (statusChanged) {
+        if (pluginStatusPanel.pluginStatus === ZOOM_PLUGIN_STATUS.INITIALIZED) {
+          this.deleteStatus();
+          this.element.gr.pnlDetectCursorInsideView.enabled = true;
+          this.element.gr.pnlFixViewportPosition.enabled = true;
+        }
+
+        this.element.layout.layout(true);
+        this.element.layout.resize();
+      }
+    }
+  }
+};
 
 ExperimentalSettings.prototype.saveAll = function () {
   preferences.save("experimental", {

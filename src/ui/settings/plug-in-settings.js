@@ -8,9 +8,11 @@ import {
 import zoomPlugin from "../../zoomPlugin";
 import FoldingInfo from "../folding-info";
 import PluginStatus from "../status/plugin-status";
+import bind from "../../../extern/function-bind";
 
 function PluginSettings(parentEl) {
   zoomPlugin.resetStatus();
+  this.tabs = parentEl;
 
   this.element = parentEl.add(
     "tab { \
@@ -34,6 +36,34 @@ function PluginSettings(parentEl) {
 
   this.element.pluginStatusPanel = new PluginStatus(this.element);
 
+  if (
+    this.element.pluginStatusPanel.pluginStatus !== ZOOM_PLUGIN_STATUS.NOT_FOUND
+  ) {
+    this.element.grReload = this.element.add(
+      "Panel { \
+        orientation: 'row', \
+        txt: StaticText { text: 'Reload Plug-in: ' }, \
+        btnReload: IconButton { \
+          title: 'Reload', \
+          preferredSize: [100, 22], \
+        }, \
+      }",
+    );
+
+    this.element.grReload.btnReload.onClick = bind(function () {
+      if (zoomPlugin.foundEO) {
+        zoomPlugin.reload();
+
+        this.element.pluginStatusPanel.setPluginStatus();
+        this.tabs.keyBindings.reloadStatus();
+        this.tabs.experimentalSettings.reloadStatus();
+
+        this.element.layout.layout(true);
+        this.element.layout.resize();
+      }
+    }, this);
+  }
+
   /** Fill plug-in install info */
   this.element.pnlInstallPlugin = new FoldingInfo(
     this.element,
@@ -54,7 +84,10 @@ PluginSettings.prototype.fillInstallInfo = function (parentGr) {
     "Group { \
       orientation: 'column', \
       alignChildren: ['left', 'center'], \
-      txt1: StaticText {}, \
+      txt1: StaticText { \
+        characters: 53, \
+        properties: { multiline: true } \
+      }, \
       txt2: StaticText {}, \
       grPath: Group { \
         grSpace: Group { size: [6, 1] }, \
@@ -70,10 +103,11 @@ PluginSettings.prototype.fillInstallInfo = function (parentGr) {
   );
 
   grInstallInfo.txt1.text =
-    '1. Find the plug-in file at "' +
-    (AE_OS == OS.WIN ? "Plug-in/Windows/" : "Plug-in/macOS/") +
+    "1. Locate the " +
     PLUGIN_FILE_NAME +
-    '" in the same archive as this script.';
+    " plug-in file in the " +
+    (AE_OS == OS.WIN ? "Plug-in/Windows/" : "Plug-in/macOS/") +
+    " directory inside the same archive as this script.";
 
   grInstallInfo.txt2.text =
     "2. Copy the plug-in file (" + PLUGIN_FILE_NAME + ") to:";

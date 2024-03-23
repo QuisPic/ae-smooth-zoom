@@ -38,7 +38,7 @@ function SettingsWindow(zoom) {
 
   /** Draw Key Bindings tab only when it's selected because it takes too long to draw */
   tabs.onChange = function () {
-    if (this.selection && this.selection.text === "Key Bindings") {
+    if (this.selection === tabs.keyBindings.element) {
       this.keyBindings.draw();
     }
   };
