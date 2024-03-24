@@ -63,22 +63,24 @@ ZoomPlugin.searchForPlugin = function (folder) {
 };
 
 ZoomPlugin.prototype.findPlugin = function () {
-  var libPath = "lib:" + PLUGIN_FILE_NAME;
-  var extObject = ZoomPlugin.loadExternalObject(libPath);
+  if ($.global.__quis_zoom_plugin_is_loaded) {
+    var libPath = "lib:" + PLUGIN_FILE_NAME;
+    var extObject = ZoomPlugin.loadExternalObject(libPath);
 
-  /** if the plugin isn't found in the standard search folderstry
-   * try to search explicitly in the plugins folder */
-  if (!extObject) {
-    var pluginsFolder = getPluginsFolder();
+    /** if the plugin isn't found in the standard search folderstry
+     * try to search explicitly in the plugins folder */
+    if (!extObject) {
+      var pluginsFolder = getPluginsFolder();
 
-    if (pluginsFolder.exists) {
-      extObject = ZoomPlugin.searchForPlugin(pluginsFolder);
+      if (pluginsFolder.exists) {
+        extObject = ZoomPlugin.searchForPlugin(pluginsFolder);
+      }
     }
-  }
 
-  if (extObject) {
-    this.foundEO = true;
-    this.externalObject = extObject;
+    if (extObject) {
+      this.foundEO = true;
+      this.externalObject = extObject;
+    }
   }
 };
 
