@@ -177,6 +177,16 @@ ZoomPlugin.prototype.postZoomAction = function (actionType, amount) {
   return isActionPosted;
 };
 
+ZoomPlugin.prototype.getVersion = function () {
+  var result;
+  
+  if (this.externalObject.getVersion) {
+    result = this.externalObject.getVersion();
+  }
+
+  return result;
+};
+
 var zoomPlugin = new ZoomPlugin();
 
 export default zoomPlugin;

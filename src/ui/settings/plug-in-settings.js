@@ -39,18 +39,22 @@ function PluginSettings(parentEl) {
   if (
     this.element.pluginStatusPanel.pluginStatus !== ZOOM_PLUGIN_STATUS.NOT_FOUND
   ) {
-    this.element.grReload = this.element.add(
+    this.element.grMisc = this.element.add(
       "Panel { \
-        orientation: 'row', \
-        txt: StaticText { text: 'Reload Plug-in: ' }, \
-        btnReload: IconButton { \
-          title: 'Reload', \
-          preferredSize: [100, 22], \
+        alignChildren: ['left', 'top'], \
+        txtVersion: StaticText {}, \
+        grReload: Group { \
+          txt: StaticText { text: 'Reload Plug-in: ' }, \
+          btnReload: IconButton { \
+            title: 'Reload', \
+            preferredSize: [100, 22], \
+          }, \
         }, \
       }",
     );
 
-    this.element.grReload.btnReload.onClick = bind(function () {
+    this.element.grMisc.txtVersion.text = "Plug-in Version: " + (zoomPlugin.getVersion() || "unknown");
+    this.element.grMisc.grReload.btnReload.onClick = bind(function () {
       if (zoomPlugin.foundEO) {
         zoomPlugin.reload();
 
