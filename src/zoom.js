@@ -18,7 +18,7 @@ function Zoom(thisObj) {
   this.w.orientation = "row";
   this.w.alignChildren = ["left", "center"];
   this.w.spacing = 2;
-  this.w.margins = this.w instanceof Panel ? [2, 0, 2, 0] : 5;
+  this.w.margins = this.w instanceof Panel ? [2, 0, 2, 0] : [5, 5, 8, 5];
 
   this.w.onResize = function () {
     this.layout.resize();
