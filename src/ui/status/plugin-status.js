@@ -2,6 +2,7 @@ import create from "../../../extern/object-create";
 import zoomPlugin from "../../zoomPlugin";
 import Status from "./status";
 import { ZOOM_PLUGIN_STATUS } from "../../constants";
+import { getPluginsFoldersPaths } from "../../utils";
 
 function PluginStatus(parentEl) {
   Status.call(this, parentEl);
@@ -15,6 +16,8 @@ PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.NOT_FOUND] =
   "Zoom plug-in is not installed";
 PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.FOUND_NOT_INITIALIZED] =
   "Zoom plug-in is found but is not loaded by After Effects";
+PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.INITIALIZED_NOT_FOUND] =
+  "Zoom plug-in is loaded by After Effects but cannot be found by the script.";
 PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.FINISHED] =
   "Zoom plug-in stopped working";
 PluginStatus.prototype.statusMessage[ZOOM_PLUGIN_STATUS.INITIALIZATION_ERROR] =
@@ -76,6 +79,7 @@ PluginStatus.prototype.fillErrorInfo = function () {
       alignChildren: ['center', 'top'], \
       txt: StaticText { \
         alignment: 'fill', \
+        characters: 50, \
         properties: { \
           multiline: true, \
         }, \
@@ -99,6 +103,19 @@ PluginStatus.prototype.fillErrorInfo = function () {
     grErrorInfo.txt.characters = 50; // this fixes the height of the text
   } else if (zoomPlugin.status() === ZOOM_PLUGIN_STATUS.FOUND_NOT_INITIALIZED) {
     grErrorInfo.txt.text = "Try restarting After Effects.";
+  } else if (zoomPlugin.status() === ZOOM_PLUGIN_STATUS.INITIALIZED_NOT_FOUND) {
+    grErrorInfo.txt.text =
+      "Please put the plug-in in one of the following locations:";
+
+    var pluginsFoldersPaths = getPluginsFoldersPaths();
+
+    if (pluginsFoldersPaths.common) {
+      grErrorInfo.txt.text += "\n" + pluginsFoldersPaths.common;
+    }
+
+    if (pluginsFoldersPaths.individual) {
+      grErrorInfo.txt.text += "\n" + pluginsFoldersPaths.individual;
+    }
   }
 };
 

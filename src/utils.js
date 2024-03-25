@@ -64,10 +64,6 @@ export function makeDivisibleBy(val, divisor, goUp) {
   return val;
 }
 
-// export function isNaN(number) {
-//   return number != number;
-// }
-
 export function getElementLocationInWindow(element) {
   var location = [element.bounds.left, element.bounds.top];
   var parent = element.parent;
@@ -82,8 +78,48 @@ export function getElementLocationInWindow(element) {
   return location;
 }
 
-export function getPluginsFolder() {
-  var result;
+export function getPluginsFoldersPaths() {
+  /** Default values */
+  var result =
+    AE_OS === OS.WIN
+      ? {
+          common:
+            "C:\\Program Files\\Adobe\\Common\\Plug-ins\\7.0\\MediaCore\\",
+          individual:
+            "C:\\Program Files\\Adobe\\Adobe After Effects [version]\\Support Files\\Plug-ins\\",
+        }
+      : {
+          common:
+            "/Library/Application Support/Adobe/Common/Plug-ins/7.0/MediaCore/",
+          individual: "/Applications/Adobe After Effects [version]/Plug-ins/",
+        };
+
+  /** Find windows common plug-ins folder */
+  if (AE_OS === OS.WIN) {
+    try {
+      var ver = app.version;
+      ver = ver.slice(0, ver.search(/\.|x/)) + ".0";
+
+      /** query windows registry */
+      var cmdStr =
+        'reg query "HKLM\\SOFTWARE\\Adobe\\After Effects\\' +
+        ver +
+        '" /v CommonPluginInstallPath';
+      var regValue = system.callSystem(cmdStr);
+
+      /** split reg query output string to get the path to the plugins folder */
+      regValue = regValue.split(/\r?\n/)[2];
+      for (var i = 0; i < 3; i++) {
+        regValue = regValue.slice(regValue.search(/(\s\S)/) + 1);
+      }
+
+      result.common = regValue;
+    } catch (error) {
+      /**/
+    }
+  }
+
+  /** Find individual plug-ins folder */
   var packageFolder = Folder.appPackage;
 
   if (AE_OS === OS.MAC) {
@@ -93,13 +129,34 @@ export function getPluginsFolder() {
   if (packageFolder.exists) {
     var pluginsFolderArr = packageFolder.getFiles("Plug-ins");
 
-    if (pluginsFolderArr && pluginsFolderArr.length) {
-      result = pluginsFolderArr[0];
+    if (
+      pluginsFolderArr &&
+      pluginsFolderArr.length &&
+      pluginsFolderArr[0] instanceof Folder
+    ) {
+      result.individual =
+        pluginsFolderArr[0].fsName + (AE_OS === OS.WIN ? "\\" : "/");
     }
   }
 
   return result;
 }
+
+// export function getPluginsFolders() {
+//   var result = {};
+//
+//   if (commonPluginsPath) {
+//     var commonPluginsFolder = new Folder(commonPluginsPath);
+//
+//     if (commonPluginsFolder.exists) {
+//       result.common = commonPluginsFolder;
+//     }
+//   }
+//
+//   result.individual = pluginsFolderArr[0];
+//
+//   return result;
+// }
 
 export function openURL(url) {
   try {
@@ -155,16 +212,6 @@ export function saveFileFromBinaryString(binaryString, fileName) {
     return err;
   }
 }
-
-// export function indexOf(arr, el) {
-//   for (var i = 0; i < arr.length; i++) {
-//     if (arr[i] === el) {
-//       return i;
-//     }
-//   }
-//
-//   return -1;
-// }
 
 export function findIndex(arr, testFn) {
   for (var i = 0; i < arr.length; i++) {

@@ -1,4 +1,4 @@
-import { getPluginsFolder } from "../../utils";
+import { getPluginsFoldersPaths, openURL } from "../../utils";
 import {
   AE_OS,
   OS,
@@ -37,12 +37,15 @@ function PluginSettings(parentEl) {
   this.element.pluginStatusPanel = new PluginStatus(this.element);
 
   if (
-    this.element.pluginStatusPanel.pluginStatus !== ZOOM_PLUGIN_STATUS.NOT_FOUND
+    zoomPlugin.status() !== ZOOM_PLUGIN_STATUS.NOT_FOUND &&
+    zoomPlugin.status() !== ZOOM_PLUGIN_STATUS.INITIALIZED_NOT_FOUND
   ) {
     this.element.grMisc = this.element.add(
       "Panel { \
         alignChildren: ['left', 'top'], \
+        text: 'Plug-in', \
         txtVersion: StaticText {}, \
+        txtLocation: StaticText {}, \
         grReload: Group { \
           txt: StaticText { text: 'Reload Plug-in: ' }, \
           btnReload: IconButton { \
@@ -53,7 +56,10 @@ function PluginSettings(parentEl) {
       }",
     );
 
-    this.element.grMisc.txtVersion.text = "Plug-in Version: " + (zoomPlugin.getVersion() || "unknown");
+    this.element.grMisc.txtVersion.text =
+      "Version: " + (zoomPlugin.getVersion() || "unknown");
+    this.element.grMisc.txtLocation.text =
+      "Location: " + (zoomPlugin.path || "unknown");
     this.element.grMisc.grReload.btnReload.onClick = bind(function () {
       if (zoomPlugin.foundEO) {
         zoomPlugin.reload();
@@ -94,40 +100,74 @@ PluginSettings.prototype.fillInstallInfo = function (parentGr) {
       }, \
       txt2: StaticText {}, \
       grPath: Group { \
-        grSpace: Group { size: [6, 1] }, \
         alignment: 'fill', \
-        txtPath: EditText { \
-          alignment: ['fill', 'center' ], \
-          properties: { readonly: true }, \
-          text: 'After Effects Plug-ins folder', \
-        }, \
+        orientation: 'column', \
       }, \
       txt3: StaticText { text: '3. Restart After Effects.' }, \
     }",
   );
 
   grInstallInfo.txt1.text =
-    "1. Find the plug-in file in the same archive that contains this script. It can be found at '" +
+    "1. Find the plug-in file in the same archive that contains this script. The plug-in can be found at '" +
     (AE_OS == OS.WIN ? "Plug-in/Windows/" : "Plug-in/macOS/") +
     PLUGIN_FILE_NAME +
-    "'.";
+    "' inside the archive.";
 
   grInstallInfo.txt2.text =
-    "2. Copy the plug-in file (" + PLUGIN_FILE_NAME + ") to:";
+    "2. Copy the plug-in file (" +
+    PLUGIN_FILE_NAME +
+    ") in one of the following directories:";
 
   parentGr.grInstallInfo = grInstallInfo;
-  var pluginsFolder = getPluginsFolder();
 
-  if (pluginsFolder) {
-    grInstallInfo.grPath.txtPath.text =
-      pluginsFolder.fsName + (AE_OS === OS.WIN ? "\\" : "/");
-  } else if (AE_OS === OS.WIN) {
-    grInstallInfo.grPath.txtPath.text =
-      "C:/Program Files/Adobe/Adobe After Effects [version]/Support Files/Plug-ins/";
-  } else if (AE_OS === OS.MAC) {
-    grInstallInfo.grPath.txtPath.text =
-      "/Applications/Adobe After Effects [version]/Plug-ins/";
+  function addPathElement(parentEl, path, title) {
+    var grPath = parentEl.add(
+      "Group { \
+        alignment: 'fill', \
+        alignChildren: 'fill', \
+        orientation: 'column', \
+        spacing: 3, \
+        txtTitle: StaticText {}, \
+        grTextPath: Group { \
+          margins: [12, 0, 0, 0], \
+          txtPath: EditText { \
+            alignment: ['fill', 'center' ], \
+            properties: { readonly: true }, \
+            text: 'After Effects Plug-ins folder', \
+          }, \
+          btnOpen: IconButton { \
+            alignment: ['right', 'center' ], \
+            title: 'Open', \
+            preferredSize: [60, 22], \
+          }, \
+        }, \
+      }",
+    );
+
+    grPath.txtTitle.text = title;
+    grPath.grTextPath.txtPath.text = path;
+    grPath.grTextPath.btnOpen.onClick = function () {
+      var folder = new Folder(path);
+      if (folder.exists) {
+        openURL(path);
+      } else {
+        alert("Folder does not exist.");
+      }
+    };
   }
+
+  var pluginsFoldersPaths = getPluginsFoldersPaths();
+
+  addPathElement(
+    grInstallInfo.grPath,
+    pluginsFoldersPaths.common,
+    "(Recommended) For all versions of After Effects:",
+  );
+  addPathElement(
+    grInstallInfo.grPath,
+    pluginsFoldersPaths.individual,
+    "Only for this version of After Effects:",
+  );
 };
 
 export default PluginSettings;
