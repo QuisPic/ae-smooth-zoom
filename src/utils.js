@@ -142,28 +142,12 @@ export function getPluginsFoldersPaths() {
   return result;
 }
 
-// export function getPluginsFolders() {
-//   var result = {};
-//
-//   if (commonPluginsPath) {
-//     var commonPluginsFolder = new Folder(commonPluginsPath);
-//
-//     if (commonPluginsFolder.exists) {
-//       result.common = commonPluginsFolder;
-//     }
-//   }
-//
-//   result.individual = pluginsFolderArr[0];
-//
-//   return result;
-// }
-
 export function openURL(url) {
   try {
     if (checkOs() === OS.WIN) {
-      system.callSystem("explorer " + url);
+      system.callSystem("explorer '" + url + "'");
     } else {
-      system.callSystem("open " + url);
+      system.callSystem("open '" + url + "'");
     }
   } catch (error) {
     if (
@@ -173,8 +157,10 @@ export function openURL(url) {
       alert(
         "Cannot open URL. Permission denied.\n" +
           'Enable "' +
-          (AE_OS === OS.WIN ? "Edit" : "After Effects") +
-          ' > Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network."',
+          (AE_OS === OS.WIN
+            ? "Edit > Preferences"
+            : "After Effects > Settings") +
+          ' > Scripting & Expressions > Allow Scripts to Write Files and Access Network."',
       );
     } else {
       alert("Error at line " + error.line + ":\n" + error.message);

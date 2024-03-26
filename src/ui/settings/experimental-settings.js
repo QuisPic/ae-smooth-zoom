@@ -51,7 +51,7 @@ function ExperimentalSettings(parentEl) {
           alignChildren: 'left', \
           grCheck: Group {}, \
           txtDescription: StaticText { \
-            text: 'If enabled, Zoom key bindings that include mouse events will be captured only when the mouse cursor is inside a viewport. If multiple viewports are open, Zoom will target the viewport currently under the mouse cursor.', \
+            text: 'If enabled, Zoom key bindings that include mouse events will be captured only when the mouse cursor is inside a viewport.', \
             characters: 55, \
             properties: { multiline: true }, \
           },\
