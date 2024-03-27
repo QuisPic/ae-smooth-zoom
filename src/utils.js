@@ -145,7 +145,7 @@ export function getPluginsFoldersPaths() {
 export function openURL(url) {
   try {
     if (checkOs() === OS.WIN) {
-      system.callSystem("explorer '" + url + "'");
+      system.callSystem("explorer " + url);
     } else {
       system.callSystem("open '" + url + "'");
     }
