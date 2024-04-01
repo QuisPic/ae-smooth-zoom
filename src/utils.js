@@ -17,8 +17,10 @@ import {
   EVENT_MOUSE_PRESSED,
   EVENT_MOUSE_WHEEL,
   EVENT_KEY_PRESSED,
-  VC_WHEEL_UP,
-  VC_WHEEL_DOWN,
+  SCROLL_DIRECTION_UP,
+  SCROLL_DIRECTION_DOWN,
+  SCROLL_DIRECTION_LEFT,
+  SCROLL_DIRECTION_RIGHT,
   AE_OS,
   VC_LEFT_MOUSE_BUTTON,
   VC_RIGHT_MOUSE_BUTTON,
@@ -274,11 +276,17 @@ export function keysFromKeyCodes(keyCodes) {
     }
   } else if (type === EVENT_MOUSE_WHEEL) {
     switch (keycode) {
-      case VC_WHEEL_UP:
+      case SCROLL_DIRECTION_UP:
         keys.push("Scroll Up");
         break;
-      case VC_WHEEL_DOWN:
+      case SCROLL_DIRECTION_DOWN:
         keys.push("Scroll Down");
+        break;
+      case SCROLL_DIRECTION_LEFT:
+        keys.push("Scroll Left");
+        break;
+      case SCROLL_DIRECTION_RIGHT:
+        keys.push("Scroll Right");
         break;
       default:
         keys.push("Scroll [" + keycode + "]");

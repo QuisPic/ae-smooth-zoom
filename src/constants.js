@@ -119,8 +119,10 @@ export var VC_MIDDLE_MOUSE_BUTTON = 3;
 /** End Mouse Buttons */
 
 /** Begin Mouse Wheel */
-export var VC_WHEEL_UP = 1;
-export var VC_WHEEL_DOWN = 2;
+export var SCROLL_DIRECTION_UP = 1;
+export var SCROLL_DIRECTION_DOWN = 2;
+export var SCROLL_DIRECTION_LEFT = 3;
+export var SCROLL_DIRECTION_RIGHT = 4;
 /** End Mouse Wheel */
 
 /** Begin uiohook types */
