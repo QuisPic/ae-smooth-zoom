@@ -112,8 +112,15 @@ function List(parentEl) {
   }, this);
 
   this.parentGroup.grButtons.btnDelete.onClick = bind(function () {
-    this.deleteSelectedRows();
-    this.refresh();
+    var msg =
+      this.selectedRows.length > 1
+        ? "Delete selected key bindings?"
+        : "Delete this key binding?";
+    var confirmed = confirm(msg, true);
+    if (confirmed) {
+      this.deleteSelectedRows();
+      this.refresh();
+    }
   }, this);
 
   this.parentGroup.grButtons.btnMoveUp.icon = arrowUpIcon;
@@ -185,7 +192,7 @@ List.prototype.new = function () {
   if (this.editing && this.abortEditHandler) {
     this.abortEditHandler();
   }
-  
+
   for (var i = 0; i < this.rows.length; i++) {
     if (this.rows[i].editing && this.rows[i].abortEditHandler) {
       this.rows[i].abortEditHandler();
