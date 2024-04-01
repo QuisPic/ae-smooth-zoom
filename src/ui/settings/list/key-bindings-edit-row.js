@@ -3,6 +3,7 @@ import create from "../../../../extern/object-create";
 import {
   BLUE_COLOR,
   EVENT_KEY_PRESSED,
+  EVENT_KEY_RELEASED,
   EVENT_MOUSE_PRESSED,
   KB_ACTION,
   KB_ACTION_NAMES,
@@ -237,12 +238,14 @@ KeyBindingsEditRow.prototype.passFn = function (type, mask, keycode) {
     } else {
       this.element.window.close();
     }
-  } else if (type === EVENT_KEY_PRESSED && keycode === VC_ESCAPE) {
-    if (!this.keyCodes) {
-      this.element.window.close();
-    } else {
-      this.keyCombination.updateKeysWithCodes(this.keyCodes);
-      this.endKeyCapture();
+  } else if (keycode === VC_ESCAPE) {
+    if (type === EVENT_KEY_RELEASED) {
+      if (!this.keyCodes) {
+        this.element.window.close();
+      } else {
+        this.keyCombination.updateKeysWithCodes(this.keyCodes);
+        this.endKeyCapture();
+      }
     }
   } else if (!(type === EVENT_MOUSE_PRESSED && this.isMouseOverSaveBtn)) {
     this.keyCombination.updateKeysWithCodes({
