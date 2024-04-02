@@ -2,12 +2,13 @@ import Settings from "./ui/settings";
 import NumberValue from "./ui/number-value";
 import Slider from "./ui/slider";
 import ValueList from "./ui/value-list";
-import { ZOOM_LIST_VALUES, STICK_TO } from "./constants";
+import { KB_ACTION, STICK_TO } from "./constants";
 import preferences from "./preferences";
+import bind from "../extern/function-bind";
+import zoomPlugin from "./zoomPlugin";
 
 function Zoom(thisObj) {
   var currentZoom = Zoom.getViewZoom();
-  var zoomSetToFn = this.produceSetTo();
 
   this.w =
     thisObj instanceof Panel
@@ -17,7 +18,7 @@ function Zoom(thisObj) {
   this.w.orientation = "row";
   this.w.alignChildren = ["left", "center"];
   this.w.spacing = 2;
-  this.w.margins = this.w instanceof Panel ? [2, 0, 2, 0] : 5;
+  this.w.margins = this.w instanceof Panel ? [2, 0, 2, 0] : [5, 5, 8, 5];
 
   this.w.onResize = function () {
     this.layout.resize();
@@ -29,7 +30,7 @@ function Zoom(thisObj) {
     this.w,
     "%",
     currentZoom,
-    0.8,
+    1,
     undefined,
     this.produceSetTo(),
   );
@@ -41,10 +42,10 @@ function Zoom(thisObj) {
 
   this.zoomValueList = new ValueList(
     this.w,
-    ZOOM_LIST_VALUES,
-    function (val) {
-      zoomSetToFn(parseFloat(val));
-    },
+    bind(function (val) {
+      this.setTo(val);
+      this.setUiTo(val);
+    }, this),
     this.zoomNumberValue.element,
     STICK_TO.LEFT,
   );
@@ -80,7 +81,12 @@ Zoom.prototype.addSlider = function () {
 };
 
 Zoom.getViewZoom = function () {
-  return parseFloat((app.activeViewer.views[0].options.zoom * 100).toFixed(2));
+  var zoomValue = app.activeViewer.views[0].options.zoom;
+  zoomValue *= preferences.highDPI.enabled
+    ? 100 * preferences.highDPI.scale
+    : 100;
+
+  return parseFloat(zoomValue.toFixed(2));
 };
 
 Zoom.prototype.setUiTo = function (zoomValue) {
@@ -93,9 +99,21 @@ Zoom.prototype.setUiTo = function (zoomValue) {
 
 Zoom.prototype.setTo = function (zoomValue) {
   zoomValue = zoomValue < 0.8 ? 0.8 : zoomValue;
+  var isActionPosted = false;
 
-  this.setUiTo(zoomValue);
-  app.activeViewer.views[0].options.zoom = zoomValue / 100;
+  if (
+    preferences.experimental.fixViewportPosition.enabled &&
+    zoomPlugin.isAvailable()
+  ) {
+    isActionPosted = zoomPlugin.postZoomAction(KB_ACTION.SET_TO, zoomValue);
+  }
+
+  if (!isActionPosted) {
+    zoomValue /= preferences.highDPI.enabled
+      ? 100 * preferences.highDPI.scale
+      : 100;
+    app.activeViewer.views[0].options.zoom = zoomValue;
+  }
 };
 
 Zoom.prototype.syncWithView = function () {
@@ -142,6 +160,7 @@ Zoom.prototype.produceSliderOnChange = function () {
     var viewer = app.activeViewer.views[0];
 
     thisZoom.setTo(zoomValue);
+    thisZoom.setUiTo(zoomValue);
 
     // this exposure trick makes AE refresh the view panel everytime we move the slider
     if (thisZoom.origExposure !== undefined) {
@@ -178,24 +197,22 @@ Zoom.prototype.produceOnIncrement = function () {
     }
 
     thisZoom.setTo(zoomValue);
+    thisZoom.setUiTo(zoomValue);
   };
 };
 
-Zoom.prototype.showHideSlider = function () {
-  var val;
+Zoom.prototype.showHideSlider = function (val) {
+  val = val === undefined ? !preferences.showSlider : val;
+  var hasSlider = this.zoomSlider && isValid(this.zoomSlider.element);
 
-  if (this.zoomSlider && isValid(this.zoomSlider.element)) {
+  if (val && !hasSlider) {
+    this.addSlider();
+  } else if (!val && hasSlider) {
     this.zoomSlider.parentEl.remove(this.zoomSlider.element);
     this.zoomSlider.parentEl.preferredSize = [0, 0];
 
     this.w.grSlider.alignment = ["left", "center"];
     this.settings.element.alignment = ["left", "center"];
-
-    val = false;
-  } else {
-    this.addSlider();
-
-    val = true;
   }
 
   preferences.save("showSlider", val);

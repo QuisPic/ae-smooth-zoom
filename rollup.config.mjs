@@ -3,7 +3,7 @@ export default {
   output: {
     file: "dist/Zoom.jsx",
     format: "iife",
-    banner: "var thisObj = this;",
+    banner: "var __zoomThisObj = this;",
   },
-  external: ["thisObj"],
+  external: ["__zoomThisObj"],
 };

@@ -1,7 +1,8 @@
 import { OS, BLUE_COLOR, AE_OS } from "../constants";
-import { isNaN, makeDivisibleBy } from "../utils";
+import { makeDivisibleBy } from "../utils";
 import bind from "../../extern/function-bind";
 import ScreenWindow from "./screen-window";
+import FloatEditText from "./float-edit-text";
 
 function NumberValue(
   parentEl,
@@ -83,71 +84,42 @@ function NumberValue(
     }, this),
   );
 
-  grValue.addEventListener("mouseup", function (event) {
-    if (event.eventPhase === "target" && isMouseDown) {
-      isMouseDown = false;
+  grValue.addEventListener(
+    "mouseup",
+    bind(function (event) {
+      if (event.eventPhase === "target" && isMouseDown) {
+        isMouseDown = false;
 
-      var editText = thisNumberValue.element.add(
-        "EditText { \
-          active: true, \
-          alignment: 'left', \
-          text: '" +
-          txtValue.text +
-          "', \
-        }",
-      );
+        var editText = new FloatEditText(this.element, txtValue.text);
 
-      editText.size = [
-        editText.graphics.measureString("000000")[0],
-        thisNumberValue.element.size[1],
-      ];
+        editText.setSize([
+          editText.element.graphics.measureString("000000")[0],
+          thisNumberValue.element.size[1],
+        ]);
 
-      editText.onChange = function () {
-        var newValue = parseFloat(this.text);
+        editText.setOnChangeFn(
+          bind(function (txt) {
+            var newValue = parseFloat(txt);
 
-        if (!isNaN(newValue) && typeof onChangeFn === "function") {
-          onChangeFn(newValue);
-        }
-      };
-
-      editText.addEventListener("blur", function (event) {
-        if (event.eventPhase === "target") {
-          var newValue = parseFloat(this.text);
-
-          if (!isNaN(newValue)) {
-            thisNumberValue.setValue(newValue);
-            thisNumberValue.onChange();
-          }
-
-          thisNumberValue.element.remove(this);
-          grValue.show();
-        }
-      });
-
-      editText.addEventListener("keydown", function (event) {
-        if (event.eventPhase === "target") {
-          if (event.keyName === "Up") {
-            event.preventDefault();
-            var val = parseFloat(this.text);
-
-            if (!isNaN(val)) {
-              this.text = val + 1;
+            if (!isNaN(newValue)) {
+              this.setValue(newValue);
+              this.onChange();
+              onScrubEndFn();
             }
-          } else if (event.keyName === "Down") {
-            event.preventDefault();
-            val = parseFloat(this.text);
+          }, this),
+        );
 
-            if (!isNaN(val)) {
-              this.text = val - 1;
-            }
-          }
-        }
-      });
+        editText.setOnBlurFn(
+          bind(function () {
+            grValue.show();
+          }, this),
+        );
 
-      grValue.hide();
-      this.parent.layout.layout(true);
-    }
-  });
+        grValue.hide();
+        this.element.layout.layout(true);
+      }
+    }, this),
+  );
 
   grValue.addEventListener(
     "mousemove",

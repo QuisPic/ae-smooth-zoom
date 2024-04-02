@@ -1,36 +1,34 @@
-import KeyBindingsWindow from "./ui/key-bindings/key-bindings-window";
-import KeyCapture from "./ui/key-bindings/key-capture";
-import zoomPlugin from "./zoomPlugin";
-
 function ZoomWindows() {
-  this.zoom = undefined;
-  this.keyBindings = undefined;
-  this.keyCapture = undefined;
+  this.windows = [];
 }
 
-function closeWindowIfOpen(uiObj) {
-  if (uiObj && uiObj.element && isValid(uiObj.element)) {
+ZoomWindows.prototype.close = function (uiObj) {
+  if (typeof uiObj === "object" && uiObj.element && isValid(uiObj.element)) {
     uiObj.element.close();
   }
-}
-
-ZoomWindows.prototype.newKeyBindingsWindow = function () {
-  closeWindowIfOpen(this.keyBindings);
-  closeWindowIfOpen(this.keyCapture);
-
-  this.keyBindings = new KeyBindingsWindow();
 };
 
-ZoomWindows.prototype.newKeyCaptureWindow = function (onEnterKeyFn) {
-  closeWindowIfOpen(this.keyCapture);
-
-  if (zoomPlugin.isAvailable()) {
-    this.keyCapture = new KeyCapture(onEnterKeyFn);
+ZoomWindows.prototype.new = function (win) {
+  var winObj;
+  if (typeof win === "function") {
+    winObj = new win();
+  } else if (typeof win === "object") {
+    winObj = win;
   } else {
-    alert(
-      "Zoom plug-in is not found.\nPlease install Zoom plug-in to use key bindings.",
-    );
+    alert("Zoom error:\nCannot create new window of type " + typeof win);
+    return;
   }
+
+  /** close all windows of the same type */
+  for (var i = 0; i < this.windows.length; i++) {
+    if (this.windows[i].__proto__ === winObj.__proto__) {
+      this.close(this.windows[i]);
+    }
+  }
+
+  this.windows.push(winObj);
+
+  return winObj;
 };
 
 var windows = new ZoomWindows();

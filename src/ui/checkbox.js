@@ -1,24 +1,28 @@
-function Checkbox(zoom, parentEl, initVal, onClickFn) {
-  var thisCheckbox = this;
+function Checkbox(parentEl, txt, containerGroup) {
+  if (containerGroup) {
+    containerGroup.spacing = 2;
+  } else {
+    containerGroup = parentEl.add("Group { spacing: 2 }");
+  }
 
-  this.element = parentEl.add(
-    "Group { \
-      margins: [6, 0, 0, 0], \
-      check: Checkbox { \
-        alignment: ['left', 'bottom'], \
-        preferredSize: [-1, 14], \
-      }, \
-    }",
-  );
+  this.element = containerGroup;
+  this.element.check = this.element.add("Checkbox { preferredSize: [-1, 14] }");
+  this.element.txt = this.element.add("StaticText { text: '" + txt + "' }");
 
-  this.element.check.value = initVal;
-  this.element.check.onClick = onClickFn;
-
-  parentEl.addEventListener("click", function (event) {
+  /** Make clicks on the text next to a check act as click on the check */
+  this.element.addEventListener("click", function (event) {
     if (event.eventPhase === "target") {
-      thisCheckbox.element.check.notify();
+      this.check.notify();
     }
   });
 }
+
+Checkbox.prototype.setValue = function (value) {
+  this.element.check.value = value;
+};
+
+Checkbox.prototype.setOnClick = function (fn) {
+  this.element.check.onClick = fn;
+};
 
 export default Checkbox;

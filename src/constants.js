@@ -1,3 +1,4 @@
+export var VERSION = "0.3.0";
 export var OS = { WIN: 0, MAC: 1 };
 export var AE_OS = $.os.indexOf("Win") !== -1 ? OS.WIN : OS.MAC;
 export var PLUGIN_FILE_NAME = AE_OS === OS.WIN ? "Zoom.aex" : "Zoom.plugin";
@@ -6,40 +7,107 @@ export var BLUE_COLOR = [0.06, 0.52, 0.94, 1];
 export var ZOOM_STEP_ON_BTN_CLICK = 1;
 export var STICK_TO = { LEFT: 0, RIGHT: 1 };
 
-export var ZOOM_LIST_VALUES = [
-  "1.5%",
-  "3.1%",
-  "6.25%",
-  "12.5%",
-  "25%",
-  "33.3%",
-  "50%",
-  "100%",
-  "200%",
-  "400%",
-  "800%",
-  "1600%",
-  "3200%",
-  "6400%",
-];
-
 export var ZOOM_PLUGIN_STATUS = {
   INITIALIZATION_ERROR: 0,
   INITIALIZED: 1,
   FINISHED: 2,
   NOT_FOUND: 3,
   FOUND_NOT_INITIALIZED: 4,
+  INITIALIZED_NOT_FOUND: 5,
 };
 
+export var UI_STATUS = {
+  ERROR: 0,
+  OK: 1,
+};
+
+export var KB_ACTION = {
+  CHANGE: 0,
+  DECREMENT: 1, // deprecated
+  SET_TO: 2,
+};
+
+/** Change is written 2 times because old versions of this setting had 3 options
+ * and first two were Increment/Decrement */
+export var KB_ACTION_NAMES = {};
+KB_ACTION_NAMES[KB_ACTION.CHANGE] = "Change:";
+KB_ACTION_NAMES[KB_ACTION.DECREMENT] = "Change:";
+KB_ACTION_NAMES[KB_ACTION.SET_TO] = "Set to:";
+
 export var DEFAULT_SETTINGS = {
+  version: VERSION,
   keyBindings:
     AE_OS === OS.WIN
-      ? '[{"enabled":true,"keyCodes":{"type":11,"mask":34,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":34,"keycode":2},"action":1,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":34,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":34,"keycode":45},"action":1,"amount":1}]'
-      : '[{"enabled":true,"keyCodes":{"type":11,"mask":68,"keycode":1},"action":0,"amount":1},{"enabled":true,"keyCodes":{"type":11,"mask":68,"keycode":2},"action":1,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":68,"keycode":61},"action":0,"amount":1},{"enabled":false,"keyCodes":{"type":4,"mask":68,"keycode":45},"action":1,"amount":1}]',
+      ? [
+          {
+            enabled: true,
+            keyCodes: { type: 11, mask: 34, keycode: 1 },
+            action: KB_ACTION.CHANGE,
+            amount: 1,
+          },
+          {
+            enabled: true,
+            keyCodes: { type: 11, mask: 34, keycode: 2 },
+            action: KB_ACTION.CHANGE,
+            amount: -1,
+          },
+          {
+            enabled: false,
+            keyCodes: { type: 4, mask: 34, keycode: 61 },
+            action: KB_ACTION.CHANGE,
+            amount: 1,
+          },
+          {
+            enabled: false,
+            keyCodes: { type: 4, mask: 34, keycode: 45 },
+            action: KB_ACTION.CHANGE,
+            amount: -1,
+          },
+        ]
+      : [
+          {
+            enabled: true,
+            keyCodes: { type: 11, mask: 68, keycode: 1 },
+            action: KB_ACTION.CHANGE,
+            amount: 1,
+          },
+          {
+            enabled: true,
+            keyCodes: { type: 11, mask: 68, keycode: 2 },
+            action: KB_ACTION.CHANGE,
+            amount: -1,
+          },
+          {
+            enabled: false,
+            keyCodes: { type: 4, mask: 68, keycode: 61 },
+            action: KB_ACTION.CHANGE,
+            amount: 1,
+          },
+          {
+            enabled: false,
+            keyCodes: { type: 4, mask: 68, keycode: 45 },
+            action: KB_ACTION.CHANGE,
+            amount: -1,
+          },
+        ],
   syncWithView: true,
+  highDPI: {
+    enabled: false,
+    scale: 2,
+  },
   showSlider: true,
   sliderMin: 1,
   sliderMax: 400,
+  presetValues: [
+    1.5, 3.1, 6.25, 12.5, 25, 33.3, 50, 100, 200, 400, 800, 1600, 3200, 6400,
+  ],
+  experimental: {
+    detectCursorInsideView: false,
+    fixViewportPosition: {
+      enabled: false,
+      zoomAround: 0,
+    },
+  },
 };
 
 export var TABLE_SIZES = [20, 25, 250, 100, 50, 30];
@@ -51,8 +119,10 @@ export var VC_MIDDLE_MOUSE_BUTTON = 3;
 /** End Mouse Buttons */
 
 /** Begin Mouse Wheel */
-export var VC_WHEEL_UP = 1;
-export var VC_WHEEL_DOWN = 2;
+export var SCROLL_DIRECTION_UP = 1;
+export var SCROLL_DIRECTION_DOWN = 2;
+export var SCROLL_DIRECTION_LEFT = 3;
+export var SCROLL_DIRECTION_RIGHT = 4;
 /** End Mouse Wheel */
 
 /** Begin uiohook types */

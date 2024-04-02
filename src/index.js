@@ -1,6 +1,6 @@
 import Zoom from "./zoom";
 
-var zoom = new Zoom(thisObj);
+var zoom = new Zoom(__zoomThisObj);
 
 if (zoom.w instanceof Panel) {
   zoom.w.layout.layout(true);
