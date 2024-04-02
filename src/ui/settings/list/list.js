@@ -114,8 +114,8 @@ function List(parentEl) {
   this.parentGroup.grButtons.btnDelete.onClick = bind(function () {
     var msg =
       this.selectedRows.length > 1
-        ? "Delete selected key bindings?"
-        : "Delete this key binding?";
+        ? "Delete selected items?"
+        : "Delete this item?";
     var confirmed = confirm(msg, true);
     if (confirmed) {
       this.deleteSelectedRows();
