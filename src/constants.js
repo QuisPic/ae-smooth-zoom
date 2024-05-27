@@ -1,4 +1,4 @@
-export var VERSION = "0.3.0";
+export var VERSION = "0.3.0.1";
 export var OS = { WIN: 0, MAC: 1 };
 export var AE_OS = $.os.indexOf("Win") !== -1 ? OS.WIN : OS.MAC;
 export var PLUGIN_FILE_NAME = AE_OS === OS.WIN ? "Zoom.aex" : "Zoom.plugin";
