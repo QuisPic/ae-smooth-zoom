@@ -8,7 +8,7 @@ import bind from "../extern/function-bind";
 import zoomPlugin from "./zoomPlugin";
 
 function Zoom(thisObj) {
-  var currentZoom = Zoom.getViewZoom();
+  var currentZoom = this.getViewZoom() || 100;
 
   this.w =
     thisObj instanceof Panel
@@ -57,6 +57,17 @@ function Zoom(thisObj) {
   }
 }
 
+Zoom.prototype.getActiveViewer = function () {
+  if (app.activeViewer) {
+    this.lastActiveViewer = app.activeViewer;
+    return app.activeViewer;
+  } else if (this.lastActiveViewer) {
+    return this.lastActiveViewer;
+  } else {
+    return;
+  }
+};
+
 Zoom.prototype.addSlider = function () {
   this.zoomSlider = new Slider(
     this,
@@ -80,8 +91,14 @@ Zoom.prototype.addSlider = function () {
   this.settings.element.alignment = ["right", "center"];
 };
 
-Zoom.getViewZoom = function () {
-  var zoomValue = app.activeViewer.views[0].options.zoom;
+Zoom.prototype.getViewZoom = function () {
+  var viewer = this.getActiveViewer();
+
+  if (!viewer) {
+    return undefined;
+  }
+
+  var zoomValue = viewer.views[0].options.zoom;
   zoomValue *= preferences.highDPI.enabled
     ? 100 * preferences.highDPI.scale
     : 100;
@@ -99,6 +116,7 @@ Zoom.prototype.setUiTo = function (zoomValue) {
 
 Zoom.prototype.setTo = function (zoomValue) {
   zoomValue = zoomValue < 0.8 ? 0.8 : zoomValue;
+  var viewer = this.getActiveViewer();
   var isActionPosted = false;
 
   if (
@@ -108,18 +126,21 @@ Zoom.prototype.setTo = function (zoomValue) {
     isActionPosted = zoomPlugin.postZoomAction(KB_ACTION.SET_TO, zoomValue);
   }
 
-  if (!isActionPosted) {
+  if (!isActionPosted && viewer) {
     zoomValue /= preferences.highDPI.enabled
       ? 100 * preferences.highDPI.scale
       : 100;
-    app.activeViewer.views[0].options.zoom = zoomValue;
+    viewer.views[0].options.zoom = zoomValue;
   }
 };
 
 Zoom.prototype.syncWithView = function () {
-  var viewZoomValue = Zoom.getViewZoom();
+  var viewZoomValue = this.getViewZoom();
 
-  if (viewZoomValue !== this.zoomNumberValue.getValue()) {
+  if (
+    viewZoomValue !== undefined &&
+    viewZoomValue !== this.zoomNumberValue.getValue()
+  ) {
     this.setUiTo(viewZoomValue);
   }
 };
@@ -147,9 +168,9 @@ Zoom.prototype.produceSliderOnScrubStart = function () {
   var thisZoom = this;
 
   return function () {
-    var viewer = app.activeViewer.views[0];
+    var viewer = thisZoom.getActiveViewer();
 
-    thisZoom.origExposure = viewer.options.exposure;
+    thisZoom.origExposure = viewer ? viewer.views[0].options.exposure : 0;
   };
 };
 
@@ -157,15 +178,16 @@ Zoom.prototype.produceSliderOnChange = function () {
   var thisZoom = this;
 
   return function (zoomValue) {
-    var viewer = app.activeViewer.views[0];
+    var viewer = thisZoom.getActiveViewer();
+    var view = viewer ? viewer.views[0] : undefined;
 
     thisZoom.setTo(zoomValue);
     thisZoom.setUiTo(zoomValue);
 
     // this exposure trick makes AE refresh the view panel everytime we move the slider
-    if (thisZoom.origExposure !== undefined) {
-      viewer.options.exposure =
-        viewer.options.exposure === thisZoom.origExposure
+    if (thisZoom.origExposure !== undefined && viewer) {
+      view.options.exposure =
+        view.options.exposure === thisZoom.origExposure
           ? thisZoom.origExposure + 0.01
           : thisZoom.origExposure;
     }
@@ -176,12 +198,14 @@ Zoom.prototype.produceSliderOnScrubEnd = function () {
   var thisZoom = this;
 
   return function () {
-    var viewer = app.activeViewer.views[0];
+    var viewer = thisZoom.getActiveViewer();
+    var view = viewer ? viewer.views[0] : undefined;
 
-    if (thisZoom.origExposure !== undefined) {
-      viewer.options.exposure = thisZoom.origExposure;
-      thisZoom.origExposure = undefined;
+    if (thisZoom.origExposure !== undefined && view) {
+      view.options.exposure = thisZoom.origExposure;
     }
+
+    thisZoom.origExposure = undefined;
   };
 };
 
@@ -190,7 +214,7 @@ Zoom.prototype.produceOnIncrement = function () {
 
   return function (zoomValue) {
     var currValue = thisZoom.zoomNumberValue.getValue();
-    var viewValue = Zoom.getViewZoom();
+    var viewValue = thisZoom.getViewZoom() || currValue;
 
     if (preferences.syncWithView && currValue !== viewValue) {
       zoomValue = viewValue + (zoomValue - currValue);
