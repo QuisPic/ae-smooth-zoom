@@ -151,6 +151,7 @@ Zoom.prototype.produceSetTo = function () {
 
   return function (zoomValue) {
     thisZoom.setTo(zoomValue);
+    thisZoom.setUiTo(zoomValue);
   };
 };
 
