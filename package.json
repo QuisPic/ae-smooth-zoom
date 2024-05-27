@@ -1,11 +1,11 @@
 {
-  "name": "ae-smooth-zoom",
-  "packageManager": "yarn@4.1.0",
+  "name": "smooth-zoom",
+  "packageManager": "yarn@4.2.2",
   "devDependencies": {
-    "eslint": "^8.56.0",
+    "eslint": "8.57.0",
     "eslint-config-aftereffects": "^1.1.0",
-    "eslint-config-prettier": "^8.8.0",
-    "rollup": "^3.25.1"
+    "eslint-config-prettier": "^9.1.0",
+    "rollup": "^4.18.0"
   },
   "scripts": {
     "build": "rollup --config"
