@@ -72,11 +72,14 @@ ZoomPlugin.prototype.findPlugin = function () {
       (AE_OS === OS.WIN ? "\\" : "/") +
       PLUGIN_FILE_NAME,
   );
-  this.loadPlugin(
-    pluginsFoldersPaths.common.fsName +
-      (AE_OS === OS.WIN ? "\\" : "/") +
-      PLUGIN_FILE_NAME,
-  );
+
+  if (!this.foundEO) {
+    this.loadPlugin(
+      pluginsFoldersPaths.individual.fsName +
+        (AE_OS === OS.WIN ? "\\" : "/") +
+        PLUGIN_FILE_NAME,
+    );
+  }
 
   /** if the plugin isn't found in the default folders
    * try to search explicitly in the plugins folders */
